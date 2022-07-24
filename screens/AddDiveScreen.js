@@ -1,9 +1,25 @@
 import { ActivityIndicator, Image, StyleSheet, SafeAreaView, ScrollView, Switch, Text, TextInput, View  } from 'react-native'
 import { Cell, Section, TableView } from 'react-native-tableview-simple';
+import { useNavigation } from '@react-navigation/native'
 import React from 'react'
 
 const AddDiveScreen = () => {
 
+    const navigation = useNavigation()
+    
+    const cancelAddDive = () => {
+        navigation.navigate('Home')
+      }
+
+    React.useLayoutEffect(() => {
+        navigation.setOptions({
+            headerLeft: () => (
+              <Text 
+                onPress={cancelAddDive}
+                style={styles.plusButtonText}>Cancel</Text>
+            ),
+        })
+    }, [navigation])
 
   return (
     <SafeAreaView>
@@ -110,5 +126,7 @@ const AddDiveScreen = () => {
 export default AddDiveScreen
 
 const styles = StyleSheet.create({
-
+    plusButtonText: {
+        color: '#00b5ec',
+    },
 })
