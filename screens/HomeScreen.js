@@ -1,7 +1,9 @@
 import { useNavigation } from '@react-navigation/native'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
+import Icon from 'react-native-ico-material-design';
 import { auth } from '../firebase'
+import { NavigationBar } from '../components/navigationBar.js'
  
  const HomeScreen = () => {
 
@@ -27,7 +29,7 @@ import { auth } from '../firebase'
                 onPress={goToAddDive}
                 style={styles.headerButton}
               >
-              <Text style={styles.plusButtonText}>+</Text>
+              <Icon name="add-plus-button" height='20' width='20' color="#00b5ec" />
             </TouchableOpacity>
             ),
         })
@@ -42,7 +44,9 @@ import { auth } from '../firebase'
        >
             <Text style={styles.buttonText}>Logout</Text>
         </TouchableOpacity>
+        <NavigationBar navigation={navigation} />
      </View>
+     
    )
  }
  
@@ -71,16 +75,7 @@ import { auth } from '../firebase'
         borderWidth: 2,
         borderColor: "#00b5ec",
         borderRadius: 30,
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingLeft: 6,
-        paddingRight: 6,
-        paddingBottom: 3,
-        
+        padding: 6,
       },
-      plusButtonText: {
-        color: '#00b5ec',
-        fontWeight: '700',
-        fontSize: 24,
-    },
+      
  })
