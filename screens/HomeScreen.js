@@ -16,6 +16,23 @@ import { auth } from '../firebase'
         .catch(error => alert(error.message))
     }
 
+    const goToAddDive = () => {
+        navigation.navigate('Add Dive')
+      }
+
+    React.useLayoutEffect(() => {
+        navigation.setOptions({
+            headerLeft: () => (
+            <TouchableOpacity
+                onPress={goToAddDive}
+                style={styles.headerButton}
+              >
+              <Text style={styles.plusButtonText}>+</Text>
+            </TouchableOpacity>
+            ),
+        })
+    }, [navigation])
+
    return (
      <View style={styles.container}>
        <Text>Email: {auth.currentUser?.email}</Text>
@@ -49,5 +66,21 @@ import { auth } from '../firebase'
         color: 'white',
         fontWeight: '700',
         fontSize: 18,
+    },
+    headerButton: {
+        borderWidth: 2,
+        borderColor: "#00b5ec",
+        borderRadius: 30,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingLeft: 6,
+        paddingRight: 6,
+        paddingBottom: 3,
+        
+      },
+      plusButtonText: {
+        color: '#00b5ec',
+        fontWeight: '700',
+        fontSize: 24,
     },
  })
