@@ -1,0 +1,19 @@
+{
+	"navigation":[
+		{
+			"title":"Home",
+			"icon":"home-button",
+            "page":"Home"
+		},
+		{
+			"title":"Explore",
+			"icon":"map-symbol",
+            "page":"Explore"
+		},
+		{
+			"title":"Profile",
+			"icon":"user-shape",
+            "page":"Profile"
+		}
+	]
+}
