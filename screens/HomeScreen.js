@@ -3,7 +3,8 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
 import Icon from 'react-native-ico-material-design';
 import { auth } from '../firebase'
-import { NavigationBar } from '../components/navigationBar.js'
+// import { NavigationBar } from '../components/navigationBar.js'
+// import { MyTabs } from '../components/tabNavigator.js'
  
  const HomeScreen = () => {
 
@@ -44,7 +45,7 @@ import { NavigationBar } from '../components/navigationBar.js'
        >
             <Text style={styles.buttonText}>Logout</Text>
         </TouchableOpacity>
-        <NavigationBar navigation={navigation} />
+        {/* <NavigationBar navigation={navigation} /> */}
      </View>
      
    )
