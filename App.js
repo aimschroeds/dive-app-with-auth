@@ -8,7 +8,7 @@ import HomeScreen from './screens/HomeScreen';
 import AddDiveScreen from './screens/AddDiveScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import ExploreScreen from './screens/ExploreScreen';
-
+import FindFriendsScreen from './screens/FindFriendsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -22,6 +22,7 @@ export default function App() {
         <Stack.Screen name="Add Dive" component={AddDiveScreen} />
         <Stack.Screen name="Profile" component={ProfileScreen} />
         <Stack.Screen name="Explore" component={ExploreScreen} />
+        <Stack.Screen name="Find Friends" component={FindFriendsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
