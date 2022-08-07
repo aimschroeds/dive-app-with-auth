@@ -1,18 +1,35 @@
 {
 	"navigation":[
 		{
+			"id": 1,
 			"title":"Home",
 			"icon":"home-button",
             "page":"Home"
 		},
 		{
+			"id": 2,
 			"title":"Explore",
 			"icon":"map-symbol",
             "page":"Explore"
 		},
 		{
+			"id": 3,
+			"title":"Add Dive",
+			"icon":"add-plus-button",
+            "page":"Add Dive"
+		}
+		,
+		{
+			"id": 4,
+			"title":"Friends",
+			"icon":"users-social-symbol",
+            "page":"Find Friends"
+		}
+		,
+		{
+			"id": 5,
 			"title":"Profile",
-			"icon":"user-shape",
+			"icon":"round-account-button-with-user-inside",
             "page":"Profile"
 		}
 	]
