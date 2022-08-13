@@ -1,14 +1,14 @@
-import { ActivityIndicator, Image, KeyboardAvoidingView, Modal, Pressable, StyleSheet, SafeAreaView, ScrollView, Switch, Text, TextInput, View  } from 'react-native'
+import { ActivityIndicator, Image, KeyboardAvoidingView, Modal, Pressable, StyleSheet, SafeAreaView, ScrollView, Switch, Text, TextInput, View, TouchableOpacity  } from 'react-native'
 import { Cell, Section, TableView } from 'react-native-tableview-simple';
 import { useNavigation } from '@react-navigation/native'
 import React, { useState } from 'react';
-import { firebase, db, auth } from '../firebase';
+import { db, auth } from '../firebase';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import SearchDiveMaster from '../components/SearchDiveMaster';
 import DiveMasterSelection from '../modals/DiveMasterSelection';
 import AppStyles from '../styles/AppStyles';
 import { collection, addDoc, query, where, getDocs, deleteDoc, doc, setDoc } from "firebase/firestore"; 
-import App from '../App';
+
 
 const AddDiveScreen = () => {
 
@@ -34,8 +34,12 @@ const AddDiveScreen = () => {
     const [diveRegion, setDiveRegion] = useState('');
     const [diveStart, setDiveStart] = useState(new Date());
     const [diveEnd, setDiveEnd] = useState(new Date());
-    const [diveCenter, setDiveCenter] = useState('Dive Center');
+    const [diveCenter, setDiveCenter] = useState(null);
     const [diveMaster, setDiveMaster] = useState(null);
+    const [surfaceInterval, setSurfaceInterval] = useState('');
+    const [startPressure, setStartPressure] = useState('');
+    const [endPressure, setEndPressure] = useState('');
+    const [maxDepth, setMaxDepth] = useState('');
     const [diveCenterSearchModalVisible, setDiveCenterSearchModalVisible] = useState(false);
     const [diveMasterSearchModalVisible, setDiveMasterSearchModalVisible] = useState(false);
     
@@ -49,10 +53,32 @@ const AddDiveScreen = () => {
       const currentSelectedDate = selectedDate;
       setDiveEnd(currentSelectedDate);
     };
+    
+    let addDive = async () => {
+      let dive = {
+        diveSite: diveSite,
+        diveRegion: diveRegion,
+        diveStart: diveStart,
+        diveEnd: diveEnd,
+        diveCenter: diveCenter,
+        diveMaster: diveMaster,
+        surfaceInterval: surfaceInterval,
+        startPressure: startPressure,
+        endPressure: endPressure,
+        maxDepth: maxDepth,
+        userId: auth.currentUser.uid,
+        createdAt: new Date(),
+      }
+      const docRef = await setDoc(collection(db, "dives"), dive).then((docRef) => {console.log(docRef)})
+      .catch((error) => {console.log(error)});
+      console.log(docRef);
+    };
 
   return (
     <SafeAreaView style={{backgroundColor: 'white'}}>
         <ScrollView style={{height:"100%",  marginHorizontal: 20}}>
+        <Text>Email: {auth.currentUser?.email}</Text>
+        <Text>UUID: {auth.currentUser?.uid}</Text>
           <View style={AppStyles.container}>
             <TextInput
               style={styles.textInput}
@@ -91,7 +117,11 @@ const AddDiveScreen = () => {
               {/* First row: Surface Interval */}
               <View style={[styles.diverProfileBodyRow, styles.leftAlignedRow]}>
                 <Text style={styles.diverProfileBodyText}>Surface Interval: </Text>
-                <TextInput style={styles.diverProfileBodyInput} />
+                <TextInput 
+                  style={styles.diverProfileBodyInput} 
+                  onChangeText={setSurfaceInterval}
+                  value={surfaceInterval}
+                />
                 <Text style={styles.diverProfileBodyMeasure}>minutes</Text>
               </View>
 
@@ -102,7 +132,12 @@ const AddDiveScreen = () => {
                   {/* Start pressure */}
                   <View style={[styles.diverProfileBodyRow]}>
                     <Text style={styles.diverProfileBodyText}>Start: </Text>
-                    <TextInput style={styles.diverProfileBodyInput} />
+                    <TextInput 
+                      style={styles.diverProfileBodyInput} 
+                      onChangeText={setStartPressure}
+                      value={startPressure}
+                      placeholder="200"
+                    />
                     <Text style={styles.diverProfileBodyMeasure}>bar</Text>
                   </View>
                 </View>
@@ -115,7 +150,12 @@ const AddDiveScreen = () => {
                   {/* End pressure */}
                   <View style={[styles.diverProfileBodyRow]}>
                     <Text style={styles.diverProfileBodyText}>End: </Text>
-                    <TextInput style={styles.diverProfileBodyInput} />
+                    <TextInput 
+                      style={styles.diverProfileBodyInput} 
+                      onChangeText={setEndPressure}
+                      value={endPressure}
+                      placeholder="50"
+                    />
                     <Text style={styles.diverProfileBodyMeasure}>bar</Text>
                   </View>
         
@@ -129,7 +169,12 @@ const AddDiveScreen = () => {
                 </View>
                 <View style={[styles.diverProfileBodyRow, styles.centerAlignedRow]}>
                     <Text style={styles.diverProfileBodyText}>Depth: </Text>
-                    <TextInput style={styles.diverProfileBodyInput} />
+                    <TextInput 
+                      style={styles.diverProfileBodyInput} 
+                      onChangeText={setMaxDepth}
+                      value={maxDepth}
+                      placeholder="0"
+                    />
                     <Text style={styles.diverProfileBodyMeasure}>m</Text>
                 </View>
               </View>
@@ -239,13 +284,15 @@ const AddDiveScreen = () => {
             onRequestClose={() => {
               setDiveMasterSearchModalVisible(!diveMasterSearchModalVisible);
             }}>
-            
           <DiveMasterSelection 
             onClose={() => setDiveMasterSearchModalVisible(false)}
             onSelect={(diveMaster) => {setDiveMaster(diveMaster)}}
           />
           </Modal>
         </View>
+        <TouchableOpacity style={AppStyles.button} onPress={addDive}>
+          <Text style={AppStyles.buttonText}>Log Dive</Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
     
