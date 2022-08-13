@@ -7,7 +7,7 @@ import AddDiveScreen from '../screens/AddDiveScreen';
 import ExploreScreen from '../screens/ExploreScreen';
 import FindFriendsScreen from '../screens/FindFriendsScreen';
 import Icon from 'react-native-ico-material-design';
-import UserStackScreen from '../screens/UserStackScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -60,8 +60,8 @@ function CoreTabs() {
           }}
       />  
       <Tab.Screen
-          name="User"
-          component={UserStackScreen}
+          name="Profile"
+          component={ProfileScreen}
           options={{
               tabBarLabel: 'Profile',
               tabBarIcon: ({ color, size }) => (
