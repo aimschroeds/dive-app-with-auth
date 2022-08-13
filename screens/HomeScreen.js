@@ -14,13 +14,13 @@ import { auth } from '../firebase'
         auth
         .signOut()
         .then(() => {
-            navigation.replace('Login')
+            navigation.navigate('User', { screen: 'Login' })
         })
         .catch(error => alert(error.message))
     }
 
     const goToAddDive = () => {
-        navigation.navigate('Add Dive')
+        navigation.jumpTo('Add Dive')
       }
 
     React.useLayoutEffect(() => {
