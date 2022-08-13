@@ -2,9 +2,13 @@ import { ActivityIndicator, Image, KeyboardAvoidingView, Modal, Pressable, Style
 import { Cell, Section, TableView } from 'react-native-tableview-simple';
 import { useNavigation } from '@react-navigation/native'
 import React, { useState } from 'react';
-import { firebase } from '../firebase';
+import { firebase, db, auth } from '../firebase';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import SearchDiveCenter from '../components/SearchDiveCenter';
+import SearchDiveMaster from '../components/SearchDiveMaster';
+import DiveMasterSelection from '../modals/DiveMasterSelection';
+import AppStyles from '../styles/AppStyles';
+import { collection, addDoc, query, where, getDocs, deleteDoc, doc, setDoc } from "firebase/firestore"; 
+import App from '../App';
 
 const AddDiveScreen = () => {
 
@@ -25,7 +29,7 @@ const AddDiveScreen = () => {
     }, [navigation])
 
     const [dives, setDives] = useState([]);
-    const diveRef = firebase.firestore().collection('dives');
+    // const diveRef = firebase.firestore().collection('dives');
     const [diveSite, setDiveSite] = useState('');
     const [diveRegion, setDiveRegion] = useState('');
     const [diveStart, setDiveStart] = useState(new Date());
@@ -49,7 +53,7 @@ const AddDiveScreen = () => {
   return (
     <SafeAreaView style={{backgroundColor: 'white'}}>
         <ScrollView style={{height:"100%",  marginHorizontal: 20}}>
-          <View style={styles.container}>
+          <View style={AppStyles.container}>
             <TextInput
               style={styles.textInput}
               onChangeText={setDiveSite}
@@ -189,7 +193,7 @@ const AddDiveScreen = () => {
             </Section>
           </TableView>
           
-          <View style={styles.centeredView}>
+          <View style={AppStyles.centeredView}>
           <Modal
             animationType="slide"
             // transparent={true}
@@ -198,7 +202,7 @@ const AddDiveScreen = () => {
             onRequestClose={() => {
               setDiveCenterSearchModalVisible(!diveCenterSearchModalVisible);
             }}>
-            <View style={styles.centeredView}>
+            <View style={AppStyles.centeredView}>
               <KeyboardAvoidingView
                 style={{ flex: 1 }}
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -209,20 +213,20 @@ const AddDiveScreen = () => {
                   keyboardShouldPersistTaps="handled"
                   contentInsetAdjustmentBehavior="automatic"
                   contentContainerStyle={{ paddingBottom: 200 }}
-                  style={styles.scrollContainer}>
-                  <View style={[styles.container]}>
-                    <View style={[styles.searchBar, Platform.select({ ios: { zIndex: 98 } })]}>
-                      <SearchDiveCenter/>
+                  style={AppStyles.scrollContainer}>
+                  <View style={[AppStyles.container]}>
+                    <View style={[AppStyles.searchBar, Platform.select({ ios: { zIndex: 98 } })]}>
+                      <SearchDiveMaster/>
                     </View>
                     
                   </View>
                 </ScrollView>
               </KeyboardAvoidingView>
-                <Text style={styles.modalText}>Hello World!</Text>
+                <Text style={AppStyles.modalText}>Hello World!</Text>
                 <Pressable
-                  style={[styles.button, styles.buttonClose]}
+                  style={[AppStyles.button, AppStyles.buttonClose]}
                   onPress={() => setDiveCenterSearchModalVisible(!diveCenterSearchModalVisible)}>
-                  <Text style={styles.textStyle}>Hide Modal</Text>
+                  <Text style={AppStyles.textStyle}>Hide Modal</Text>
                 </Pressable>
               </View>
             {/* </View> */}
@@ -235,34 +239,11 @@ const AddDiveScreen = () => {
             onRequestClose={() => {
               setDiveMasterSearchModalVisible(!diveMasterSearchModalVisible);
             }}>
-            <View style={styles.centeredView}>
-              <KeyboardAvoidingView
-                style={{ flex: 1 }}
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                enabled>
-                <ScrollView
-                  nestedScrollEnabled
-                  keyboardDismissMode="on-drag"
-                  keyboardShouldPersistTaps="handled"
-                  contentInsetAdjustmentBehavior="automatic"
-                  contentContainerStyle={{ paddingBottom: 200 }}
-                  style={styles.scrollContainer}>
-                  <View style={[styles.container]}>
-                    <View style={[styles.searchBar, Platform.select({ ios: { zIndex: 98 } })]}>
-                      <SearchDiveCenter/>
-                    </View>
-                    
-                  </View>
-                </ScrollView>
-              </KeyboardAvoidingView>
-                <Text style={styles.modalText}>Hello World!</Text>
-                <Pressable
-                  style={[styles.button, styles.buttonClose]}
-                  onPress={() => setDiveMasterSearchModalVisible(!diveMasterSearchModalVisible)}>
-                  <Text style={styles.textStyle}>Hide Modal</Text>
-                </Pressable>
-              </View>
-            {/* </View> */}
+            
+          <DiveMasterSelection 
+            onClose={() => setDiveMasterSearchModalVisible(false)}
+            onSelect={(diveMaster) => {setDiveMaster(diveMaster)}}
+          />
           </Modal>
         </View>
       </ScrollView>
@@ -275,51 +256,51 @@ const AddDiveScreen = () => {
 export default AddDiveScreen
 
 const styles = StyleSheet.create({
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 22,
-  },
-  scrollContainer: {
-    flex: 1,
-  },
+  // centeredView: {
+  //   flex: 1,
+  //   justifyContent: 'center',
+  //   alignItems: 'center',
+  //   marginTop: 22,
+  // },
+  // scrollContainer: {
+  //   flex: 1,
+  // },
   searchBar: {
     // flex: 1,
     // alignItems: 'center',
     width: '95%',
   },
-  button: {
-    borderRadius: 20,
-    padding: 10,
-    elevation: 2,
-  },
-  buttonOpen: {
-    backgroundColor: '#F194FF',
-  },
-  buttonClose: {
-    backgroundColor: '#2196F3',
-  },
-  textStyle: {
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  modalText: {
-    marginBottom: 15,
-    textAlign: 'center',
-  },  
+  // button: {
+  //   borderRadius: 20,
+  //   padding: 10,
+  //   elevation: 2,
+  // },
+  // buttonOpen: {
+  //   backgroundColor: '#F194FF',
+  // },
+  // buttonClose: {
+  //   backgroundColor: '#2196F3',
+  // },
+  // textStyle: {
+  //   color: 'white',
+  //   fontWeight: 'bold',
+  //   textAlign: 'center',
+  // },
+  // modalText: {
+  //   marginBottom: 15,
+  //   textAlign: 'center',
+  // },  
   plusButtonText: {
         color: '#00b5ec',
         paddingLeft: 10,
     },
-    container: {
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignContent: 'space-between',
-        marginTop: 30,
-    },
+    // container: {
+    //     flex: 1,
+    //     flexDirection: 'row',
+    //     justifyContent: 'center',
+    //     alignContent: 'space-between',
+    //     marginTop: 30,
+    // },
     textInput: {
       height: 30,
       marginVertical: 12,
