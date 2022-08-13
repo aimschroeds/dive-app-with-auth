@@ -39,6 +39,13 @@ export default StyleSheet.create({
     alignContent: 'space-between',
     marginTop: 30,
     },  
+  section: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignContent: 'space-between',
+    marginTop: -30,
+  },
   scrollContainer: {
     flex: 1,
   },
@@ -47,5 +54,17 @@ export default StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 22,
+  },
+  profilePic: {
+    width: 100,
+    height: 100,
+    resizeMode: 'cover',
+    borderRadius: 50,
+  },
+  titleText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    // marginBottom: 10,
   },
 });
