@@ -63,15 +63,19 @@ const AddDiveScreen = () => {
         diveCenter: diveCenter,
         diveMaster: diveMaster,
         surfaceInterval: surfaceInterval,
-        startPressure: startPressure,
-        endPressure: endPressure,
-        maxDepth: maxDepth,
+        startPressure: {value: Number(startPressure), dimension: 'bar'},
+        endPressure: {value: Number(endPressure), dimension: 'bar'},
+        maxDepth: {value: Number(maxDepth), dimension: 'meter'},
         userId: auth.currentUser.uid,
         createdAt: new Date(),
       }
-      const docRef = await setDoc(collection(db, "dives"), dive).then((docRef) => {console.log(docRef)})
-      .catch((error) => {console.log(error)});
-      console.log(docRef);
+      db.collection("dives").add(dive)
+      .then((docRef) => {
+          console.log("Document written with ID: ", docRef.id);
+      })
+      .catch((error) => {
+          console.error("Error adding document: ", error);
+      });
     };
 
   return (
