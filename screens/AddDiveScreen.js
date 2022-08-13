@@ -1,9 +1,10 @@
-import { ActivityIndicator, Image, StyleSheet, SafeAreaView, ScrollView, Switch, Text, TextInput, View  } from 'react-native'
+import { ActivityIndicator, Image, KeyboardAvoidingView, Modal, Pressable, StyleSheet, SafeAreaView, ScrollView, Switch, Text, TextInput, View  } from 'react-native'
 import { Cell, Section, TableView } from 'react-native-tableview-simple';
 import { useNavigation } from '@react-navigation/native'
 import React, { useState } from 'react';
 import { firebase } from '../firebase';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import SearchDiveCenter from '../components/SearchDiveCenter';
 
 const AddDiveScreen = () => {
 
@@ -29,8 +30,10 @@ const AddDiveScreen = () => {
     const [diveRegion, setDiveRegion] = useState('');
     const [diveStart, setDiveStart] = useState(new Date());
     const [diveEnd, setDiveEnd] = useState(new Date());
-    
-
+    const [diveCenter, setDiveCenter] = useState('Dive Center');
+    const [diveMaster, setDiveMaster] = useState(null);
+    const [diveCenterSearchModalVisible, setDiveCenterSearchModalVisible] = useState(false);
+    const [diveMasterSearchModalVisible, setDiveMasterSearchModalVisible] = useState(false);
     
 
     const onChangeStart = (event, selectedTime) => {
@@ -62,18 +65,6 @@ const AddDiveScreen = () => {
               placeholderTextColor={'white'}
             />
           </View>
-          {/* <View style={styles.container}>
-            <View style={styles.dateInput}>
-              <DateTimePicker 
-                testID="datePicker"
-                style={styles.datePicker}
-                maximumDate={new Date()} 
-                mode="datetime"
-                value={diveDate}
-                onChange={onChangeDate}
-              />
-            </View>
-          </View> */}
           <View style={styles.diverProfile}>
             <View style={styles.diverProfileHeader}>
               <Image
@@ -141,7 +132,7 @@ const AddDiveScreen = () => {
             </View>
           </View>
           <TableView>
-            <Section >
+            <Section hideSeparator>
               <Cell
                   cellAccessoryView={<DateTimePicker 
                     testID="datePicker"
@@ -155,6 +146,7 @@ const AddDiveScreen = () => {
                   titleTextColor={'#413FEB'}
                   titleTextStyle={styles.cellTitleText}
                   hideSeparator={true}
+                  cellStyle="RightDetail"
                 >
               </Cell>
               <Cell
@@ -171,19 +163,153 @@ const AddDiveScreen = () => {
                   titleTextColor={'#413FEB'}
                   titleTextStyle={styles.cellTitleText}
                   hideSeparator={true}
+                  // cellStyle="RightDetail"
                 >
               </Cell>
+              <Cell
+                cellStyle="RightDetail"
+                accessory="DisclosureIndicator"
+                title="Dive Center"
+                detail={diveCenter}
+                titleTextColor={'#413FEB'}
+                titleTextStyle={styles.cellTitleText}
+                hideSeparator={true}
+                onPress={() => setDiveCenterSearchModalVisible(true)}
+              />
+              <Cell
+                cellStyle="RightDetail"
+                accessory="DisclosureIndicator"
+                title="Dive Master"
+                detail={diveMaster}
+                titleTextColor={'#413FEB'}
+                titleTextStyle={styles.cellTitleText}
+                hideSeparator={true}
+                onPress={() => setDiveMasterSearchModalVisible(true)}
+              />
             </Section>
           </TableView>
+          
+          <View style={styles.centeredView}>
+          <Modal
+            animationType="slide"
+            // transparent={true}
+            presentationStyle="pageSheet"
+            visible={diveCenterSearchModalVisible}
+            onRequestClose={() => {
+              setDiveCenterSearchModalVisible(!diveCenterSearchModalVisible);
+            }}>
+            <View style={styles.centeredView}>
+              <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                enabled>
+                <ScrollView
+                  nestedScrollEnabled
+                  keyboardDismissMode="on-drag"
+                  keyboardShouldPersistTaps="handled"
+                  contentInsetAdjustmentBehavior="automatic"
+                  contentContainerStyle={{ paddingBottom: 200 }}
+                  style={styles.scrollContainer}>
+                  <View style={[styles.container]}>
+                    <View style={[styles.searchBar, Platform.select({ ios: { zIndex: 98 } })]}>
+                      <SearchDiveCenter/>
+                    </View>
+                    
+                  </View>
+                </ScrollView>
+              </KeyboardAvoidingView>
+                <Text style={styles.modalText}>Hello World!</Text>
+                <Pressable
+                  style={[styles.button, styles.buttonClose]}
+                  onPress={() => setDiveCenterSearchModalVisible(!diveCenterSearchModalVisible)}>
+                  <Text style={styles.textStyle}>Hide Modal</Text>
+                </Pressable>
+              </View>
+            {/* </View> */}
+          </Modal>
+          <Modal
+            animationType="slide"
+            // transparent={true}
+            presentationStyle="pageSheet"
+            visible={diveMasterSearchModalVisible}
+            onRequestClose={() => {
+              setDiveMasterSearchModalVisible(!diveMasterSearchModalVisible);
+            }}>
+            <View style={styles.centeredView}>
+              <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                enabled>
+                <ScrollView
+                  nestedScrollEnabled
+                  keyboardDismissMode="on-drag"
+                  keyboardShouldPersistTaps="handled"
+                  contentInsetAdjustmentBehavior="automatic"
+                  contentContainerStyle={{ paddingBottom: 200 }}
+                  style={styles.scrollContainer}>
+                  <View style={[styles.container]}>
+                    <View style={[styles.searchBar, Platform.select({ ios: { zIndex: 98 } })]}>
+                      <SearchDiveCenter/>
+                    </View>
+                    
+                  </View>
+                </ScrollView>
+              </KeyboardAvoidingView>
+                <Text style={styles.modalText}>Hello World!</Text>
+                <Pressable
+                  style={[styles.button, styles.buttonClose]}
+                  onPress={() => setDiveMasterSearchModalVisible(!diveMasterSearchModalVisible)}>
+                  <Text style={styles.textStyle}>Hide Modal</Text>
+                </Pressable>
+              </View>
+            {/* </View> */}
+          </Modal>
+        </View>
       </ScrollView>
     </SafeAreaView>
+    
+    
   )
 }
 
 export default AddDiveScreen
 
 const styles = StyleSheet.create({
-    plusButtonText: {
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+  },
+  scrollContainer: {
+    flex: 1,
+  },
+  searchBar: {
+    // flex: 1,
+    // alignItems: 'center',
+    width: '95%',
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+  },
+  buttonOpen: {
+    backgroundColor: '#F194FF',
+  },
+  buttonClose: {
+    backgroundColor: '#2196F3',
+  },
+  textStyle: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
+  },  
+  plusButtonText: {
         color: '#00b5ec',
         paddingLeft: 10,
     },
@@ -225,14 +351,14 @@ const styles = StyleSheet.create({
       // margin:-2,
       // borderWidth: 1,
       width: '80%',
-      // alignSelf: 'right',
+      // alignSelf: 'flex-end',
     },
     diverProfile: {
-      marginTop: 20,
+      marginVertical: 20,
       borderColor: '#DDDDDD',
       borderWidth: 1,
       borderRadius: 16,
-      marginTop: 30,
+      // marginTop: 30,
     },
     diverProfileHeader: {
       flexDirection: 'row',
