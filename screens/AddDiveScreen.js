@@ -27,12 +27,22 @@ const AddDiveScreen = () => {
     const diveRef = firebase.firestore().collection('dives');
     const [diveSite, setDiveSite] = useState('');
     const [diveRegion, setDiveRegion] = useState('');
-    const [diveDate, setDiveDate] = useState(new Date());
+    const [diveStart, setDiveStart] = useState(new Date());
+    const [diveEnd, setDiveEnd] = useState(new Date());
+    
 
-    const onChangeDate = (event, selectedDate) => {
-      const currentSelectedDate = selectedDate;
-      setDiveDate(currentSelectedDate);
+    
+
+    const onChangeStart = (event, selectedTime) => {
+      const currentSelectedTime = selectedTime;
+      setDiveStart(currentSelectedTime);
     };
+
+    const onChangeEnd = (event, selectedDate) => {
+      const currentSelectedDate = selectedDate;
+      setDiveEnd(currentSelectedDate);
+    };
+
   return (
     <SafeAreaView style={{backgroundColor: 'white'}}>
         <ScrollView style={{height:"100%",  marginHorizontal: 20}}>
@@ -51,17 +61,19 @@ const AddDiveScreen = () => {
               placeholder="Region"
               placeholderTextColor={'white'}
             />
+          </View>
+          {/* <View style={styles.container}>
             <View style={styles.dateInput}>
               <DateTimePicker 
                 testID="datePicker"
                 style={styles.datePicker}
                 maximumDate={new Date()} 
-                mode="date"
+                mode="datetime"
                 value={diveDate}
                 onChange={onChangeDate}
               />
             </View>
-          </View>
+          </View> */}
           <View style={styles.diverProfile}>
             <View style={styles.diverProfileHeader}>
               <Image
@@ -70,9 +82,9 @@ const AddDiveScreen = () => {
               />
               <Text style={styles.diverProfileText}>Dive Profile</Text>
               <Image
-              style={styles.smallIcon}
-              source={require('../assets/diver.png')}
-            />
+                style={styles.smallIcon}
+                source={require('../assets/diver.png')}
+              />
             </View>
             <Image
                 style={styles.wave}
@@ -82,8 +94,8 @@ const AddDiveScreen = () => {
             <View style={styles.diverProfileBody}>
               <View style={styles.diverProfileBodyContents}>
               {/* First row: Surface Interval */}
-              <View style={styles.diverProfileBodyRow}>
-                <Text style={styles.diverProfileBodyText}>Surface Interval:</Text>
+              <View style={[styles.diverProfileBodyRow, styles.leftAlignedRow]}>
+                <Text style={styles.diverProfileBodyText}>Surface Interval: </Text>
                 <TextInput style={styles.diverProfileBodyInput} />
                 <Text style={styles.diverProfileBodyMeasure}>minutes</Text>
               </View>
@@ -94,55 +106,75 @@ const AddDiveScreen = () => {
                 <View style={styles.diverProfileBodyColumn}>
                   {/* Start pressure */}
                   <View style={[styles.diverProfileBodyRow]}>
-                    <Text style={styles.diverProfileBodyText}>Start:</Text>
+                    <Text style={styles.diverProfileBodyText}>Start: </Text>
                     <TextInput style={styles.diverProfileBodyInput} />
                     <Text style={styles.diverProfileBodyMeasure}>bar</Text>
-                  </View>
-                  {/* Blank block */}
-                  <View style={[styles.diverProfileBodyRow, styles.horizontalTopLine, styles.clearRow]}>
-                  </View>
-                   {/* Blank block */}
-                  <View style={[styles.diverProfileBodyRow]}>
                   </View>
                 </View>
                 {/* Second column */}
                 <View style={[styles.diverProfileBodyColumn]}>
-                  {/* Blank block */}
-                  <View style={[styles.diverProfileBodyRow]}>
-                    {/* <Text style={styles.diverProfileBodyText}>Depth:</Text>
-                    <TextInput style={styles.diverProfileBodyInput} />
-                    <Text style={styles.diverProfileBodyMeasure}>m</Text> */}
-                  </View>
-                  {/* Blank block */}
-                  <View style={[styles.diverProfileBodyRow, styles.horizontalBottomLine, styles.blankBlock, styles.clearRow, styles.verticalLine]}>
-                    <Text style={styles.diverProfileBodyText}>Depth:</Text>
-                    <TextInput style={styles.diverProfileBodyInput} />
-                    <Text style={styles.diverProfileBodyMeasure}>m</Text>
-                  </View>
-                  {/* Depth */}
-                  <View style={[styles.diverProfileBodyRow]}>
-                    
-                  </View>
+                  
                 </View>
                 {/* Third column */}
                 <View style={styles.diverProfileBodyColumn}>
                   {/* End pressure */}
                   <View style={[styles.diverProfileBodyRow]}>
-                    <Text style={styles.diverProfileBodyText}>End:</Text>
+                    <Text style={styles.diverProfileBodyText}>End: </Text>
                     <TextInput style={styles.diverProfileBodyInput} />
                     <Text style={styles.diverProfileBodyMeasure}>bar</Text>
                   </View>
-                  {/* Blank block */}
-                  <View style={[styles.diverProfileBodyRow, styles.horizontalTopLine, styles.clearRow]}>
-                  </View>
-                  {/* Blank block */}
-                  <View style={[styles.diverProfileBodyRow]}>
-                  </View>
+        
+                </View>
+              </View>
+                <View style={styles.diverProfileBodyRow}>
+                  <Image
+                    style={styles.diveProfileImage}
+                    source={require('../assets/dive-profile.png')}
+                  />
+                </View>
+                <View style={[styles.diverProfileBodyRow, styles.centerAlignedRow]}>
+                    <Text style={styles.diverProfileBodyText}>Depth: </Text>
+                    <TextInput style={styles.diverProfileBodyInput} />
+                    <Text style={styles.diverProfileBodyMeasure}>m</Text>
                 </View>
               </View>
             </View>
           </View>
-        </View>
+          <TableView>
+            <Section >
+              <Cell
+                  cellAccessoryView={<DateTimePicker 
+                    testID="datePicker"
+                    style={styles.datePicker}
+                    maximumDate={new Date()} 
+                    mode="datetime"
+                    value={diveStart}
+                    onChange={onChangeStart}
+                  />}
+                  title="Time In"
+                  titleTextColor={'#413FEB'}
+                  titleTextStyle={styles.cellTitleText}
+                  hideSeparator={true}
+                >
+              </Cell>
+              <Cell
+                  cellAccessoryView={<DateTimePicker 
+                    testID="datePicker"
+                    style={styles.datePicker}
+                    maximumDate={new Date()} 
+                    mode="datetime"
+                    minimumDate={diveStart}
+                    value={diveEnd}
+                    onChange={onChangeEnd}
+                  />}
+                  title="Time Out"
+                  titleTextColor={'#413FEB'}
+                  titleTextStyle={styles.cellTitleText}
+                  hideSeparator={true}
+                >
+              </Cell>
+            </Section>
+          </TableView>
       </ScrollView>
     </SafeAreaView>
   )
@@ -170,22 +202,30 @@ const styles = StyleSheet.create({
       borderRadius: 15,
       backgroundColor: '#413FEB',
       color: 'white',
-      width: '30%',
+      width: '45%',
       textAlign: 'center',
-      marginRight: '5%',
+      marginHorizontal: '3%',
     },
+
     dateInput: {
       height: 30,
       marginVertical: 12,
-      // padding: 10,
-      borderRadius: 15,
-      backgroundColor: '#413FEB',
-      textColor: 'white',
-      width: '30%',
-      alignContent: 'center',
+      padding: 10,
+      // borderRadius: 15,
+      // backgroundColor: '#413FEB',
+      // textColor: 'white',
+      width: '95%',
+      marginHorizontal: '3%',
+      // textAlign: 'left',
+      alignContent: 'right',
+      // justifyContent: 'center',
+      alignItems: 'flex-end',
     },
     datePicker: {
-      margin:-2,
+      // margin:-2,
+      // borderWidth: 1,
+      width: '80%',
+      // alignSelf: 'right',
     },
     diverProfile: {
       marginTop: 20,
@@ -205,6 +245,11 @@ const styles = StyleSheet.create({
       color: '#413FEB',
       marginHorizontal: 10,
       fontFamily: 'Helvetica',
+    },
+    cellTitleText: {
+      fontSize: 14,
+      fontFamily: 'Helvetica',
+      fontWeight: 'bold',
     },
     smallIcon: {
       width: 20,
@@ -229,19 +274,27 @@ const styles = StyleSheet.create({
       flexDirection: 'row',
       // justifyContent: 'space-between',
       // marginHorizontal: 30,
-      marginBottom: 20,
+      marginBottom: 10,
       width: '100%',
-      // borderWidth: 1,
       flex: 1,
-      // borderColor: 'yellow',
+      alignSelf: 'center',
+      justifyContent: 'space-around',
+    },
+    leftAlignedRow: {
+      justifyContent: 'flex-start',
+    },
+    centerAlignedRow: {
+      justifyContent: 'center',
+      marginTop: -20,
+    },
+    leftAlignedText:{
+      textAlign: 'left',
     },
     diverProfileBodyColumn: {
       flexDirection: 'column',
       flex: 1,
-      // borderWidth: 1,
-      // borderColor: 'green',
       width: '100%',
-      height: 100,
+      alignItems: 'stretch',
     },
     diverProfileBodyText: {
       color: '#413FEB',
@@ -252,34 +305,10 @@ const styles = StyleSheet.create({
       marginHorizontal: 5,
       borderBottomColor: '#626262',
       borderBottomWidth: 1,
-      width: '10%',
+      width: 40,
     },
-    verticalLine: {
-      borderLeftWidth: 1,
-      borderRightWidth: 1,
-      borderColor: 'black',
-      height: '100%',
-      justifyContent: 'center',
-      alignContent: 'center',
-    },
-    horizontalLine: {
-      borderBottomWidth: 1,
-      borderColor: 'black',
-      borderTopWidth: 1,
-    },
-    horizontalBottomLine: {
-      borderBottomWidth: 1,
-      borderColor: 'black',
-    },
-    horizontalTopLine: {
-      borderTopWidth: 1,
-      borderColor: 'black',
-    },
-    blankBlock: {
-      // height: 100,
-    },
-    clearRow: {
-      height: 30,
-      paddingVertical: 30,
+    diveProfileImage: {
+      alignSelf: 'stretch',
+      marginTop: -10,
     },
 })
