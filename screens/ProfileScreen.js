@@ -2,17 +2,17 @@ import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'reac
 import React from 'react'
 import AppStyles from '../styles/AppStyles'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { NavigationContainer } from '@react-navigation/native';
 import { Cell, Section, TableView } from 'react-native-tableview-simple';
 import { useNavigation } from '@react-navigation/native'
 import LoginScreen from './LoginScreen';
 import Icon from 'react-native-ico-material-design';
 import { db, auth, storage } from '../firebase';
 import { collection, addDoc, query, where, getDocs, deleteDoc, doc, setDoc } from "firebase/firestore"; 
-import App from '../App';
 
 const UserStack = createNativeStackNavigator();
 
-const ProfileScreen = () => {
+const ProfileScreen = ( { navigation }) => {
   const [userFirstName, setUserFirstName] = React.useState(null)
   const [userLastName, setUserLastName] = React.useState(null)
   const [userProfilePicture, setUserProfilePicture] = React.useState(null)
@@ -74,6 +74,10 @@ const setImage = (image) => {
 
   return (
     <>
+    {/* <UserStack.Navigator options={{ headerShown: false, }}>
+        <UserStack.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false,}} />
+        <UserStack.Screen name="Login" component={LoginScreen} options={{ headerShown: false,}}/>
+    </UserStack.Navigator> */}
     <View style={[AppStyles.container]}>
       {/* <Text>{userProfilePictureURL}</Text> */}
       { userProfilePictureURL &&  <Image source={{uri: userProfilePictureURL,}} style={[AppStyles.profilePic]}/> }
