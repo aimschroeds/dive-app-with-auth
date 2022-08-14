@@ -1,9 +1,7 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import ProfileStackScreen from '../screens/UserStackScreen';
 import HomeScreen from '../screens/HomeScreen';
 import AddDiveScreen from '../screens/AddDiveScreen';
-// import ProfileScreen from '../screens/ProfileScreen';
 import ExploreScreen from '../screens/ExploreScreen';
 import FindFriendsScreen from '../screens/FindFriendsScreen';
 import Icon from 'react-native-ico-material-design';
