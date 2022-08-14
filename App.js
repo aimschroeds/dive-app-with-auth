@@ -10,6 +10,7 @@ import RegistrationScreen from './screens/RegistrationScreen';
 import NotificationsScreen from './modals/NotificationsScreen';
 import ProfileEditScreen from './modals/ProfileEditScreen';
 import ResetPasswordScreen from './screens/ResetPasswordScreen';
+import DiveScreen from './modals/DiveScreen';
 import { auth } from './firebase';
 
 const Stack = createNativeStackNavigator();
@@ -28,7 +29,8 @@ export default function App() {
         </Stack.Group>
         <Stack.Group screenOptions={{ presentation: 'modal' }}>
           <Stack.Screen name="Notifications" component={NotificationsScreen} />
-          <Stack.Screen name="Profile Edit" component={ProfileEditScreen} />
+          <Stack.Screen name="Edit Profile" component={ProfileEditScreen} />
+          <Stack.Screen name="Dive" component={DiveScreen} />
         </Stack.Group>
       </Stack.Navigator>
     </NavigationContainer>
