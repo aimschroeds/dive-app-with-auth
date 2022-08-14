@@ -1,4 +1,4 @@
-import { ActivityIndicator, Image, KeyboardAvoidingView, Modal, Pressable, StyleSheet, SafeAreaView, ScrollView, Switch, Text, TextInput, View, TouchableOpacity  } from 'react-native'
+import { ActivityIndicator, Image, KeyboardAvoidingView, Modal, Pressable, RefreshControl, StyleSheet, SafeAreaView, ScrollView, Switch, Text, TextInput, View, TouchableOpacity  } from 'react-native'
 import { Cell, Section, TableView } from 'react-native-tableview-simple';
 import { useNavigation } from '@react-navigation/native'
 import React, { useState } from 'react';
@@ -9,10 +9,13 @@ import DiveMasterSelection from '../modals/DiveMasterSelection';
 import AppStyles from '../styles/AppStyles';
 import { collection, addDoc, query, where, getDocs, deleteDoc, doc, setDoc } from "firebase/firestore"; 
 
+const wait = (timeout) => {
+  return new Promise(resolve => setTimeout(resolve, timeout));
+}
 
-const AddDiveScreen = () => {
+const AddDiveScreen = ( {navigation }) => {
 
-    const navigation = useNavigation()
+    // const navigation = useNavigation()
     
     const cancelAddDive = () => {
         navigation.navigate('Home')
@@ -28,6 +31,16 @@ const AddDiveScreen = () => {
         })
     }, [navigation])
 
+    const sendVerificationEmail = () => {
+        auth.currentUser.sendEmailVerification()
+        .then(() => {
+            setSuccessMessage('Verification email sent!')
+        }).catch(error => {
+            setErrorMessage(error.message)
+        }
+        )
+    }
+
     const [dives, setDives] = useState([]);
     // const diveRef = firebase.firestore().collection('dives');
     const [diveSite, setDiveSite] = useState('');
@@ -42,7 +55,16 @@ const AddDiveScreen = () => {
     const [maxDepth, setMaxDepth] = useState('');
     const [diveCenterSearchModalVisible, setDiveCenterSearchModalVisible] = useState(false);
     const [diveMasterSearchModalVisible, setDiveMasterSearchModalVisible] = useState(false);
+    const [userNotVerified, setUserNotVerified] = useState(!auth.currentUser.emailVerified);
+    const [errorMessage, setErrorMessage] = useState(null);
+    const [successMessage, setSuccessMessage] = useState(null);
+    const [refreshing, setRefreshing] = React.useState(false);
     
+    // https://reactnative.dev/docs/refreshcontrol
+    const onRefresh = React.useCallback(() => {
+      setRefreshing(true);
+      wait(2000).then(() => setRefreshing(false));
+    }, []);
 
     const onChangeStart = (event, selectedTime) => {
       const currentSelectedTime = selectedTime;
@@ -72,15 +94,36 @@ const AddDiveScreen = () => {
       db.collection("dives").add(dive)
       .then((docRef) => {
           console.log("Document written with ID: ", docRef.id);
+          setSuccessMessage('Dive added!')
+          navigation.navigate('Home')
       })
       .catch((error) => {
           console.error("Error adding document: ", error);
+          setErrorMessage(error.message)
       });
     };
 
   return (
     <SafeAreaView style={{backgroundColor: 'white'}}>
-        <ScrollView style={{height:"100%",  marginHorizontal: 20}}>
+      <KeyboardAvoidingView
+            // style={AppStyles.loginContainer}
+            behavior="padding"
+        >
+        <ScrollView style={{height:"100%",  marginHorizontal: 20}} 
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+            />
+          }
+        >
+        {userNotVerified && <Text style={AppStyles.errorMessage}>To Log A Dive, Please Verify Your Email</Text>
+       }
+        {userNotVerified && <TouchableOpacity style={AppStyles.loginButton} onPress={sendVerificationEmail}>
+            <Text style={AppStyles.loginButtonText}>Send Verification Email</Text>
+        </TouchableOpacity> }
+        {successMessage && <Text style={AppStyles.successMessage}>{successMessage}</Text>}
+        {errorMessage && <Text style={AppStyles.errorMessage}>{errorMessage}</Text>}
         <Text>Email: {auth.currentUser?.email}</Text>
         <Text>UUID: {auth.currentUser?.uid}</Text>
           <View style={AppStyles.container}>
@@ -294,10 +337,14 @@ const AddDiveScreen = () => {
           />
           </Modal>
         </View>
-        <TouchableOpacity style={AppStyles.button} onPress={addDive}>
+        <TouchableOpacity 
+          style={AppStyles.button} 
+          onPress={addDive} 
+          disable={userNotVerified ? true : false}>
           <Text style={AppStyles.buttonText}>Log Dive</Text>
         </TouchableOpacity>
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
     
     
