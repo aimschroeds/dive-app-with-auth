@@ -6,6 +6,7 @@ import ExploreScreen from '../screens/ExploreScreen';
 import FindFriendsScreen from '../screens/FindFriendsScreen';
 import Icon from 'react-native-ico-material-design';
 import ProfileScreen from '../screens/ProfileScreen';
+import { auth } from '../firebase';
 
 const Tab = createBottomTabNavigator();
 
@@ -60,6 +61,7 @@ function CoreTabs() {
       <Tab.Screen
           name="Profile"
           component={ProfileScreen}
+          initialParams={{ userId: auth.currentUser.uid }}
           options={{
               tabBarLabel: 'Profile',
               tabBarIcon: ({ color, size }) => (
