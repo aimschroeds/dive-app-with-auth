@@ -105,17 +105,19 @@ const AddDiveScreen = ( {navigation }) => {
 
   return (
     <SafeAreaView style={{backgroundColor: 'white'}}>
-      <KeyboardAvoidingView
-            // style={AppStyles.loginContainer}
-            behavior="padding"
-        >
-        <ScrollView style={{height:"100%",  marginHorizontal: 20}} 
+      
+        <ScrollView style={{height:"100%"}} 
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
             />
           }
+        >
+          <KeyboardAvoidingView
+            // style={AppStyles.loginContainer}
+            behavior="padding"
+            style={{marginHorizontal: 20}}
         >
         {userNotVerified && <Text style={AppStyles.errorMessage}>To Log A Dive, Please Verify Your Email</Text>
        }
@@ -343,8 +345,9 @@ const AddDiveScreen = ( {navigation }) => {
           disable={userNotVerified ? true : false}>
           <Text style={AppStyles.buttonText}>Log Dive</Text>
         </TouchableOpacity>
+        </KeyboardAvoidingView>
       </ScrollView>
-      </KeyboardAvoidingView>
+      
     </SafeAreaView>
     
     
