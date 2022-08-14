@@ -5,6 +5,7 @@ import Icon from 'react-native-ico-material-design';
 import { auth } from '../firebase'
 // import { NavigationBar } from '../components/navigationBar.js'
 // import { MyTabs } from '../components/tabNavigator.js'
+import AppStyles from '../styles/AppStyles';
  
  const HomeScreen = ({ navigation }) => {
     // const [notificationsVisible, setNotificationsVisible] = useState(false)
@@ -29,7 +30,7 @@ import { auth } from '../firebase'
             headerRight: () => (
             <TouchableOpacity
                 onPress={showNotifications}
-                style={styles.headerButton}
+                style={AppStyles.headerButton}
               >
               <Icon name="notifications-button" height='20' width='20' color="#00b5ec" />
             </TouchableOpacity>
@@ -73,11 +74,5 @@ import { auth } from '../firebase'
         fontWeight: '700',
         fontSize: 18,
     },
-    headerButton: {
-        borderWidth: 2,
-        borderColor: "#00b5ec",
-        borderRadius: 30,
-        padding: 6,
-      },
       
  })

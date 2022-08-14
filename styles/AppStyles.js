@@ -117,4 +117,11 @@ errorMessage: {
 successMessage: {
     color: 'green',
 },
+headerButton: {
+    // borderWidth: 2,
+    // borderColor: "#00b5ec",
+    // borderRadius: 30,
+    padding: 6,
+    marginRight: 10,
+  },
 });
