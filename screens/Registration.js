@@ -5,7 +5,7 @@ import { auth } from '../firebase'
 
 // Adapted from: https://www.youtube.com/watch?v=ql4J6SpLXZA
 
-const LoginScreen = () => {
+const RegistrationScreen = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
 
@@ -20,14 +20,14 @@ const LoginScreen = () => {
         return unsubscribe
     }, [])
 
-    const handleLogin = () => {
+    const handleSignUp = () => {
         auth
-        .signInWithEmailAndPassword(email, password)
-        .then(userCredentials => {
+         .createUserWithEmailAndPassword(email, password)
+         .then(userCredentials => {
             const user = userCredentials.user
-            console.log('Logged in: ', user.email);
-        })
-        .catch(error => alert(error.message))
+            console.log(user.email);
+         })
+         .catch(error => alert(error.message))
     }
 
     return (
@@ -52,17 +52,17 @@ const LoginScreen = () => {
             </View>
             <View style={styles.buttonContainer}>
                 <TouchableOpacity
-                    onPress={handleLogin}
-                    style={styles.button}
+                    onPress={handleSignUp}
+                    style={[styles.button, styles.buttonOutline]}
                 >
-                <Text style={styles.buttonText}>Login</Text>
+                    <Text style={styles.buttonOutlineText}>Register</Text>
                 </TouchableOpacity>
             </View>
         </KeyboardAvoidingView>
     )
 }
 
-export default LoginScreen
+export default RegistrationScreen
 
 const styles = StyleSheet.create({
     container: {
