@@ -6,31 +6,32 @@ import { auth } from '../firebase'
 // import { NavigationBar } from '../components/navigationBar.js'
 // import { MyTabs } from '../components/tabNavigator.js'
  
- const HomeScreen = () => {
+ const HomeScreen = ({ navigation }) => {
+    // const [notificationsVisible, setNotificationsVisible] = useState(false)
 
-    const navigation = useNavigation()
+    // const navigation = useNavigation()
 
     const handleLogOut = () => {
         auth
         .signOut()
         .then(() => {
-            navigation.navigate('User', { screen: 'Login' })
+            navigation.navigate('Login')
         })
         .catch(error => alert(error.message))
     }
 
-    const goToAddDive = () => {
-        navigation.jumpTo('Add Dive')
+    const showNotifications = () => {
+        navigation.navigate('Notifications')
       }
 
     React.useLayoutEffect(() => {
         navigation.setOptions({
-            headerLeft: () => (
+            headerRight: () => (
             <TouchableOpacity
-                onPress={goToAddDive}
+                onPress={showNotifications}
                 style={styles.headerButton}
               >
-              <Icon name="add-plus-button" height='20' width='20' color="#00b5ec" />
+              <Icon name="notifications-button" height='20' width='20' color="#00b5ec" />
             </TouchableOpacity>
             ),
         })
