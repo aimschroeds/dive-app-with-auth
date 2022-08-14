@@ -11,9 +11,10 @@ import { auth } from '../firebase';
 const Tab = createBottomTabNavigator();
 
 function CoreTabs() {
+    console.log("CoreTabs: uuid: " + auth.currentUser?.uid);
     return (
     <Tab.Navigator
-    initialRouteName="HomeScreen"
+    initialRouteName="Login"
     screenOptions={{
         tabBarActiveTintColor: '#e91e63',
     }}
@@ -61,7 +62,7 @@ function CoreTabs() {
       <Tab.Screen
           name="Profile"
           component={ProfileScreen}
-          initialParams={{ userId: auth.currentUser.uid }}
+          initialParams={{ userId: auth.currentUser?.uid }}
           options={{
               tabBarLabel: 'Profile',
               tabBarIcon: ({ color, size }) => (

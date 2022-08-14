@@ -13,14 +13,14 @@ const LoginScreen = ( {navigation} ) => {
 
     // const navigation = useNavigation()
 
-    useEffect (() => {
-        const unsubscribe = auth.onAuthStateChanged(user => {
-            if (user) {
-                navigation.navigate('Home')
-            }
-        })
-        return unsubscribe
-    }, [])
+    // useEffect (() => {
+    //     const unsubscribe = auth.onAuthStateChanged(user => {
+    //         if (user) {
+    //             navigation.navigate('Home')
+    //         }
+    //     })
+    //     return unsubscribe
+    // }, [])
 
     const handleLogin = () => {
         auth
@@ -28,6 +28,7 @@ const LoginScreen = ( {navigation} ) => {
         .then(userCredentials => {
             const user = userCredentials.user
             console.log('Logged in: ', user.email);
+            navigation.navigate('Core', {name: 'Home'})
         })
         .catch(error => setErrorMessage(error.message))
     }
