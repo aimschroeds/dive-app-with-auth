@@ -2,19 +2,21 @@ import { useNavigation } from '@react-navigation/core'
 import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { auth } from '../firebase'
-
+import AppStyles from '../styles/AppStyles'
+import { sendEmailVerification } from 'firebase/auth'
 // Adapted from: https://www.youtube.com/watch?v=ql4J6SpLXZA
 
-const RegistrationScreen = () => {
+const RegistrationScreen = ( { navigation }) => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [errorMessage, setErrorMessage] = useState(null)
 
-    const navigation = useNavigation()
+    // const navigation = useNavigation()
 
     useEffect (() => {
         const unsubscribe = auth.onAuthStateChanged(user => {
             if (user) {
-                navigation.jumpTo('Home')
+                navigation.navigate('Home')
             }
         })
         return unsubscribe
@@ -26,36 +28,44 @@ const RegistrationScreen = () => {
          .then(userCredentials => {
             const user = userCredentials.user
             console.log(user.email);
+            auth.currentUser.sendEmailVerification()
+            .then(() => {
+                // Email verification sent
+            })
          })
-         .catch(error => alert(error.message))
+         .catch(error => console.log(error.message))
     }
 
     return (
         <KeyboardAvoidingView
-            style={styles.container}
+            style={AppStyles.loginContainer}
             behavior="padding"
         >
-            <View style={styles.inputContainer}>
+            <View style={AppStyles.loginInputContainer}>
                 <TextInput
                     placeholder='Email'
                     value={email}
                     onChangeText={text => setEmail(text)}
-                    style={styles.input}
+                    style={AppStyles.loginInput}
                 />
                 <TextInput
                     placeholder='Password'
                     value={password}
                     onChangeText={text => setPassword(text)}
-                    style={styles.input}
+                    style={AppStyles.loginInput}
                     secureTextEntry
                 />
             </View>
-            <View style={styles.buttonContainer}>
+            <View style={AppStyles.loginButtonContainer}>
+            {errorMessage && <Text style={AppStyles.errorMessage}>{errorMessage}</Text>}
                 <TouchableOpacity
                     onPress={handleSignUp}
-                    style={[styles.button, styles.buttonOutline]}
+                    style={[AppStyles.loginButton, AppStyles.loginButtonOutline]}
                 >
-                    <Text style={styles.buttonOutlineText}>Register</Text>
+                    <Text style={AppStyles.loginButtonOutlineText}>Register</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                    <Text style={AppStyles.loginButtonOutlineText}>Already Signed Up? Login. </Text>
                 </TouchableOpacity>
             </View>
         </KeyboardAvoidingView>
@@ -63,50 +73,3 @@ const RegistrationScreen = () => {
 }
 
 export default RegistrationScreen
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    inputContainer: {
-        width: '80%',
-    },
-    input: {
-        backgroundColor: 'white',
-        paddingHorizontal: 15,
-        paddingVertical: 10,
-        borderRadius: 10,
-        marginTop: 5,
-    },
-    buttonContainer: {
-        width: '60%',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: 40,
-    },
-    button: {
-        backgroundColor: '#00b5ec',
-        width: '100%',
-        padding: 15,
-        borderRadius: 10,
-        alignItems: 'center',
-    },
-    buttonText: {
-        color: 'white',
-        fontWeight: '700',
-        fontSize: 18,
-    },
-    buttonOutline: {
-        backgroundColor: 'white',
-        marginTop: 5,
-        borderColor: '#00b5ec',
-        borderWidth: 2,
-    },
-    buttonOutlineText: {
-        color: '#00b5ec',
-        fontWeight: '700',
-        fontSize: 18,
-    },
-})

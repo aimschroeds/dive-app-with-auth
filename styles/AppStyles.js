@@ -67,4 +67,54 @@ export default StyleSheet.create({
     textAlign: 'center',
     // marginBottom: 10,
   },
+  loginContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+},
+loginInputContainer: {
+    width: '80%',
+},
+loginInput: {
+    backgroundColor: 'white',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 10,
+    marginTop: 5,
+},
+loginButtonContainer: {
+    width: '60%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 40,
+},
+loginButton: {
+    backgroundColor: '#00b5ec',
+    width: '100%',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+},
+loginButtonText: {
+    color: 'white',
+    fontWeight: '700',
+    fontSize: 18,
+},
+loginButtonOutline: {
+    backgroundColor: 'white',
+    marginTop: 5,
+    borderColor: '#00b5ec',
+    borderWidth: 2,
+},
+loginButtonOutlineText: {
+    color: '#00b5ec',
+    fontWeight: '700',
+    fontSize: 18,
+},
+errorMessage: {
+    color: 'red',
+},
+successMessage: {
+    color: 'green',
+},
 });
