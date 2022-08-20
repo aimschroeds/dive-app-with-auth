@@ -1,62 +1,186 @@
-import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Button, Image, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import AppStyles from '../styles/AppStyles'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { Cell, Section, TableView } from 'react-native-tableview-simple';
-import { useNavigation } from '@react-navigation/native'
-import LoginScreen from './LoginScreen';
 import Icon from 'react-native-ico-material-design';
 import { db, auth, storage } from '../firebase';
 import { collection, addDoc, query, where, getDocs, deleteDoc, doc, setDoc } from "firebase/firestore"; 
+import * as ImagePicker from 'expo-image-picker';
 
 
-const ProfileEditScreen = ( { route, navigation }) => {
-  const { user } = route.params
-  const [userFirstName, setUserFirstName] = useState(null)
-  const [userLastName, setUserLastName] = useState(null)
+const ProfileEditScreen = ( { navigation }) => {
+  const [userName, setUserName] = useState('')
+  const [hiddenName, setHiddenName] = useState(auth.currentUser.displayName)
+  const [userEmail, setUserEmail] = useState(auth.currentUser.email)
   const [userProfilePicture, setUserProfilePicture] = useState(null)
-  const [userProfilePictureURL, setUserProfilePictureURL] = useState(null)
+  const [userProfilePictureURL, setUserProfilePictureURL] = useState(null) // Firebase storage URL
+  const [errorMessage, setErrorMessage] = useState(null)
+  const [successMessage, setSuccessMessage] = useState(null)
+  const [screenLoading, setScreenLoading] = useState(true)
+  const [imageLoading, setImageLoading] = useState(false)
+  const [photo, setPhoto] = useState(null); // Local image URI
 
-  var docRef = db.collection("users").doc(auth.currentUser?.uid);
+  let openImagePickerAsync = async () => {
+    let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
+    if (permissionResult.granted === false) {
+      alert("Permission to access camera roll is required!");
+      return;
+    }
 
-  const showEdit = () => {
-    navigation.navigate('Edit Profile')
+    let pickerResult = await ImagePicker.launchImageLibraryAsync();
+
+    if (pickerResult.cancelled === true) {
+        return;
+      }
+
+    console.log(pickerResult);
+    handleImageUpload(pickerResult.uri)
   }
 
-React.useLayoutEffect(() => {
-    navigation.setOptions({
-        headerRight: () => (
-        <TouchableOpacity
-            onPress={showEdit}
-            style={styles.headerButton}
-          >
-          <Icon name="create-new-pencil-button" height='20' width='20' color="#00b5ec" />
-        </TouchableOpacity>
-        ),
-    })
-}, [navigation])
+  const handleImageUpload = async (uri) => {
+    setPhoto(uri);
+    try {
+      setImageLoading(true)
+      const uploadUrl = await uploadImageAsync(uri);
+      setUserProfilePictureURL(uploadUrl);
+      console.log(uploadUrl);
+    }
+    catch (error) {
+       setErrorMessage(error.message)
+    }
+    finally {
+      setImageLoading(false)
+    }
+  }
+  
+  async function uploadImageAsync(uri) {
+    const blob = await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+          resolve(xhr.response);
+        };
+        xhr.onerror = function (e) {
+          console.log(e);
+          reject(new TypeError("Network request failed"));
+        };
+        xhr.responseType = "blob";
+        xhr.open("GET", uri, true);
+        xhr.send(null);
+      });
 
+      const photo_id = photo.split('/').pop();
+      const ref = storage.ref().child(auth.currentUser.uid + '/' + photo_id);
+      const snapshot = await ref.put(blob);
+      // We're done with the blob, close and release it
+      blob.close();
+      return await snapshot.ref.getDownloadURL();
+  }
+
+  React.useLayoutEffect(() => {
+    const unsubscribe = navigation.setOptions({
+        headerLeft: () => (
+          <Text 
+            onPress={cancelEditProfile}
+            style={AppStyles.plusButtonText}>Cancel</Text>
+            ),
+        headerRight: () => (
+            <Text
+            onPress={saveEditProfile}
+            style={AppStyles.plusButtonText}>Save</Text>
+            ),
+        })
+    return unsubscribe
+    }, [navigation, userName, userProfilePictureURL])
+
+    const cancelEditProfile = () => {
+        navigation.goBack()
+    }
+
+    const saveEditProfile = () => {
+        alert("save: " + userName)
+        updateUserData()
+        updateUserDataPublic()
+        navigation.goBack()
+    }
+
+    let updateUserDataPublic = async () => {
+        console.log("update", userProfilePictureURL)
+        let data = {
+          display_name: userName,
+          image_ref: userProfilePictureURL,
+        //   image: userProfilePicture,
+          createdAt: new Date(),
+        }
+        db.collection("users").doc(auth.currentUser.uid).set(data)
+        .then(() => {
+            console.log("Document written");
+            setSuccessMessage('Profile data updated!')
+            navigation.navigate('Profile')
+        })
+        .catch((error) => {
+            console.error("Error adding document: ", error);
+            setErrorMessage(error.message)
+        });
+      };
+
+
+  var docRef = db.collection("users").doc(auth.currentUser.uid);
+
+if (screenLoading) {
   docRef.get().then((doc) => {
       if (doc.exists) {
-          setUserFirstName(doc.data().first_name)
-          setUserLastName(doc.data().last_name)
-          setUserProfilePicture(doc.data().image_ref)
+          doc.data().display_name ? setUserName(doc.data().display_name) : setUserName('')
+          doc.data().image_ref ? setUserProfilePictureURL(doc.data().image_ref) : console.log('no image')
+        //   userProfilePictureURL ? setUserProfilePictureURL(userProfilePictureURL) : setUserProfilePicture(doc.data().image_ref)
+          userProfilePicture ? setImage(userProfilePicture) : console.log("Using image ref")
           setImage(userProfilePicture)
           console.log("Document data:", doc.data());
+          setScreenLoading(false)
       } else {
           // doc.data() will be undefined in this case
           console.log("No such document!");
+          setScreenLoading(false)
       }
   }).catch((error) => {
       console.log("Error getting document:", error);
   });
+  
+}
+
+const updateUserData = () => {
+    auth.currentUser.updateProfile({
+        displayName: hiddenName,
+        photoURL: userProfilePictureURL
+      }).then(() => {
+        // Update successful
+        setSuccessMessage('Profile updated successfully')
+      }).catch((error) => {
+        // An error occurred
+        setErrorMessage(error.message)
+      });  
+}
+
+const updateUserEmail = () => {
+    auth.currentUser.updateEmail(userEmail).then(() => {
+        // Update successful
+        setSuccessMessage('Email updated successfully')
+        auth.currentUser.sendEmailVerification().then(() => {
+            // Email sent.
+            setSuccessMessage('Email verification sent')
+          });
+      }).catch((error) => {
+        // An error occurred
+        setErrorMessage(error.message)
+      });
+}
 
 const setImage = (image) => {
-  // Create a reference to the file we want to download
+  // Create a reference to the file we want to show
   var storageRef = storage.ref();
-  var profilePicRef = storageRef.child('profile_pictures/' + image);
+  var profilePicRef = storageRef.child(auth.currentUser.uid + '/' + image);
   console.log("telllll meeeee: ", profilePicRef.getDownloadURL())
   // Get the download URL
   profilePicRef.getDownloadURL()
@@ -92,53 +216,48 @@ const setImage = (image) => {
 
   return (
     <>
-    <View style={[AppStyles.container]}>
-      {/* <Text>{userProfilePictureURL}</Text> */}
-      { userProfilePictureURL &&  <Image source={{uri: userProfilePictureURL,}} style={[AppStyles.profilePic]}/> }
-      { !userProfilePictureURL &&  <Text>WHAT: {userProfilePictureURL}</Text> }     
-    </View>
-    <View style={[AppStyles.section]}>
-      <Text style={[AppStyles.titleText]}>{userFirstName} </Text>
-      <Text style={[AppStyles.titleText]}>{userLastName}</Text>
-    </View>
-    <TableView>
-    <Text> {auth.currentUser?.email}</Text>
-      <Section>
-        <Cell cellStyle="Basic" title="First Name" accessory="Detail" onPress={() => {} }>
-        </Cell>
-        <Cell cellStyle="RightDetail"
-              title="Last Name"
-              detail={userLastName}
-              onPress={() => {} }>
-        </Cell>
-      </Section>
-    </TableView>
-    { userFirstName && <View style={AppStyles.container}>
-      <TextInput
-          style={AppStyles.textInput}
-          onChangeText={setUserFirstName}
-          value={userFirstName}
-          placeholder="First Name"
-          placeholderTextColor={'black'}
-        />
-        <TouchableOpacity style={{padding: 15, flexDirection: 'row', borderRadius: 15, marginRight: 3, borderWidth: 2, justifyContent: 'center', borderColor: '#413FEB', backgroundColor: 'white'}} >
-            <Icon name='save-button' height='18' color='#413FEB' />
-            <Text style={{ marginLeft: 10, color: '#413FEB', fontWeight: 'bold', fontSize: 18}}>Save</Text>
-        </TouchableOpacity>
-      </View> }
-      { !userFirstName && <View style={AppStyles.container}>
-      <TextInput
-        style={AppStyles.textInput}
-        onChangeText={setUserFirstName}
-        value={userFirstName}
-        placeholder="First Name"
-        placeholderTextColor={'black'}
-      />
-      <TouchableOpacity style={{padding: 15, flexDirection: 'row', borderRadius: 15, marginRight: 3, borderWidth: 2, justifyContent: 'center', borderColor: '#413FEB', backgroundColor: 'white'}} >
-          <Icon name='save-button' height='18' color='#413FEB' />
-          <Text style={{ marginLeft: 10, color: '#413FEB', fontWeight: 'bold', fontSize: 18}}>Save</Text>
-      </TouchableOpacity>
-      </View> }
+    <KeyboardAvoidingView behavior="padding">
+        <View style={[AppStyles.container]}>
+            {/* <View style={{borderWidth: 1, width: 100}}> */}
+            { userProfilePictureURL &&  <Image source={{uri: userProfilePictureURL,}} style={[AppStyles.profilePic]}/> }
+            { !userProfilePictureURL &&  <Icon name='round-account-button-with-user-inside' width='100' height='100' color='gray' style={[AppStyles.profilePic]} /> }
+            <TouchableOpacity style={{zIndex: 30, position: 'absolute', top: 30, left: 45}}  onPress={openImagePickerAsync}>
+                { imageLoading && <ActivityIndicator size="small" color="#FBDA76" /> }
+                { !imageLoading && <Icon name='create-new-pencil-button' width='40' height='40' color='white' background={{type: 'circle', color: '#FBDA76'}} /> }
+            </TouchableOpacity>            
+            <TextInput
+                style={AppStyles.userDataInput}
+                onChangeText={(text) => setUserName(text)}
+                value={userName}
+                placeholder={userName ? userName : "Enter your name"}
+                placeholderTextColor={'black'}
+            />
+
+            {/* </View> */}
+            <View style={[AppStyles.section]}>
+            
+                {/* <TextInput
+                    style={AppStyles.userDataInput}
+                    onChangeText={setUserName}
+                    value={userName}
+                    placeholder={userName}
+                    placeholderTextColor={'black'}
+                    /> */}
+            </View>
+        </View>
+        <View style={[AppStyles.container,]}>
+        <TouchableOpacity onPress={openImagePickerAsync} style={AppStyles.button}>
+                    <Text style={AppStyles.buttonText}>Change</Text>
+            </TouchableOpacity>
+            <Text style={[AppStyles.titleText]}>{userEmail}</Text>
+            <TouchableOpacity 
+                style={AppStyles.button} 
+                onPress={saveEditProfile}>
+                <Text style={AppStyles.buttonText}>Update</Text>
+            </TouchableOpacity>
+        </View>
+        
+    </KeyboardAvoidingView>
       </>)
 }
 

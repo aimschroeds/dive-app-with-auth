@@ -13,8 +13,9 @@ import { collection, addDoc, query, where, getDocs, deleteDoc, doc, setDoc } fro
 
 const ProfileScreen = ( { route, navigation }) => {
   const { userId } = route.params
-  const [userFirstName, setUserFirstName] = useState(null)
-  const [userLastName, setUserLastName] = useState(null)
+  // const [userFirstName, setUserFirstName] = useState(null)
+  const [userDisplayName, setUserDisplayName] = useState(null)
+  // const [userLastName, setUserLastName] = useState(null)
   const [userProfilePicture, setUserProfilePicture] = useState(null)
   const [userProfilePictureURL, setUserProfilePictureURL] = useState(null)
 
@@ -24,30 +25,39 @@ const ProfileScreen = ( { route, navigation }) => {
     navigation.navigate('Edit Profile', { userId: userId })
   }
 
-React.useLayoutEffect(() => {
-  if (auth.currentUser.uid===userId) {
-    navigation.setOptions({
-        headerRight: () => (
-        <TouchableOpacity
-            onPress={showEdit}
-            style={AppStyles.headerButton}
-          >
-          <Icon name="create-new-pencil-button" height='20' width='20' color="#00b5ec" />
-        </TouchableOpacity>
-        ),
-    }) }
-}, [navigation])
+  // useEffect (() => {
+  //   const unsubscribe = auth.onAuthStateChanged(user => {
+  //       if (!user) {
+  //           navigation.navigate('Login')
+  //       }
+  //   })
+  //   return unsubscribe
+  // }, [])
+
+  React.useLayoutEffect(() => {
+    if (auth.currentUser.uid===userId) {
+      navigation.setOptions({
+          headerRight: () => (
+          <TouchableOpacity
+              onPress={showEdit}
+              style={AppStyles.headerButton}
+            >
+            <Icon name="create-new-pencil-button" height='20' width='20' color="#00b5ec" />
+          </TouchableOpacity>
+          ),
+      }) }
+  }, [navigation])
 
   docRef.get().then((doc) => {
       if (doc.exists) {
-          setUserFirstName(doc.data().first_name)
-          setUserLastName(doc.data().last_name)
+          setUserDisplayName(doc.data().display_name)
+          // setUserLastName(doc.data().last_name)
           setUserProfilePicture(doc.data().image_ref)
           setImage(userProfilePicture)
           console.log("Document data:", doc.data());
       } else {
           // doc.data() will be undefined in this case
-          console.log("No such document!");
+          console.log("No such document! ", userId);
       }
   }).catch((error) => {
       console.log("Error getting document:", error);
@@ -97,9 +107,9 @@ const setImage = (image) => {
       { !userProfilePictureURL &&  <Icon name='round-account-button-with-user-inside' width='100' height='100' color='gray' /> }     
     </View>
     <View style={[AppStyles.section]}>
-      <Text style={[AppStyles.titleText]}>{userFirstName} </Text>
-      <Text style={[AppStyles.titleText]}>{userLastName}</Text>
+      <Text style={[AppStyles.titleText]}>{userDisplayName} </Text>      
     </View>
+    <Text style={[AppStyles.titleText]}>{userId}</Text>
       </>
 )
 }
