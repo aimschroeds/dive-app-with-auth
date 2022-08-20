@@ -26,7 +26,7 @@ const AddDiveScreen = ( {navigation }) => {
             headerLeft: () => (
               <Text 
                 onPress={cancelAddDive}
-                style={styles.plusButtonText}>Cancel</Text>
+                style={AppStyles.plusButtonText}>Cancel</Text>
             ),
         })
     }, [navigation])
@@ -391,10 +391,10 @@ const styles = StyleSheet.create({
   //   marginBottom: 15,
   //   textAlign: 'center',
   // },  
-  plusButtonText: {
-        color: '#00b5ec',
-        paddingLeft: 10,
-    },
+  // plusButtonText: {
+  //       color: '#00b5ec',
+  //       paddingLeft: 10,
+  //   },
     // container: {
     //     flex: 1,
     //     flexDirection: 'row',

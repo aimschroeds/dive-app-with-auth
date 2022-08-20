@@ -1,4 +1,4 @@
-import { ActivityIndicator, Button, Image, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Button, DatePickerIOSBase, Image, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import AppStyles from '../styles/AppStyles'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -8,6 +8,7 @@ import Icon from 'react-native-ico-material-design';
 import { db, auth, storage } from '../firebase';
 import { collection, addDoc, query, where, getDocs, deleteDoc, doc, setDoc } from "firebase/firestore"; 
 import * as ImagePicker from 'expo-image-picker';
+import Checkbox from 'expo-checkbox';
 
 
 const ProfileEditScreen = ( { navigation }) => {
@@ -20,6 +21,7 @@ const ProfileEditScreen = ( { navigation }) => {
   const [successMessage, setSuccessMessage] = useState(null)
   const [screenLoading, setScreenLoading] = useState(true)
   const [imageLoading, setImageLoading] = useState(false)
+  const [userSearchEnabled, setUserSearchEnabled] = useState(false)
 
   let openImagePickerAsync = async () => {
     let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -70,7 +72,7 @@ const ProfileEditScreen = ( { navigation }) => {
       });
 
       const photo_id = uri.split('/').pop();
-      console.log("photo_id: ", photo_id);
+      setUserProfilePicture(photo_id)
       const ref = storage.ref().child(auth.currentUser.uid + '/' + photo_id);
       const snapshot = await ref.put(blob);
       // We're done with the blob, close and release it
@@ -92,7 +94,7 @@ const ProfileEditScreen = ( { navigation }) => {
             ),
         })
     return unsubscribe
-    }, [navigation, userName, userProfilePictureURL])
+    }, [navigation, userName, userProfilePictureURL, userSearchEnabled])
 
     const cancelEditProfile = () => {
         navigation.goBack()
@@ -109,7 +111,8 @@ const ProfileEditScreen = ( { navigation }) => {
         let data = {
           display_name: userName,
           image_ref: userProfilePictureURL,
-        //   image: userProfilePicture,
+          image: userProfilePicture,
+          searchable: userSearchEnabled,
           createdAt: new Date(),
         }
         db.collection("users").doc(auth.currentUser.uid).set(data)
@@ -132,6 +135,7 @@ if (screenLoading) {
       if (doc.exists) {
           doc.data().display_name ? setUserName(doc.data().display_name) : setUserName('')
           doc.data().image_ref ? setUserProfilePictureURL(doc.data().image_ref) : console.log('no image')
+          doc.data().searchable ? setUserSearchEnabled(doc.data().searchable) : setUserSearchEnabled(false)
         //   userProfilePictureURL ? setUserProfilePictureURL(userProfilePictureURL) : setUserProfilePicture(doc.data().image_ref)
           userProfilePicture ? setImage(userProfilePicture) : console.log("Using image ref")
         //   setImage(userProfilePicture)
@@ -179,13 +183,11 @@ const setImage = (image) => {
   // Create a reference to the file we want to show
   var storageRef = storage.ref();
   var profilePicRef = storageRef.child(auth.currentUser.uid + '/' + image);
-  console.log("telllll meeeee: ", profilePicRef.getDownloadURL())
   // Get the download URL
   profilePicRef.getDownloadURL()
   .then((url) => {
     // Insert url into an <img> tag to "download"
     setUserProfilePictureURL(url)
-    console.log(userProfilePictureURL)
   })
   .catch((error) => {
     // A full list of error codes is available at
@@ -217,33 +219,35 @@ const setImage = (image) => {
     <>
     <KeyboardAvoidingView behavior="padding">
         <View style={[AppStyles.container]}>
-            {/* <View style={{borderWidth: 1, width: 100}}> */}
-            { userProfilePictureURL &&  <Image source={{uri: userProfilePictureURL,}} style={[AppStyles.profilePic]}/> }
-            { !userProfilePictureURL &&  <Icon name='round-account-button-with-user-inside' width='100' height='100' color='gray' style={[AppStyles.profilePic]} /> }
-            <TouchableOpacity style={{zIndex: 30, position: 'absolute', top: 30, left: 45}}  onPress={openImagePickerAsync}>
-                { imageLoading && <ActivityIndicator size="small" color="#FBDA76" /> }
-                { !imageLoading && <Icon name='create-new-pencil-button' width='40' height='40' color='white' background={{type: 'circle', color: '#FBDA76'}} /> }
-            </TouchableOpacity>            
-            <TextInput
-                style={AppStyles.userDataInput}
-                onChangeText={(text) => setUserName(text)}
-                value={userName}
-                placeholder={userName ? userName : "Enter your name"}
-                placeholderTextColor={'black'}
-            />
-
-            {/* </View> */}
-            <View style={[AppStyles.section]}>
-            
-                {/* <TextInput
+            <View style={[ AppStyles.section]}>
+                {/* <View style={{borderWidth: 1, width: 100}}> */}
+                { userProfilePictureURL &&  <Image source={{uri: userProfilePictureURL,}} style={[AppStyles.profilePic]}/> }
+                { !userProfilePictureURL &&  <Icon name='round-account-button-with-user-inside' width='100' height='100' color='gray' style={[AppStyles.profilePic]} /> }
+                <TouchableOpacity style={{zIndex: 30, position: 'absolute', top: 30, left: 45}}  onPress={openImagePickerAsync}>
+                    { imageLoading && <ActivityIndicator size="small" color="#FBDA76" /> }
+                    { !imageLoading && <Icon name='create-new-pencil-button' width='40' height='40' color='white' background={{type: 'circle', color: '#FBDA76'}} /> }
+                </TouchableOpacity>            
+                <TextInput
                     style={AppStyles.userDataInput}
-                    onChangeText={setUserName}
+                    onChangeText={(text) => setUserName(text)}
                     value={userName}
-                    placeholder={userName}
+                    placeholder={userName ? userName : "Enter your name"}
                     placeholderTextColor={'black'}
-                    /> */}
+                />
+            </View>
+        
+            <View style={[ AppStyles.section, AppStyles.topMargin]}>
+            {/* <View> */}
+                <Checkbox
+                style={[AppStyles.checkbox, AppStyles.leftAlign]}
+                value={userSearchEnabled}
+                onValueChange={setUserSearchEnabled}
+                color={userSearchEnabled ? '#FBDA76' : undefined}
+                />
+                <Text style={AppStyles.paragraph}>Allow Other Users to Search For You</Text>
             </View>
         </View>
+        {/* </View> */}
         <View style={[AppStyles.container,]}>
         <TouchableOpacity onPress={openImagePickerAsync} style={AppStyles.button}>
                     <Text style={AppStyles.buttonText}>Change</Text>

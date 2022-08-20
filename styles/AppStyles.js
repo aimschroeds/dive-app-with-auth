@@ -7,6 +7,15 @@ export default StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center'
   },
+  input: {
+    height: 50,
+    margin: 12,
+    padding: 10,
+    borderRadius: 12,
+    // backgroundColor: '#413FEB',
+    borderWidth: 1,
+    borderColor: '#413FEB',
+  },
   textStyle: {
     color: 'white',
     fontWeight: 'bold',
@@ -40,6 +49,10 @@ export default StyleSheet.create({
     marginTop: 30,
     // borderWidth: 1,
     },  
+    topMargin: {
+        marginTop: 150,
+        position: 'absolute',
+    },
   userDataInput: {
       borderWidth: 1,
       borderColor: '#ccc',
@@ -59,11 +72,14 @@ export default StyleSheet.create({
     //   marginTop: 30,
         marginHorizontal: '5%',
       },  
+  leftAlign: {
+    alignSelf: 'flex-start',
+  },
   section: {
-    flex: 1,
+    // flex: 1,
     flexDirection: 'row',
     justifyContent: 'center',
-    alignContent: 'space-between',
+    // alignContent: 'space-between',
     // marginTop: -30,
   },
   scrollContainer: {
@@ -149,4 +165,11 @@ plusButtonText: {
     color: '#00b5ec',
     paddingLeft: 10,
 },
+paragraph: {
+    fontSize: 15,
+    marginTop: 8,
+  },
+  checkbox: {
+    margin: 8,
+  },
 });
