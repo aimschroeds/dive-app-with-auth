@@ -35,7 +35,7 @@ React.useLayoutEffect(() => {
         headerLeft: () => (
           <Text 
             onPress={goBack}
-            style={AppStyles.plusButtonText}>Cancel</Text>
+            style={AppStyles.plusButtonText}>Back</Text>
         ),
     })
 }, [navigation, relationship])
@@ -71,6 +71,23 @@ if (loading) {
   setLoading(false);
 }
   
+  const sendNotification = (notification_type) => {
+    var notification_data = {
+        receiver: userId,
+        sender: auth.currentUser.uid,
+        type: notification_type,
+        createdAt: new Date(),
+    }
+    db.collection("notifications").add({
+        ...notification_data,
+    })
+    .then(() => {
+        console.log("Document successfully written!");
+    })
+    .catch((error) => {
+        console.error("Error writing document: ", error);
+    });
+}
 
   const friendStatusUpdate = (action) => {
     if (action === 'Add' || action === 'Accept') {
@@ -125,17 +142,19 @@ if (loading) {
             createdAt: new Date(),
             }
         }
-    // docRef = 
-    db.collection("friends").doc(auth.currentUser.uid).collection("relationships").doc(userId).set(currentUserStatus)
+    let currentUserFriendRef = db.collection("friends").doc(auth.currentUser.uid).collection("relationships").doc(userId);
+    currentUserFriendRef.set(currentUserStatus)
     .then(() => {
         console.log("Document written");
         setSuccessMessage('Current User Request Added!')
+        sendNotification(action)
     })
     .catch((error) => {
         console.error("Error adding document: ", error);
         setErrorMessage(error.message)
         setLoading(true)
     });
+    
     db.collection("friends").doc(userId).collection("relationships").doc(auth.currentUser.uid).set(secondUserStatus)
     .then(() => {
         console.log("Document written");
@@ -225,6 +244,4 @@ const setImage = (image) => {
 )
 }
 
-export default FriendScreen
-
-const styles = StyleSheet.create({})
+export default FriendScreen;
