@@ -38,13 +38,33 @@ export default StyleSheet.create({
     justifyContent: 'center',
     alignContent: 'space-between',
     marginTop: 30,
+    // borderWidth: 1,
     },  
+  userDataInput: {
+      borderWidth: 1,
+      borderColor: '#ccc',
+      borderRadius: 10,
+      padding: 10,
+      width: '60%',
+      marginHorizontal: '5%',
+        marginVertical: 25,
+      height: 50,
+      alignSelf: 'flex-start',
+  },
+  containerColumnDir: {
+      flex: 1,
+      flexDirection: 'row',
+    //   justifyContent: 'center',
+    //   alignContent: 'space-between',
+    //   marginTop: 30,
+        marginHorizontal: '5%',
+      },  
   section: {
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'center',
     alignContent: 'space-between',
-    marginTop: -30,
+    // marginTop: -30,
   },
   scrollContainer: {
     flex: 1,
@@ -60,6 +80,7 @@ export default StyleSheet.create({
     height: 100,
     resizeMode: 'cover',
     borderRadius: 50,
+    marginLeft: '5%',
   },
   titleText: {
     fontSize: 20,
@@ -124,4 +145,8 @@ headerButton: {
     padding: 6,
     marginRight: 10,
   },
+plusButtonText: {
+    color: '#00b5ec',
+    paddingLeft: 10,
+},
 });
