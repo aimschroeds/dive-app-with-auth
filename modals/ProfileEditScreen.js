@@ -115,7 +115,7 @@ const ProfileEditScreen = ( { navigation }) => {
           searchable: userSearchEnabled,
           createdAt: new Date(),
         }
-        db.collection("users").doc(auth.currentUser.uid).set(data)
+        db.collection("users").doc(auth.currentUser.uid).set(data, { merge: true })
         .then(() => {
             console.log("Document written");
             setSuccessMessage('Profile data updated!')
