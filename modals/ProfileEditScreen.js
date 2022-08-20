@@ -20,7 +20,6 @@ const ProfileEditScreen = ( { navigation }) => {
   const [successMessage, setSuccessMessage] = useState(null)
   const [screenLoading, setScreenLoading] = useState(true)
   const [imageLoading, setImageLoading] = useState(false)
-  const [photo, setPhoto] = useState(null); // Local image URI
 
   let openImagePickerAsync = async () => {
     let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -41,12 +40,11 @@ const ProfileEditScreen = ( { navigation }) => {
   }
 
   const handleImageUpload = async (uri) => {
-    setPhoto(uri);
+    console.log("uri: ", uri);
     try {
       setImageLoading(true)
       const uploadUrl = await uploadImageAsync(uri);
       setUserProfilePictureURL(uploadUrl);
-      console.log(uploadUrl);
     }
     catch (error) {
        setErrorMessage(error.message)
@@ -71,7 +69,8 @@ const ProfileEditScreen = ( { navigation }) => {
         xhr.send(null);
       });
 
-      const photo_id = photo.split('/').pop();
+      const photo_id = uri.split('/').pop();
+      console.log("photo_id: ", photo_id);
       const ref = storage.ref().child(auth.currentUser.uid + '/' + photo_id);
       const snapshot = await ref.put(blob);
       // We're done with the blob, close and release it
@@ -100,7 +99,6 @@ const ProfileEditScreen = ( { navigation }) => {
     }
 
     const saveEditProfile = () => {
-        alert("save: " + userName)
         updateUserData()
         updateUserDataPublic()
         navigation.goBack()
@@ -136,7 +134,7 @@ if (screenLoading) {
           doc.data().image_ref ? setUserProfilePictureURL(doc.data().image_ref) : console.log('no image')
         //   userProfilePictureURL ? setUserProfilePictureURL(userProfilePictureURL) : setUserProfilePicture(doc.data().image_ref)
           userProfilePicture ? setImage(userProfilePicture) : console.log("Using image ref")
-          setImage(userProfilePicture)
+        //   setImage(userProfilePicture)
           console.log("Document data:", doc.data());
           setScreenLoading(false)
       } else {
@@ -195,18 +193,19 @@ const setImage = (image) => {
     switch (error.code) {
       case 'storage/object-not-found':
         // File doesn't exist
+        setErrorMessage('File doesn\'t exist')
         break;
       case 'storage/unauthorized':
         // User doesn't have permission to access the object
+        setErrorMessage('User doesn\'t have permission to access the object')
         break;
       case 'storage/canceled':
         // User canceled the upload
+        setErrorMessage('User canceled the upload')
         break;
-
-      // ...
-
       case 'storage/unknown':
         // Unknown error occurred, inspect the server response
+        setErrorMessage('Unknown error occurred, please try again')
         break;
     }
   });
