@@ -48,6 +48,7 @@ React.useLayoutEffect(() => {
             };
         var notiRef = notificationsRef
         .where('receiver', "==", auth.currentUser.uid)
+        .orderBy('createdAt', 'desc')
         .limit(100)
         .get(getOptions)
             .then((querySnapshot) => {
@@ -124,7 +125,7 @@ React.useLayoutEffect(() => {
                 <Image source={{ uri: item.sender_image }} style={{ width: 50, height: 50, borderRadius: 25 }} />
                 <TouchableOpacity style={{ marginLeft: 15, width: '50%' }} onPress={() => navigation.navigate('Friend', { userId: item.id })}>
                     <Text style={{ fontSize: 16 }}>
-                        {item.sender_name} {item.notification_type === 'Add' ? 'sent you a friend request' : 'accepted your friend request'}
+                        {item.sender_name} {item.type === 'Add' ? 'sent you a friend request' : 'accepted your friend request'}
                     </Text>
                     <Text style={{ fontSize: 12 }}>
                         {months[item.created_at.getMonth()-1]} {item.created_at.getDate()}, {item.created_at.getFullYear()} at {item.created_at.getHours()}:{item.created_at.getMinutes()}                          

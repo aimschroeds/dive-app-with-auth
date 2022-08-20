@@ -37,6 +37,7 @@ const FindFriendsScreen = ({ route, navigation }) => {
                     image_url: doc.data().image,
                     // image: image,
                     created_at: doc.data().created_at,
+                    loading: true,
                 }
                 // Create a reference to the file we want to show
                 var storageRef = storage.ref();
@@ -51,6 +52,7 @@ const FindFriendsScreen = ({ route, navigation }) => {
                     console.log(error);
                 });
                 eligibleUsers.push(user) 
+                user.loading = false
                 }
             })
         
@@ -87,7 +89,8 @@ const FindFriendsScreen = ({ route, navigation }) => {
                 padding: 16,
                 alignItems: 'center'
             }}>
-                <Image source={{ uri: item.image }} style={{ width: 50, height: 50, borderRadius: 25 }} />
+                { item.loading && <ActivityIndicator size="small" color="#00ff00" /> }
+                { !item.loading && <Image source={{ uri: item.image }} style={{ width: 50, height: 50, borderRadius: 25 }} /> }
                 <TouchableOpacity style={{ marginLeft: 15 }} onPress={() => navigation.navigate('Friend', { userId: item.id })}>
                     <Text style={{ fontSize: 22 }}>
                         {item.display_name}
