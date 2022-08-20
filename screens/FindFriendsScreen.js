@@ -30,6 +30,7 @@ const FindFriendsScreen = ({ route, navigation }) => {
         .then((querySnapshot) => {
             let eligibleUsers = []
             querySnapshot.forEach((doc) => {
+                if (doc.data().__name__ != auth.currentUser.uid) {
                 let user = {
                     id: doc.id,
                     display_name: doc.data().display_name,
@@ -50,12 +51,12 @@ const FindFriendsScreen = ({ route, navigation }) => {
                     console.log(error);
                 });
                 eligibleUsers.push(user) 
+                }
             })
+        
             
             setLoading(false)
             setUsers(eligibleUsers)
-            console.log(eligibleUsers)
-            console.log(users)
             })
         .catch((error) => {
             console.log("Error getting documents: ", error);
