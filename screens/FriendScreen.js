@@ -11,43 +11,33 @@ import { db, auth, storage } from '../firebase';
 import { collection, addDoc, query, where, getDocs, deleteDoc, doc, setDoc } from "firebase/firestore"; 
 
 
-const ProfileScreen = ( { route, navigation }) => {
-  const userId = auth.currentUser.uid
+const FriendScreen = ( { route, navigation }) => {
+  const { userId } = route.params
   const [userDisplayName, setUserDisplayName] = useState(null)
+  // const [userLastName, setUserLastName] = useState(null)
   const [userProfilePicture, setUserProfilePicture] = useState(null)
   const [userProfilePictureURL, setUserProfilePictureURL] = useState(null)
 
   var docRef = db.collection("users").doc(userId);
 
-  const showEdit = () => {
-    navigation.navigate('Edit Profile', { userId: userId })
+  const goBack = () => {
+    navigation.goBack();
   }
 
-  // useEffect (() => {
-  //   const unsubscribe = auth.onAuthStateChanged(user => {
-  //       if (!user) {
-  //           navigation.navigate('Login')
-  //       }
-  //   })
-  //   return unsubscribe
-  // }, [])
-
-  React.useLayoutEffect(() => {
-      navigation.setOptions({
-          headerRight: () => (
-          <TouchableOpacity
-              onPress={showEdit}
-              style={AppStyles.headerButton}
-            >
-            <Icon name="create-new-pencil-button" height='20' width='20' color="#00b5ec" />
-          </TouchableOpacity>
-          ),
-      })
-  }, [navigation])
+React.useLayoutEffect(() => {
+    navigation.setOptions({
+        headerLeft: () => (
+          <Text 
+            onPress={goBack}
+            style={AppStyles.plusButtonText}>Cancel</Text>
+        ),
+    })
+}, [navigation])
 
   docRef.get().then((doc) => {
       if (doc.exists) {
           setUserDisplayName(doc.data().display_name)
+          // setUserLastName(doc.data().last_name)
           setUserProfilePicture(doc.data().image)
           setImage(userProfilePicture)
           console.log("Document data:", doc.data());
@@ -113,6 +103,6 @@ const setImage = (image) => {
 )
 }
 
-export default ProfileScreen
+export default FriendScreen
 
 const styles = StyleSheet.create({})

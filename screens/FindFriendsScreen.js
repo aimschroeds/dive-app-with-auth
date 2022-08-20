@@ -87,12 +87,12 @@ const FindFriendsScreen = ({ route, navigation }) => {
                 alignItems: 'center'
             }}>
                 <Image source={{ uri: item.image }} style={{ width: 50, height: 50, borderRadius: 25 }} />
-                <TouchableOpacity style={{ marginLeft: 15 }} onPress={() => navigation.navigate('Profile', { userId: item.id })}>
+                <TouchableOpacity style={{ marginLeft: 15 }} onPress={() => navigation.navigate('Friend', { userId: item.id })}>
                     <Text style={{ fontSize: 22 }}>
                         {item.display_name}
                     </Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={{flex: 3, alignItems: 'flex-end' }} onPress={() => navigation.navigate('Profile', { userId: item.id })}>
+                <TouchableOpacity style={{flex: 3, alignItems: 'flex-end' }} onPress={() => navigation.navigate('Friend', { userId: item.id })}>
                     <Text style={{ fontSize: 12, borderWidth: 1, borderColor: '#CED0CE', padding: 10 }}>View Profile</Text>
                 </TouchableOpacity>
             </View>

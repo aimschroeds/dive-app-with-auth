@@ -62,7 +62,6 @@ function CoreTabs() {
       <Tab.Screen
           name="Profile"
           component={ProfileScreen}
-          initialParams={{ userId: auth.currentUser?.uid }}
           options={{
               tabBarLabel: 'Profile',
               tabBarIcon: ({ color, size }) => (
