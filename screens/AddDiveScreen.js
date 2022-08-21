@@ -8,14 +8,16 @@ import SearchDiveMaster from '../components/SearchDiveMaster';
 import DiveMasterSelection from '../modals/DiveMasterSelection';
 import AppStyles from '../styles/AppStyles';
 import { collection, addDoc, query, where, getDocs, deleteDoc, doc, setDoc } from "firebase/firestore"; 
+import Icon from 'react-native-ico-material-design';
+import DiveLocationModal from '../modals/DiveLocationModal';
+import MapView from 'react-native-maps';
+import { Marker } from 'react-native-maps';
 
 const wait = (timeout) => {
   return new Promise(resolve => setTimeout(resolve, timeout));
 }
 
 const AddDiveScreen = ( {navigation }) => {
-
-    // const navigation = useNavigation()
     
     const cancelAddDive = () => {
         navigation.navigate('Home')
@@ -31,19 +33,10 @@ const AddDiveScreen = ( {navigation }) => {
         })
     }, [navigation])
 
-    const sendVerificationEmail = () => {
-        auth.currentUser.sendEmailVerification()
-        .then(() => {
-            setSuccessMessage('Verification email sent!')
-        }).catch(error => {
-            setErrorMessage(error.message)
-        }
-        )
-    }
-
     const [dives, setDives] = useState([]);
     // const diveRef = firebase.firestore().collection('dives');
     const [diveSite, setDiveSite] = useState('');
+    const [diveLocation, setDiveLocation] = useState({});
     const [diveRegion, setDiveRegion] = useState('');
     const [diveStart, setDiveStart] = useState(new Date());
     const [diveEnd, setDiveEnd] = useState(new Date());
@@ -55,10 +48,12 @@ const AddDiveScreen = ( {navigation }) => {
     const [maxDepth, setMaxDepth] = useState('');
     const [diveCenterSearchModalVisible, setDiveCenterSearchModalVisible] = useState(false);
     const [diveMasterSearchModalVisible, setDiveMasterSearchModalVisible] = useState(false);
+    const [diveLocationModalVisible, setDiveLocationModalVisible] = useState(false);
     const [userNotVerified, setUserNotVerified] = useState(!auth.currentUser.emailVerified);
     const [errorMessage, setErrorMessage] = useState(null);
     const [successMessage, setSuccessMessage] = useState(null);
     const [refreshing, setRefreshing] = React.useState(false);
+
     
     // https://reactnative.dev/docs/refreshcontrol
     const onRefresh = React.useCallback(() => {
@@ -75,10 +70,20 @@ const AddDiveScreen = ( {navigation }) => {
       const currentSelectedDate = selectedDate;
       setDiveEnd(currentSelectedDate);
     };
+
+    const sendVerificationEmail = () => {
+      auth.currentUser.sendEmailVerification()
+      .then(() => {
+          setSuccessMessage('Verification email sent!')
+      }).catch(error => {
+          setErrorMessage(error.message)
+      }
+      )
+  }
     
     let addDive = async () => {
       let dive = {
-        diveSite: diveSite,
+        diveSite: diveSite.id,
         diveRegion: diveRegion,
         diveStart: diveStart,
         diveEnd: diveEnd,
@@ -119,6 +124,22 @@ const AddDiveScreen = ( {navigation }) => {
             behavior="padding"
             style={{marginHorizontal: 20}}
         >
+          { diveLocation.name && <MapView
+            style={[AppStyles.smallMap]}
+            region={{
+            latitude: diveLocation.latitude,
+            longitude: diveLocation.longitude,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+            }}
+            onPress={() => setDiveLocationModalVisible(true)}
+        >
+            <Marker
+                key={diveLocation.id}
+                coordinate={{ latitude: diveLocation.latitude, longitude: diveLocation.longitude }}
+                title={diveLocation.name}
+                />
+          </MapView> }
         {userNotVerified && <Text style={AppStyles.errorMessage}>To Log A Dive, Please Verify Your Email</Text>
        }
         {userNotVerified && <TouchableOpacity style={AppStyles.loginButton} onPress={sendVerificationEmail}>
@@ -129,21 +150,48 @@ const AddDiveScreen = ( {navigation }) => {
         <Text>Email: {auth.currentUser?.email}</Text>
         <Text>UUID: {auth.currentUser?.uid}</Text>
           <View style={AppStyles.container}>
-            <TextInput
+            <TouchableOpacity style={[AppStyles.buttonBlue, AppStyles.section]} 
+              onPress={() => setDiveLocationModalVisible(true)}
+            >
+              <Icon name="searching-location-gps-indicator" height='20' width='20' color="white"/>
+              { diveLocation.name ? <Text style={AppStyles.locationButtonText}>{diveLocation.name}</Text> : <Text style={AppStyles.locationButtonText}>Add Dive Site</Text> }
+              
+            </TouchableOpacity>
+                <Modal
+                    animationType="slide"
+                    presentationStyle="pageSheet"
+                    visible={diveLocationModalVisible}
+                    onRequestClose={() => {
+                      setDiveLocationModalVisible(!diveLocationModalVisible);
+                    }}>
+                  <DiveLocationModal 
+                    onClose={() => setDiveLocationModalVisible(false)}
+                    onSelect={(loc) => {setDiveLocation(loc)}}
+                    selectedLocation={diveLocation}
+                  />
+                </Modal>
+              <TouchableOpacity style={[AppStyles.buttonBlue, AppStyles.section]}
+                onPress={() => setDiveLocationModalVisible(true)}
+              >
+                <Icon name="location-arrow" height='20' width='20' color="white"/>
+                { diveLocation.name ? <Text style={AppStyles.locationButtonText}>{diveLocation.region}</Text> : <Text style={AppStyles.locationButtonText}>Add Region</Text> }
+              </TouchableOpacity>
+            </View>
+            {/* <TextInput
               style={styles.textInput}
               onChangeText={setDiveSite}
               value={diveSite}
-              placeholder="Dive Site"
+              placeholder="Add Dive Site"
               placeholderTextColor={'white'}
-            />
-            <TextInput
+            /> */}
+            {/* <TextInput
               style={styles.textInput}
               onChangeText={setDiveRegion}
               value={diveRegion}
-              placeholder="Region"
+              placeholder="Add Region"
               placeholderTextColor={'white'}
-            />
-          </View>
+            /> */}
+          
           <View style={styles.diverProfile}>
             <View style={styles.diverProfileHeader}>
               <Image

@@ -1,4 +1,5 @@
-import { StyleSheet } from 'react-native';
+import { Dimensions, StyleSheet } from 'react-native';
+
 
 export default StyleSheet.create({
   imageContainer: {
@@ -52,6 +53,15 @@ export default StyleSheet.create({
   read: {
     backgroundColor: '#fff',
   },
+  map: {
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height - 200,
+  },
+  smallMap: {
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height / 4,
+    marginLeft: - 20,
+  },
   container: {
     flex: 1,
     flexDirection: 'row',
@@ -71,9 +81,14 @@ export default StyleSheet.create({
       padding: 10,
       width: '60%',
       marginHorizontal: '5%',
-        marginVertical: 25,
+      marginVertical: 25,
       height: 50,
       alignSelf: 'flex-start',
+  },
+  mapViewContainer: {
+    paddingHorizontal: 20,
+    marginTop: 0,
+    // paddingVertical: -20,
   },
   containerColumnDir: {
       flex: 1,
@@ -85,6 +100,10 @@ export default StyleSheet.create({
       },  
   leftAlign: {
     alignSelf: 'flex-start',
+  },
+  marginVert: {
+    // marginVertical: 5,
+    paddingVertical: 15,
   },
   section: {
     // flex: 1,
@@ -164,6 +183,10 @@ errorMessage: {
 },
 successMessage: {
     color: 'green',
+},
+locationButtonText: {
+    color: 'white', 
+    marginLeft: 10,
 },
 headerButton: {
     // borderWidth: 2,
