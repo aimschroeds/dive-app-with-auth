@@ -4,15 +4,23 @@ import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import AppStyles from '../styles/AppStyles';
 import { db, auth, storage } from '../firebase';
 import { collection, addDoc, query, where, getDocs, deleteDoc, doc, setDoc } from "firebase/firestore"; 
+import { useIsFocused } from '@react-navigation/native';
 
-const NotificationsScreen = ({navigation}) => {
+const NotificationsScreen = ({ navigation }) => {
 const [notifications, setNotifications] = useState([])
 const [loading, setLoading] = useState(true)
-let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 const [lastViewed, setLastViewed] = useState(null)
 const [errorMessage, setErrorMessage] = useState(null)
 const [successMessage, setSuccessMessage] = useState(null)
+const inFocus = useIsFocused();
 
+React.useEffect (() => {
+    if (inFocus)
+    {
+        setLoading(true);
+    }
+}, [inFocus]);
 
 React.useLayoutEffect(() => {
     const unsubscribe = navigation.setOptions({
@@ -57,7 +65,7 @@ React.useLayoutEffect(() => {
                     let notification = {
                         id: doc.id,
                         sender: doc.data().sender,
-                        notification_type: doc.data().notification_type,
+                        type: doc.data().type,
                         created_at: new Date(doc.data().createdAt.seconds*1000),
                     }
                     console.log(notification)
@@ -65,28 +73,39 @@ React.useLayoutEffect(() => {
                     .get().then((user_doc) => {
                         if (user_doc.exists) {
                             notification.sender_name = user_doc.data().display_name;
-                            notification.sender_imageref = user_doc.data().image;
-                            // Create a reference to the file we want to show
-                            var storageRef = storage.ref();
-                            var profilePicRef = storageRef.child(notification.sender + '/' + notification.sender_imageref);
-                            // Get the download URL
-                            profilePicRef.getDownloadURL()
-                            .then((url) => {
-                                // Insert url into an <img> tag to "download"
-                                console.log(url)
-                                notification.sender_image = url
-                            })
-                            .catch((error) => {
-                                console.log(error);
-                            });
+                            console.log("notification.sender_name_init", notification.sender_name)
+                            if (user_doc.data().image_200_url)
+                            {
+                                notification.sender_image = user_doc.data().image_200_url;
+                            }
+                            else 
+                            {
+                                notification.sender_imageref = user_doc.data().image;
+                                // Create a reference to the file we want to show
+                                var storageRef = storage.ref();
+                                var profilePicRef = storageRef.child(notification.sender + '/' + notification.sender_imageref);
+                                // Get the download URL
+                                profilePicRef.getDownloadURL()
+                                .then((url) => {
+                                    // Insert url into an <img> tag to "download"
+                                    console.log(url)
+                                    notification.sender_image = url
+                                })
+                                .catch((error) => {
+                                    console.log(error);
+                                });
+                            }                           
                         } else {
                             // doc.data() will be undefined in this case
                             console.log("No such document! ", userId);
                         }
                     }).catch((error) => {
                         console.log("get().then((user_doc) => {:", error);
+                    }).finally(() => {
+                        notifications.push(notification)
+                        setNotifications(notifications)
+                        setLoading(false)
                     });
-                    notifications.push(notification)
                 })  
                 
                 setNotifications(notifications)
@@ -106,11 +125,12 @@ React.useLayoutEffect(() => {
                 console.error("Error adding document: ", error);
                 setErrorMessage(error.message)
                 // setLoading(true)
-    });
-    setLoading(false)
-}
+        });
+        setLoading(false)
+    }
+
     if (loading) {
-        loadNotifications()
+        loadNotifications();
     }
 
   return (
@@ -123,7 +143,7 @@ React.useLayoutEffect(() => {
             <View
             style={[AppStyles.listView, item.created_at > lastViewed ? AppStyles.unread : AppStyles.read]}>
                 <Image source={{ uri: item.sender_image }} style={{ width: 50, height: 50, borderRadius: 25 }} />
-                <TouchableOpacity style={{ marginLeft: 15, width: '50%' }} onPress={() => navigation.navigate('Friend', { userId: item.id })}>
+                <TouchableOpacity style={{ marginLeft: 15, width: '50%' }} onPress={() => navigation.navigate('Friend', { userId: item.sender })}>
                     <Text style={{ fontSize: 16 }}>
                         {item.sender_name} {item.type === 'Add' ? 'sent you a friend request' : 'accepted your friend request'}
                     </Text>
@@ -131,7 +151,7 @@ React.useLayoutEffect(() => {
                         {months[item.created_at.getMonth()-1]} {item.created_at.getDate()}, {item.created_at.getFullYear()} at {item.created_at.getHours()}:{item.created_at.getMinutes()}                          
                     </Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={{width: '30%', alignItems: 'flex-end' }} onPress={() => navigation.navigate('Friend', { userId: item.id })}>
+                <TouchableOpacity style={{width: '30%', alignItems: 'flex-end' }} onPress={() => navigation.navigate('Friend', { userId: item.sender })}>
                     <Text style={{ fontSize: 12, borderWidth: 1, borderColor: '#CED0CE', padding: 10 }}>View Profile</Text>
                 </TouchableOpacity>
             </View>
