@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import AppStyles from '../styles/AppStyles'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -21,6 +21,7 @@ const FriendScreen = ( { route, navigation }) => {
   const [errorMessage, setErrorMessage] = useState(null)
   const [successMessage, setSuccessMessage] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [imageLoading, setImageLoading] = useState(true)
 
   if (userId === auth.currentUser.uid) {
     navigation.navigate('Profile')
@@ -57,9 +58,28 @@ if (loading) {
   var userRef = db.collection("users").doc(userId);
   userRef.get().then((doc) => {
       if (doc.exists) {
-          setUserDisplayName(doc.data().display_name)
-          setUserProfilePicture(doc.data().image)
-          setImage(userProfilePicture)
+          setUserDisplayName(doc.data().display_name);
+          if (doc.data().image_200_url)
+          {
+            console.log("image_200_url: " + doc.data().image_200_url)
+            setUserProfilePictureURL(doc.data().image_200_url);
+            console.log("userProfilePictureURL: " + userProfilePictureURL)
+          }
+          else if (doc.data().image)
+          {
+            setUserProfilePicture(doc.data().image);
+            setImage(userProfilePicture);
+          }
+          else 
+          {
+            setUserProfilePicture(null);
+            setUserProfilePictureURL(null);
+          }
+          setImageLoading(false);
+        //   setUserDisplayName(doc.data().display_name)
+        //   setUserProfilePicture(doc.data().image)
+        //   setImage(userProfilePicture)
+          
       } else {
           // doc.data() will be undefined in this case
           console.log("No such document! ", userId);
@@ -67,8 +87,8 @@ if (loading) {
   }).catch((error) => {
       console.log("Error getting document:", error);
   });
-
   setLoading(false);
+  
 }
   
   const sendNotification = (notification_type) => {
@@ -82,10 +102,10 @@ if (loading) {
         ...notification_data,
     })
     .then(() => {
-        console.log("Document successfully written!");
+        console.log("Notification successfully written!");
     })
     .catch((error) => {
-        console.error("Error writing document: ", error);
+        console.error("Error writing notification: ", error);
     });
 }
 
@@ -102,26 +122,24 @@ if (loading) {
     db.collection("friends").doc(auth.currentUser.uid).collection("relationships").doc(userId)
     .delete()
     .then(() => {
-        console.log("Document successfully deleted!");
+        console.log("Friend record removed for current user");
     }).catch((error) => {
-        console.error("Error removing document: ", error);
+        console.error("Error: Friend record removed for current user - ", error);
     });
     db.collection("friends").doc(userId).collection("relationships").doc(auth.currentUser.uid)
     .delete()
     .then(() => {
-        console.log("Document successfully deleted!");
+        console.log("Friend record removed for friend!");
     }).catch((error) => {
-        console.error("Error removing document: ", error);
+        console.error("Error: Friend record removed for friend - ", error);
     });
     setSuccessMessage('Friend removed')
     setRelationship('none')
   }
 
   let addFriend = async (action) => {
-    console.log('action', action)
     if (action === 'Add') {
-        console.log('add')
-        setRelationship: 'requested'
+        setRelationship('requested')
         var currentUserStatus = {
             status: 'requested',
             createdAt: new Date(),
@@ -132,7 +150,7 @@ if (loading) {
             }
         }
     else if (action === 'Accept') {
-        setRelationship: 'accepted'
+        setRelationship('accepted')
         var currentUserStatus = {
             status: 'friends',
             createdAt: new Date(),
@@ -145,25 +163,25 @@ if (loading) {
     let currentUserFriendRef = db.collection("friends").doc(auth.currentUser.uid).collection("relationships").doc(userId);
     currentUserFriendRef.set(currentUserStatus)
     .then(() => {
-        console.log("Document written");
+        console.log("Added record for current user");
         setSuccessMessage('Current User Request Added!')
         sendNotification(action)
     })
     .catch((error) => {
-        console.error("Error adding document: ", error);
+        console.error("Failed to add record for current user", error);
         setErrorMessage(error.message)
-        setLoading(true)
+        // setLoading(true)
     });
     
     db.collection("friends").doc(userId).collection("relationships").doc(auth.currentUser.uid).set(secondUserStatus)
     .then(() => {
-        console.log("Document written");
+        console.log("Added record for friend");
         setSuccessMessage('Second User Pending Added!')
     })
     .catch((error) => {
-        console.error("Error adding document: ", error);
+        console.error("Failed to add record for friend: ", error);
         setErrorMessage(error.message)
-        setLoading(true)
+        // setLoading(true)
     });
   };
 
@@ -176,7 +194,8 @@ const setImage = (image) => {
   .then((url) => {
     // Insert url into an <img> tag to "download"
     setUserProfilePictureURL(url)
-    // console.log(userProfilePictureURL)
+    console.log(userProfilePictureURL)
+    setImageLoading(false)
   })
   .catch((error) => {
     // A full list of error codes is available at
@@ -207,8 +226,9 @@ const setImage = (image) => {
     <>
     <View style={[AppStyles.container]}>
       {/* <Text>{userProfilePictureURL}</Text> */}
-      { userProfilePictureURL &&  <Image source={{uri: userProfilePictureURL,}} style={[AppStyles.profilePic]}/> }
-      { !userProfilePictureURL &&  <Icon name='round-account-button-with-user-inside' width='100' height='100' color='gray' /> }     
+      {imageLoading ? <ActivityIndicator size="large" color="#0000ff" /> : <Image source={{uri: userProfilePictureURL}} style={AppStyles.profilePic} />}
+      {/* { userProfilePictureURL &&  <Image source={{uri: userProfilePictureURL,}} style={[AppStyles.profilePic]}/> } */}
+      { !imageLoading && !userProfilePictureURL &&  <Icon name='round-account-button-with-user-inside' width='100' height='100' color='gray' /> }     
     </View>
     <View style={[AppStyles.container]}>
       <Text style={[AppStyles.titleText]}>{userDisplayName} </Text>      

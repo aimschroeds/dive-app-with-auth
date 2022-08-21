@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import AppStyles from '../styles/AppStyles'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -16,6 +16,7 @@ const ProfileScreen = ( { route, navigation }) => {
   const [userDisplayName, setUserDisplayName] = useState(null)
   const [userProfilePicture, setUserProfilePicture] = useState(null)
   const [userProfilePictureURL, setUserProfilePictureURL] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   var docRef = db.collection("users").doc(userId);
 
@@ -33,6 +34,7 @@ const ProfileScreen = ( { route, navigation }) => {
   // }, [])
 
   React.useLayoutEffect(() => {
+      setLoading(true);
       navigation.setOptions({
           headerRight: () => (
           <TouchableOpacity
@@ -43,21 +45,42 @@ const ProfileScreen = ( { route, navigation }) => {
           </TouchableOpacity>
           ),
       })
+      const unsubscribe = navigation.addListener('focus', () => {
+        setLoading(true);
+      });
+      return unsubscribe;
   }, [navigation])
 
-  docRef.get().then((doc) => {
+if (loading) {
+    docRef.get().then((doc) => {
       if (doc.exists) {
-          setUserDisplayName(doc.data().display_name)
-          setUserProfilePicture(doc.data().image)
-          setImage(userProfilePicture)
-          console.log("Document data:", doc.data());
+          setUserDisplayName(doc.data().display_name);
+          if (doc.data().image_200_url)
+          {
+            setUserProfilePictureURL(doc.data().image_200_url);
+          }
+          else if (doc.data().image)
+          {
+            setUserProfilePicture(doc.data().image);
+            setImage(userProfilePicture);
+          }
+          else 
+          {
+            setUserProfilePicture(null);
+            setUserProfilePictureURL(null);
+          }
+          
+          console.log("User data downloaded");
       } else {
           // doc.data() will be undefined in this case
-          console.log("No such document! ", userId);
+          console.log("No such User data! ", userId);
       }
   }).catch((error) => {
-      console.log("Error getting document:", error);
+      console.log("Error getting User data:", error);
   });
+  setLoading(false);
+}
+  
 
 const setImage = (image) => {
   // Create a reference to the file we want to download
@@ -68,7 +91,8 @@ const setImage = (image) => {
   .then((url) => {
     // Insert url into an <img> tag to "download"
     setUserProfilePictureURL(url)
-    console.log(userProfilePictureURL)
+    console.log('Image downloaded');
+    setLoading(false)
   })
   .catch((error) => {
     // A full list of error codes is available at
@@ -99,11 +123,13 @@ const setImage = (image) => {
     <>
     <View style={[AppStyles.container]}>
       {/* <Text>{userProfilePictureURL}</Text> */}
-      { userProfilePictureURL &&  <Image source={{uri: userProfilePictureURL,}} style={[AppStyles.profilePic]}/> }
-      { !userProfilePictureURL &&  <Icon name='round-account-button-with-user-inside' width='100' height='100' color='gray' /> }     
+      {/* { loading && <ActivityIndicator size="large" color="#00b5ec" /> } */}
+      { !loading && userProfilePictureURL &&  <Image source={{uri: userProfilePictureURL,}} style={[AppStyles.profilePic]}/> }
+      { !loading && !userProfilePictureURL &&  <Icon name='round-account-button-with-user-inside' width='100' height='100' color='gray' /> }    
+      { loading && !userProfilePictureURL &&  <Icon name='round-account-button-with-user-inside' width='100' height='100' color='gray' /> }     
     </View>
     <View style={[AppStyles.section]}>
-      <Text style={[AppStyles.titleText]}>{userDisplayName} </Text>      
+      <Text style={[AppStyles.titleText]}>{userDisplayName} {loading}</Text>      
       
     </View>
     <View style={[AppStyles.section]}>
@@ -113,6 +139,4 @@ const setImage = (image) => {
 )
 }
 
-export default ProfileScreen
-
-const styles = StyleSheet.create({})
+export default ProfileScreen;

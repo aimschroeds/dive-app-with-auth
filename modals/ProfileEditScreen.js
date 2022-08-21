@@ -9,6 +9,8 @@ import { db, auth, storage } from '../firebase';
 import { collection, addDoc, query, where, getDocs, deleteDoc, doc, setDoc } from "firebase/firestore"; 
 import * as ImagePicker from 'expo-image-picker';
 import Checkbox from 'expo-checkbox';
+import get200ImageRef from '../helpers/get200ImageRef';
+import get200ImageUrl from '../helpers/get200ImageUrl';
 
 
 const ProfileEditScreen = ( { navigation }) => {
@@ -71,9 +73,10 @@ const ProfileEditScreen = ( { navigation }) => {
         xhr.send(null);
       });
 
+    //   const photo_id = get200ImageName(uri)
       const photo_id = uri.split('/').pop();
       setUserProfilePicture(photo_id)
-      const ref = storage.ref().child(auth.currentUser.uid + '/' + photo_id);
+      const ref = storage.ref().child(`${auth.currentUser.uid}/${photo_id}`);
       const snapshot = await ref.put(blob);
       // We're done with the blob, close and release it
       blob.close();
@@ -108,10 +111,13 @@ const ProfileEditScreen = ( { navigation }) => {
 
     let updateUserDataPublic = async () => {
         console.log("update", userProfilePictureURL)
+        let image_200 = get200ImageRef(userProfilePicture)
+        let image_200_url = get200ImageUrl(userProfilePictureURL)
         let data = {
           display_name: userName,
           image_ref: userProfilePictureURL,
-          image: userProfilePicture,
+          image: image_200,
+          image_200_url: image_200_url,
           searchable: userSearchEnabled,
           createdAt: new Date(),
         }
@@ -134,7 +140,7 @@ if (screenLoading) {
   docRef.get().then((doc) => {
       if (doc.exists) {
           doc.data().display_name ? setUserName(doc.data().display_name) : setUserName('')
-          doc.data().image_ref ? setUserProfilePictureURL(doc.data().image_ref) : console.log('no image')
+          doc.data().image_200_url ? setUserProfilePictureURL(doc.data().image_200_url) : console.log('no image')
           doc.data().searchable ? setUserSearchEnabled(doc.data().searchable) : setUserSearchEnabled(false)
         //   userProfilePictureURL ? setUserProfilePictureURL(userProfilePictureURL) : setUserProfilePicture(doc.data().image_ref)
           userProfilePicture ? setImage(userProfilePicture) : console.log("Using image ref")

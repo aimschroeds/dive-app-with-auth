@@ -34,29 +34,31 @@ const FindFriendsScreen = ({ route, navigation }) => {
                 let user = {
                     id: doc.id,
                     display_name: doc.data().display_name,
-                    image_url: doc.data().image,
-                    // image: image,
+                    image_url: doc.data().image_200_url,
+                    image: doc.data().image,
                     created_at: doc.data().created_at,
                     loading: true,
                 }
-                // Create a reference to the file we want to show
-                var storageRef = storage.ref();
-                var profilePicRef = storageRef.child(user.id + '/' + user.image_url);
-                // Get the download URL
-                profilePicRef.getDownloadURL()
-                .then((url) => {
-                    // Insert url into an <img> tag to "download"
-                    user.image = url
-                })
-                .catch((error) => {
-                    console.log(error);
-                });
+                if (!user.image_url)
+                {
+                    // Create a reference to the file we want to show
+                    var storageRef = storage.ref();
+                    var profilePicRef = storageRef.child(user.id + '/' + user.image);
+                    // Get the download URL
+                    profilePicRef.getDownloadURL()
+                    .then((url) => {
+                        // Insert url into an <img> tag to "download"
+                        user.image_url = url
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    });
+                }
+                
                 eligibleUsers.push(user) 
                 user.loading = false
                 }
             })
-        
-            
             setLoading(false)
             setUsers(eligibleUsers)
             })
@@ -90,7 +92,7 @@ const FindFriendsScreen = ({ route, navigation }) => {
                 alignItems: 'center'
             }}>
                 { item.loading && <ActivityIndicator size="small" color="#00ff00" /> }
-                { !item.loading && <Image source={{ uri: item.image }} style={{ width: 50, height: 50, borderRadius: 25 }} /> }
+                { !item.loading && <Image source={{ uri: item.image_url }} style={{ width: 50, height: 50, borderRadius: 25 }} /> }
                 <TouchableOpacity style={{ marginLeft: 15 }} onPress={() => navigation.navigate('Friend', { userId: item.id })}>
                     <Text style={{ fontSize: 22 }}>
                         {item.display_name}
