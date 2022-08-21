@@ -41,6 +41,17 @@ export default StyleSheet.create({
     // alignItems: 'center',
     width: '95%',
   },
+  listView: {
+    flexDirection: 'row',
+    padding: 16,
+    alignItems: 'center',
+  },
+  unread: {
+    backgroundColor: '#E0E0E0',
+  },
+  read: {
+    backgroundColor: '#fff',
+  },
   container: {
     flex: 1,
     flexDirection: 'row',
@@ -171,5 +182,18 @@ paragraph: {
   },
   checkbox: {
     margin: 8,
+  },
+
+  buttonBlue: {
+    height: 39,
+    marginVertical: 12,
+    padding: 10,
+    paddingHorizontal: 15,
+    borderRadius: 15,
+    backgroundColor: '#413FEB',
+    color: 'white',
+    width: '45%',
+    textAlign: 'center',
+    marginHorizontal: '3%',
   },
 });

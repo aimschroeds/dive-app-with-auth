@@ -11,12 +11,11 @@ import { auth } from '../firebase';
 const Tab = createBottomTabNavigator();
 
 function CoreTabs() {
-    console.log("CoreTabs: uuid: " + auth.currentUser?.uid);
     return (
     <Tab.Navigator
     initialRouteName="Login"
     screenOptions={{
-        tabBarActiveTintColor: '#e91e63',
+        tabBarActiveTintColor: '#FBDA76',
     }}
     >
       <Tab.Screen

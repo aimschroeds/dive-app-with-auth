@@ -2,7 +2,7 @@ import { ActivityIndicator, Image, StyleSheet, Text, TextInput, TouchableOpacity
 import React, { useState } from 'react'
 import AppStyles from '../styles/AppStyles'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { NavigationContainer } from '@react-navigation/native';
+import { useIsFocused } from '@react-navigation/native';
 import { Cell, Section, TableView } from 'react-native-tableview-simple';
 import { useNavigation } from '@react-navigation/native'
 import LoginScreen from './LoginScreen';
@@ -17,6 +17,7 @@ const ProfileScreen = ( { route, navigation }) => {
   const [userProfilePicture, setUserProfilePicture] = useState(null)
   const [userProfilePictureURL, setUserProfilePictureURL] = useState(null)
   const [loading, setLoading] = useState(true)
+  const inFocus = useIsFocused();
 
   var docRef = db.collection("users").doc(userId);
 
@@ -33,9 +34,16 @@ const ProfileScreen = ( { route, navigation }) => {
   //   return unsubscribe
   // }, [])
 
-  React.useLayoutEffect(() => {
+  React.useEffect(() => {
+    // setLoading(true);
+    if (inFocus) {
       setLoading(true);
-      navigation.setOptions({
+    }
+}, [inFocus])
+
+  React.useLayoutEffect(() => {
+      // setLoading(true);
+      const unsubscribe = navigation.setOptions({
           headerRight: () => (
           <TouchableOpacity
               onPress={showEdit}
@@ -44,10 +52,9 @@ const ProfileScreen = ( { route, navigation }) => {
             <Icon name="create-new-pencil-button" height='20' width='20' color="#00b5ec" />
           </TouchableOpacity>
           ),
-      })
-      const unsubscribe = navigation.addListener('focus', () => {
-        setLoading(true);
       });
+      // const unsubscribe = navigation.addListener('focus', () => {
+      //   setLoading(true);
       return unsubscribe;
   }, [navigation])
 
