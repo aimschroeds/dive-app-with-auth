@@ -1,4 +1,4 @@
-import { ActivityIndicator, Dimensions, FlatList, HeaderLeft, Image, Pressable, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Dimensions, FlatList, HeaderLeft, Image, Modal, Pressable, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { db, auth, storage } from '../firebase';
 import { collection, addDoc, query, where, getDocs, deleteDoc, doc, setDoc } from "firebase/firestore"; 
@@ -10,6 +10,7 @@ import { Marker } from 'react-native-maps';
 import { useNavigation } from '@react-navigation/native';
 import { useIsFocused } from '@react-navigation/native';
 import Icon from 'react-native-ico-material-design';
+import NewDiveLocationModal from './NewDiveLocationModal';
 
 const DiveLocationModal = (({ navigation, ...props }) => {
   const [locations, setLocations] = useState([])
@@ -19,6 +20,7 @@ const DiveLocationModal = (({ navigation, ...props }) => {
   const [userLoc, setUserLoc] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
   const inFocus = useIsFocused();
+  const [newDiveLocationModalVisible, setNewDiveLocationModalVisible] = useState(false)
 
   // console.log(Dimensions.get('window').height)
   
@@ -56,8 +58,8 @@ if (props.selectedLocation?.name && loading) {
 
   const onLocationSelect = (location) => {
     setLocation(location);
-    props.onSelect(location);
     console.log("onLocationSelect", location);
+    props.onSelect(location);
     goBack();
 }
   
@@ -76,7 +78,7 @@ if (props.selectedLocation?.name && loading) {
                     latitude: doc.data().latitude,
                     longitude: doc.data().longitude,
                     created_at: doc.data().created_at,
-                    region: doc.data().region,
+                    location: doc.data().location,
                     loading: true,
                 }
                 loc.loading = false
@@ -124,11 +126,23 @@ if (props.selectedLocation?.name && loading) {
         <View style={[AppStyles.container, AppStyles.mapViewContainer]}>
             
             <Text style={{color: '#413FEB', paddingVertical: 20, paddingHorizontal: 10, backgroundColor: 'white'}}>Dive Site Not On The Map?</Text>
-            <TouchableOpacity style={[AppStyles.buttonBlue, AppStyles.section]} >
+            <TouchableOpacity style={[AppStyles.buttonBlue, AppStyles.section]} onPress={()=>setNewDiveLocationModalVisible(true)}>
               <Icon name="searching-location-gps-indicator" height='20' width='20' color="white"/>
               <Text style={AppStyles.locationButtonText}>Add Location</Text>
             </TouchableOpacity>
         </View>
+        <Modal
+            animationType="slide"
+            presentationStyle="pageSheet"
+            visible={newDiveLocationModalVisible}
+            onRequestClose={() => {
+              setNewDiveLocationModalVisible(!newDiveLocationModalVisible);
+            }}>
+          <NewDiveLocationModal 
+            onClose={() => setNewDiveLocationModalVisible(false)}
+            onSelectLocation={(loc) => {onLocationSelect(loc)}}
+          />
+        </Modal>
     </View>
   )
 });

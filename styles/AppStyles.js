@@ -57,6 +57,14 @@ export default StyleSheet.create({
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height - 200,
   },
+  mapSetMarker: {
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height - 250,
+  },
+//   mapMedium: {
+//     width: Dimensions.get('window').width,
+//     height: Dimensions.get('window').height - 400,
+//   },
   smallMap: {
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height / 4,
@@ -218,5 +226,8 @@ paragraph: {
     width: '45%',
     textAlign: 'center',
     marginHorizontal: '3%',
+  },
+  buttonBlueSmall: {
+    width: '30%',
   },
 });

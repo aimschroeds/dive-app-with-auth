@@ -83,8 +83,7 @@ const AddDiveScreen = ( {navigation }) => {
     
     let addDive = async () => {
       let dive = {
-        diveSite: diveSite.id,
-        diveRegion: diveRegion,
+        diveSite: diveLocation.id,
         diveStart: diveStart,
         diveEnd: diveEnd,
         diveCenter: diveCenter,
@@ -174,7 +173,7 @@ const AddDiveScreen = ( {navigation }) => {
                 onPress={() => setDiveLocationModalVisible(true)}
               >
                 <Icon name="location-arrow" height='20' width='20' color="white"/>
-                { diveLocation.name ? <Text style={AppStyles.locationButtonText}>{diveLocation.region}</Text> : <Text style={AppStyles.locationButtonText}>Add Region</Text> }
+                { diveLocation.name ? <Text style={AppStyles.locationButtonText}>{diveLocation.location.region}</Text> : <Text style={AppStyles.locationButtonText}>Region</Text> }
               </TouchableOpacity>
             </View>
             {/* <TextInput
