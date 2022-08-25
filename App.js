@@ -13,6 +13,8 @@ import ResetPasswordScreen from './screens/ResetPasswordScreen';
 import DiveScreen from './modals/DiveScreen';
 import FriendScreen from './screens/FriendScreen';
 import { auth } from './firebase';
+import DiveLocationModal from './modals/DiveLocationModal';
+import AddBuddyModal from './modals/AddBuddy';
 
 const Stack = createNativeStackNavigator();
 
@@ -53,6 +55,18 @@ export default function App() {
           <Stack.Screen name="Edit Profile" component={ProfileEditScreen} />
           <Stack.Screen name="Dive" component={DiveScreen} />
           <Stack.Screen name="Friend" component={FriendScreen} />
+          <Stack.Screen name="Select Dive Location" component={DiveLocationModal} 
+            options={{
+              headerTitle: (props) => <LogoTitle {...props} />,
+              headerRight: () => (
+                <Button
+                  onPress={() => alert('This is a button!')}
+                  title="Info"
+                  color="#fff"
+                />
+              ),
+          }}/>
+          <Stack.Screen name="Select Buddy" component={AddBuddyModal} title="Add Dive Buddies"/>
         </Stack.Group>
       </Stack.Navigator>
     </NavigationContainer>

@@ -12,11 +12,14 @@ import Icon from 'react-native-ico-material-design';
 import DiveLocationModal from '../modals/DiveLocationModal';
 import MapView from 'react-native-maps';
 import { Marker } from 'react-native-maps';
+import AddBuddyModal from '../modals/AddBuddy';
 
 const wait = (timeout) => {
   return new Promise(resolve => setTimeout(resolve, timeout));
 }
 
+
+// Cancel button; when hit returns user to home
 const AddDiveScreen = ( {navigation }) => {
     
     const cancelAddDive = () => {
@@ -33,44 +36,60 @@ const AddDiveScreen = ( {navigation }) => {
         })
     }, [navigation])
 
+    // Constants capturing dive data
     const [dives, setDives] = useState([]);
-    // const diveRef = firebase.firestore().collection('dives');
-    const [diveSite, setDiveSite] = useState('');
     const [diveLocation, setDiveLocation] = useState({});
-    const [diveRegion, setDiveRegion] = useState('');
     const [diveStart, setDiveStart] = useState(new Date());
     const [diveEnd, setDiveEnd] = useState(new Date());
     const [diveCenter, setDiveCenter] = useState(null);
     const [diveMaster, setDiveMaster] = useState(null);
+    const [buddies, setBuddies] = useState([]);
     const [surfaceInterval, setSurfaceInterval] = useState('');
     const [startPressure, setStartPressure] = useState('');
     const [endPressure, setEndPressure] = useState('');
     const [maxDepth, setMaxDepth] = useState('');
+
+    // Constants enabling management of search Modals for various fields
     const [diveCenterSearchModalVisible, setDiveCenterSearchModalVisible] = useState(false);
     const [diveMasterSearchModalVisible, setDiveMasterSearchModalVisible] = useState(false);
     const [diveLocationModalVisible, setDiveLocationModalVisible] = useState(false);
+    const [diveBuddyModalVisible, setDiveBuddyModalVisible] = useState(false);
+
+    // Constants for managing user status
     const [userNotVerified, setUserNotVerified] = useState(!auth.currentUser.emailVerified);
+
+    // Constants for managing messaging to user
     const [errorMessage, setErrorMessage] = useState(null);
     const [successMessage, setSuccessMessage] = useState(null);
+
+    // Constants managing state of screen
     const [refreshing, setRefreshing] = React.useState(false);
 
     
     // https://reactnative.dev/docs/refreshcontrol
+    // Enables user to be able to reload screen every 2000 ms
     const onRefresh = React.useCallback(() => {
       setRefreshing(true);
       wait(2000).then(() => setRefreshing(false));
     }, []);
 
+
+    // Set dive start time
     const onChangeStart = (event, selectedTime) => {
       const currentSelectedTime = selectedTime;
       setDiveStart(currentSelectedTime);
     };
 
+
+    // Set dive end time
     const onChangeEnd = (event, selectedDate) => {
       const currentSelectedDate = selectedDate;
       setDiveEnd(currentSelectedDate);
     };
 
+
+    // Send user verification email 
+    // Prevent users from adding dives if not verified user (prevent spam)
     const sendVerificationEmail = () => {
       auth.currentUser.sendEmailVerification()
       .then(() => {
@@ -81,6 +100,8 @@ const AddDiveScreen = ( {navigation }) => {
       )
   }
     
+
+  // Add dive to "dives" collection in Firebase
     let addDive = async () => {
       let dive = {
         diveSite: diveLocation.id,
@@ -108,54 +129,65 @@ const AddDiveScreen = ( {navigation }) => {
     };
 
   return (
-    <SafeAreaView style={{backgroundColor: 'white'}}>
-      
-        <ScrollView style={{height:"100%"}} 
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-            />
-          }
+    <SafeAreaView style={{backgroundColor: 'white'}}>  
+      <ScrollView style={{height:"100%"}} 
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+          />
+        }
+      >
+        <KeyboardAvoidingView
+          // style={AppStyles.loginContainer}
+          behavior="padding"
+          style={{marginHorizontal: 20}}
         >
-          <KeyboardAvoidingView
-            // style={AppStyles.loginContainer}
-            behavior="padding"
-            style={{marginHorizontal: 20}}
-        >
+          {/* If dive location is set, show map with pin on dive site */}
           { diveLocation.name && <MapView
-            style={[AppStyles.smallMap]}
-            region={{
-            latitude: diveLocation.latitude,
-            longitude: diveLocation.longitude,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-            }}
-            onPress={() => setDiveLocationModalVisible(true)}
-        >
-            <Marker
-                key={diveLocation.id}
-                coordinate={{ latitude: diveLocation.latitude, longitude: diveLocation.longitude }}
-                title={diveLocation.name}
-                />
+              style={[AppStyles.smallMap]}
+              region={{
+              latitude: diveLocation.latitude,
+              longitude: diveLocation.longitude,
+              latitudeDelta: 0.0922,
+              longitudeDelta: 0.0421,
+              }}
+              onPress={() => setDiveLocationModalVisible(true)}
+            >
+              <Marker
+                  key={diveLocation.id}
+                  coordinate={{ latitude: diveLocation.latitude, longitude: diveLocation.longitude }}
+                  title={diveLocation.name}
+              />
           </MapView> }
-        {userNotVerified && <Text style={AppStyles.errorMessage}>To Log A Dive, Please Verify Your Email</Text>
-       }
-        {userNotVerified && <TouchableOpacity style={AppStyles.loginButton} onPress={sendVerificationEmail}>
-            <Text style={AppStyles.loginButtonText}>Send Verification Email</Text>
-        </TouchableOpacity> }
-        {successMessage && <Text style={AppStyles.successMessage}>{successMessage}</Text>}
-        {errorMessage && <Text style={AppStyles.errorMessage}>{errorMessage}</Text>}
-        <Text>Email: {auth.currentUser?.email}</Text>
-        <Text>UUID: {auth.currentUser?.uid}</Text>
+          {/* Unverified users receive prompt to verify their email address */}
+          {userNotVerified && <Text style={AppStyles.errorMessage}>To Log A Dive, Please Verify Your Email</Text>
+          }
+          {userNotVerified && <TouchableOpacity style={AppStyles.loginButton} onPress={sendVerificationEmail}>
+              <Text style={AppStyles.loginButtonText}>Send Verification Email</Text>
+          </TouchableOpacity> }
+
+          {/* Surface success/error messaging */}
+          {successMessage && <Text style={AppStyles.successMessage}>{successMessage}</Text>}
+          {errorMessage && <Text style={AppStyles.errorMessage}>{errorMessage}</Text>}
+
+          {/* Dev purposes only TODO: Remove */}
+          <Text>Email: {auth.currentUser?.email}</Text>
+          <Text>UUID: {auth.currentUser?.uid}</Text>
+
+          {/* Capture dive data */}
+          {/* Dive Location Data */}
           <View style={AppStyles.container}>
+            {/* Add Dive Site: Opens modal where user can select or add new dive site location */}
             <TouchableOpacity style={[AppStyles.buttonBlue, AppStyles.section]} 
               onPress={() => setDiveLocationModalVisible(true)}
             >
               <Icon name="searching-location-gps-indicator" height='20' width='20' color="white"/>
-              { diveLocation.name ? <Text style={AppStyles.locationButtonText}>{diveLocation.name}</Text> : <Text style={AppStyles.locationButtonText}>Add Dive Site</Text> }
-              
+              {/* If Dive Location is set, then show name of dive site. Otherwise prompt user to add data */}
+              { diveLocation.name ? <Text style={AppStyles.locationButtonText}>{diveLocation.name}</Text> : 
+                                    <Text style={AppStyles.locationButtonText}>Add Dive Site</Text> }         
             </TouchableOpacity>
+              {/* Dive site location modal */}
                 <Modal
                     animationType="slide"
                     presentationStyle="pageSheet"
@@ -169,28 +201,17 @@ const AddDiveScreen = ( {navigation }) => {
                     selectedLocation={diveLocation}
                   />
                 </Modal>
-              <TouchableOpacity style={[AppStyles.buttonBlue, AppStyles.section]}
-                onPress={() => setDiveLocationModalVisible(true)}
-              >
-                <Icon name="location-arrow" height='20' width='20' color="white"/>
-                { diveLocation.name ? <Text style={AppStyles.locationButtonText}>{diveLocation.location.region}</Text> : <Text style={AppStyles.locationButtonText}>Region</Text> }
-              </TouchableOpacity>
-            </View>
-            {/* <TextInput
-              style={styles.textInput}
-              onChangeText={setDiveSite}
-              value={diveSite}
-              placeholder="Add Dive Site"
-              placeholderTextColor={'white'}
-            /> */}
-            {/* <TextInput
-              style={styles.textInput}
-              onChangeText={setDiveRegion}
-              value={diveRegion}
-              placeholder="Add Region"
-              placeholderTextColor={'white'}
-            /> */}
-          
+            {/* Set Dive Region: Auto set on basis of Dive Site (opens dive site modal from above) */}
+            <TouchableOpacity style={[AppStyles.buttonBlue, AppStyles.section]}
+              onPress={() => setDiveLocationModalVisible(true)}
+            >
+              <Icon name="location-arrow" height='20' width='20' color="white"/>
+              {/* If Dive Location is set, then show region of dive site. Otherwise prompt user to add data */}
+              { diveLocation.name ? <Text style={AppStyles.locationButtonText}>{diveLocation.location.region}</Text> : 
+                                    <Text style={AppStyles.locationButtonText}>Region</Text> }
+            </TouchableOpacity>
+          </View>
+          {/* Dive Profile Section: Mimics layout of dive profile in analog diver logbooks */}
           <View style={styles.diverProfile}>
             <View style={styles.diverProfileHeader}>
               <Image
@@ -207,11 +228,11 @@ const AddDiveScreen = ( {navigation }) => {
                 style={styles.wave}
                 source={require('../assets/wave-long.png')}
               />
-            {/* Diver profile */}
+            {/* Dive profile: Data fields */}
             <View style={styles.diverProfileBody}>
               <View style={styles.diverProfileBodyContents}>
-              {/* First row: Surface Interval */}
-              <View style={[styles.diverProfileBodyRow, styles.leftAlignedRow]}>
+              {/* Row: Surface Interval data*/}
+              <View style={[styles.diverProfileBodyRow, styles.leftAlignedRow, {marginLeft: -10}]}>
                 <Text style={styles.diverProfileBodyText}>Surface Interval: </Text>
                 <TextInput 
                   style={styles.diverProfileBodyInput} 
@@ -220,12 +241,11 @@ const AddDiveScreen = ( {navigation }) => {
                 />
                 <Text style={styles.diverProfileBodyMeasure}>minutes</Text>
               </View>
-
-              {/* Second row: Start and End pressure */}
+              {/* Row: Start and End pressure */}
               <View style={styles.diverProfileBodyRow}>
-                {/* First column */}
+                {/* Column */}
                 <View style={styles.diverProfileBodyColumn}>
-                  {/* Start pressure */}
+                  {/* Start pressure data */}
                   <View style={[styles.diverProfileBodyRow]}>
                     <Text style={styles.diverProfileBodyText}>Start: </Text>
                     <TextInput 
@@ -237,13 +257,12 @@ const AddDiveScreen = ( {navigation }) => {
                     <Text style={styles.diverProfileBodyMeasure}>bar</Text>
                   </View>
                 </View>
-                {/* Second column */}
-                <View style={[styles.diverProfileBodyColumn]}>
-                  
+                {/* Column (intentionally blank) */}
+                <View style={[styles.diverProfileBodyColumn]}>            
                 </View>
-                {/* Third column */}
+                {/* Column */}
                 <View style={styles.diverProfileBodyColumn}>
-                  {/* End pressure */}
+                  {/* End pressure data */}
                   <View style={[styles.diverProfileBodyRow]}>
                     <Text style={styles.diverProfileBodyText}>End: </Text>
                     <TextInput 
@@ -254,88 +273,94 @@ const AddDiveScreen = ( {navigation }) => {
                     />
                     <Text style={styles.diverProfileBodyMeasure}>bar</Text>
                   </View>
-        
                 </View>
               </View>
-                <View style={styles.diverProfileBodyRow}>
-                  <Image
-                    style={styles.diveProfileImage}
-                    source={require('../assets/dive-profile.png')}
-                  />
-                </View>
-                <View style={[styles.diverProfileBodyRow, styles.centerAlignedRow]}>
-                    <Text style={styles.diverProfileBodyText}>Depth: </Text>
-                    <TextInput 
-                      style={styles.diverProfileBodyInput} 
-                      onChangeText={setMaxDepth}
-                      value={maxDepth}
-                      placeholder="0"
-                    />
-                    <Text style={styles.diverProfileBodyMeasure}>m</Text>
-                </View>
+              {/* Image for dive profile */}
+              <View style={styles.diverProfileBodyRow}>
+                <Image
+                  style={styles.diveProfileImage}
+                  source={require('../assets/dive-profile.png')}
+                />
+              </View>
+              {/* Column (centred) */}
+              <View style={[styles.diverProfileBodyRow, styles.centerAlignedRow]}>
+                {/* Max depth data */}
+                <Text style={styles.diverProfileBodyText}>Depth: </Text>
+                <TextInput 
+                  style={styles.diverProfileBodyInput} 
+                  onChangeText={setMaxDepth}
+                  value={maxDepth}
+                  placeholder="0"
+                />
+                <Text style={styles.diverProfileBodyMeasure}>m</Text>
               </View>
             </View>
           </View>
-          <TableView>
-            <Section hideSeparator>
-              <Cell
-                  cellAccessoryView={<DateTimePicker 
-                    testID="datePicker"
-                    style={styles.datePicker}
-                    maximumDate={new Date()} 
-                    mode="datetime"
-                    value={diveStart}
-                    onChange={onChangeStart}
-                  />}
-                  title="Time In"
-                  titleTextColor={'#413FEB'}
-                  titleTextStyle={styles.cellTitleText}
-                  hideSeparator={true}
-                  cellStyle="RightDetail"
-                >
-              </Cell>
-              <Cell
-                  cellAccessoryView={<DateTimePicker 
-                    testID="datePicker"
-                    style={styles.datePicker}
-                    maximumDate={new Date()} 
-                    mode="datetime"
-                    minimumDate={diveStart}
-                    value={diveEnd}
-                    onChange={onChangeEnd}
-                  />}
-                  title="Time Out"
-                  titleTextColor={'#413FEB'}
-                  titleTextStyle={styles.cellTitleText}
-                  hideSeparator={true}
-                  // cellStyle="RightDetail"
-                >
-              </Cell>
-              <Cell
-                cellStyle="RightDetail"
-                accessory="DisclosureIndicator"
-                title="Dive Center"
-                detail={diveCenter}
+        </View>
+        <TableView>
+          <Section hideSeparator>
+            {/* Dive start time */}
+            <Cell
+                cellAccessoryView={<DateTimePicker 
+                  testID="datePicker"
+                  style={styles.datePicker}
+                  maximumDate={new Date()} 
+                  mode="datetime"
+                  value={diveStart}
+                  onChange={onChangeStart}
+                />}
+                title="Time In"
                 titleTextColor={'#413FEB'}
                 titleTextStyle={styles.cellTitleText}
                 hideSeparator={true}
-                onPress={() => setDiveCenterSearchModalVisible(true)}
-              />
-              <Cell
                 cellStyle="RightDetail"
-                accessory="DisclosureIndicator"
-                title="Dive Master"
-                detail={diveMaster}
+              >
+            </Cell>
+            {/* Dive end time */}
+            <Cell
+                cellAccessoryView={<DateTimePicker 
+                  testID="datePicker"
+                  style={styles.datePicker}
+                  maximumDate={new Date()} 
+                  mode="datetime"
+                  minimumDate={diveStart}
+                  value={diveEnd}
+                  onChange={onChangeEnd}
+                />}
+                title="Time Out"
                 titleTextColor={'#413FEB'}
                 titleTextStyle={styles.cellTitleText}
                 hideSeparator={true}
-                onPress={() => setDiveMasterSearchModalVisible(true)}
-              />
-            </Section>
-          </TableView>
-          
-          <View style={AppStyles.centeredView}>
-          <Modal
+                // cellStyle="RightDetail"
+              >
+            </Cell>
+            {/* Dive buddy search */}
+            <Cell
+              cellStyle="RightDetail"
+              accessory="DisclosureIndicator"
+              title="Dive Buddies"
+              detail={buddies}
+              titleTextColor={'#413FEB'}
+              titleTextStyle={styles.cellTitleText}
+              hideSeparator={true}
+              onPress={() => setDiveBuddyModalVisible(true)}
+            />
+            {/* Dive master search */}
+            <Cell
+              cellStyle="RightDetail"
+              accessory="DisclosureIndicator"
+              title="Dive Master"
+              detail={diveMaster}
+              titleTextColor={'#413FEB'}
+              titleTextStyle={styles.cellTitleText}
+              hideSeparator={true}
+              onPress={() => setDiveMasterSearchModalVisible(true)}
+            />
+          </Section>
+        </TableView>  
+        <View style={AppStyles.centeredView}>
+          {/* Dive center search modal */}
+          {/* <Modal
             animationType="slide"
             // transparent={true}
             presentationStyle="pageSheet"
@@ -343,35 +368,9 @@ const AddDiveScreen = ( {navigation }) => {
             onRequestClose={() => {
               setDiveCenterSearchModalVisible(!diveCenterSearchModalVisible);
             }}>
-            <View style={AppStyles.centeredView}>
-              <KeyboardAvoidingView
-                style={{ flex: 1 }}
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                enabled>
-                <ScrollView
-                  nestedScrollEnabled
-                  keyboardDismissMode="on-drag"
-                  keyboardShouldPersistTaps="handled"
-                  contentInsetAdjustmentBehavior="automatic"
-                  contentContainerStyle={{ paddingBottom: 200 }}
-                  style={AppStyles.scrollContainer}>
-                  <View style={[AppStyles.container]}>
-                    <View style={[AppStyles.searchBar, Platform.select({ ios: { zIndex: 98 } })]}>
-                      <SearchDiveMaster/>
-                    </View>
-                    
-                  </View>
-                </ScrollView>
-              </KeyboardAvoidingView>
-                <Text style={AppStyles.modalText}>Hello World!</Text>
-                <Pressable
-                  style={[AppStyles.button, AppStyles.buttonClose]}
-                  onPress={() => setDiveCenterSearchModalVisible(!diveCenterSearchModalVisible)}>
-                  <Text style={AppStyles.textStyle}>Hide Modal</Text>
-                </Pressable>
-              </View>
-            {/* </View> */}
-          </Modal>
+            
+          </Modal> */}
+          {/* Dive master search modal */}
           <Modal
             animationType="slide"
             // transparent={true}
@@ -380,22 +379,38 @@ const AddDiveScreen = ( {navigation }) => {
             onRequestClose={() => {
               setDiveMasterSearchModalVisible(!diveMasterSearchModalVisible);
             }}>
-          <DiveMasterSelection 
-            onClose={() => setDiveMasterSearchModalVisible(false)}
-            onSelect={(diveMaster) => {setDiveMaster(diveMaster)}}
-          />
+            <DiveMasterSelection 
+              // onClose={(text) => setDiveMasterSearchModalVisible(false)}
+              onClose={(text) => console.log(text)}
+              onSelect={(diveMaster) => {setDiveMaster(diveMaster)}}
+            />
+          </Modal>
+          {/* Dive buddy search modal */}
+          <Modal
+            animationType="slide"
+            // transparent={true}
+            presentationStyle="pageSheet"
+            visible={diveBuddyModalVisible}
+            onRequestClose={() => {
+              setDiveBuddyModalVisible(!diveBuddyModalVisible);
+            }}>
+            <AddBuddyModal
+              onClose={() => setDiveBuddyModalVisible(false)}
+              onSelect={(buddies) => setBuddies(buddies)}
+            />
           </Modal>
         </View>
+
+        {/* Add Dive Button --> Submits dive to database */}
         <TouchableOpacity 
           style={AppStyles.button} 
           onPress={addDive} 
           disable={userNotVerified ? true : false}>
           <Text style={AppStyles.buttonText}>Log Dive</Text>
         </TouchableOpacity>
-        </KeyboardAvoidingView>
-      </ScrollView>
-      
-    </SafeAreaView>
+      </KeyboardAvoidingView>
+    </ScrollView>    
+  </SafeAreaView>
     
     
   )
