@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Text, TouchableOpacity, View } from 'react-native'
 import React, { useLayoutEffect } from 'react'
 
 import { auth } from '../firebase'
@@ -43,14 +43,14 @@ import AppStyles from '../styles/AppStyles';
       }
 
    return (
-    <View style={styles.container}>
+    <View style={AppStyles.containerOrig}>
         <Text>Email: {auth.currentUser?.email}</Text>
         {/* Log out button */}
         <TouchableOpacity
             onPress={handleLogOut}
-            style={styles.button}
+            style={AppStyles.buttonHome}
         >
-            <Text style={styles.buttonText}>Logout</Text>
+            <Text style={AppStyles.buttonText}>Logout</Text>
         </TouchableOpacity>
             {/* <NavigationBar navigation={navigation} /> */}
     </View>
@@ -58,26 +58,4 @@ import AppStyles from '../styles/AppStyles';
    )
  }
  
- export default HomeScreen
- 
- const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    button: {
-        backgroundColor: '#00b5ec',
-        width: '60%',
-        padding: 15,
-        borderRadius: 10,
-        alignItems: 'center',
-        marginTop: 40,
-    },
-    buttonText: {
-        color: 'white',
-        fontWeight: '700',
-        fontSize: 18,
-    },
-      
- })
+ export default HomeScreen;

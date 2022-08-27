@@ -304,7 +304,7 @@ const FriendScreen = ( { route, navigation }) => {
           </TouchableOpacity> }
       </View>
     </>
-)
+  )
 }
 
 export default FriendScreen;

@@ -1,5 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import React from 'react';
+
+import AppStyles from '../styles/AppStyles';
 
 const ExploreScreen = () => {
   return (
@@ -9,6 +11,4 @@ const ExploreScreen = () => {
   )
 }
 
-export default ExploreScreen
-
-const styles = StyleSheet.create({})
+export default ExploreScreen;

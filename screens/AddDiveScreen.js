@@ -226,87 +226,87 @@ const AddDiveScreen = ( {navigation }) => {
                   </TouchableOpacity>
               </View>
               {/* Dive Profile Section: Mimics layout of dive profile in analog diver logbooks */}
-              <View style={styles.diverProfile}>
-                  <View style={styles.diverProfileHeader}>
+              <View style={AppStyles.diverProfile}>
+                  <View style={AppStyles.diverProfileHeader}>
                       <Image
-                        style={styles.smallIcon}
+                        style={AppStyles.smallIcon}
                         source={require('../assets/coral.png')}
                       />
-                      <Text style={styles.diverProfileText}>Dive Profile</Text>
+                      <Text style={AppStyles.diverProfileText}>Dive Profile</Text>
                       <Image
-                        style={styles.smallIcon}
+                        style={AppStyles.smallIcon}
                         source={require('../assets/diver.png')}
                       />
                   </View>
                   <Image
-                      style={styles.wave}
+                      style={AppStyles.wave}
                       source={require('../assets/wave-long.png')}
                   />
                   {/* Dive profile: Data fields */}
-                  <View style={styles.diverProfileBody}>
-                      <View style={styles.diverProfileBodyContents}>
+                  <View style={AppStyles.diverProfileBody}>
+                      <View style={AppStyles.diverProfileBodyContents}>
                           {/* Row: Surface Interval data*/}
-                          <View style={[styles.diverProfileBodyRow, styles.leftAlignedRow, {marginLeft: -10}]}>
-                              <Text style={styles.diverProfileBodyText}>Surface Interval: </Text>
+                          <View style={[AppStyles.diverProfileBodyRow, AppStyles.leftAlignedRow, {marginLeft: -10}]}>
+                              <Text style={AppStyles.diverProfileBodyText}>Surface Interval: </Text>
                               <TextInput 
-                                style={styles.diverProfileBodyInput} 
+                                style={AppStyles.diverProfileBodyInput} 
                                 onChangeText={setSurfaceInterval}
                                 value={surfaceInterval}
                               />
-                              <Text style={styles.diverProfileBodyMeasure}>minutes</Text>
+                              <Text style={AppStyles.diverProfileBodyMeasure}>minutes</Text>
                           </View>
                           {/* Row: Start and End pressure */}
-                          <View style={styles.diverProfileBodyRow}>
+                          <View style={AppStyles.diverProfileBodyRow}>
                               {/* Column */}
-                              <View style={styles.diverProfileBodyColumn}>
+                              <View style={AppStyles.diverProfileBodyColumn}>
                                   {/* Start pressure data */}
-                                  <View style={[styles.diverProfileBodyRow]}>
-                                    <Text style={styles.diverProfileBodyText}>Start: </Text>
+                                  <View style={[AppStyles.diverProfileBodyRow]}>
+                                    <Text style={AppStyles.diverProfileBodyText}>Start: </Text>
                                     <TextInput 
-                                      style={styles.diverProfileBodyInput} 
+                                      style={AppStyles.diverProfileBodyInput} 
                                       onChangeText={setStartPressure}
                                       value={startPressure}
                                       placeholder="200"
                                     />
-                                    <Text style={styles.diverProfileBodyMeasure}>bar</Text>
+                                    <Text style={AppStyles.diverProfileBodyMeasure}>bar</Text>
                                   </View>
                               </View>
                               {/* Column (intentionally blank) */}
-                              <View style={[styles.diverProfileBodyColumn]}>            
+                              <View style={[AppStyles.diverProfileBodyColumn]}>            
                               </View>
                               {/* Column */}
-                              <View style={styles.diverProfileBodyColumn}>
+                              <View style={AppStyles.diverProfileBodyColumn}>
                                 {/* End pressure data */}
-                                  <View style={[styles.diverProfileBodyRow]}>
-                                      <Text style={styles.diverProfileBodyText}>End: </Text>
+                                  <View style={[AppStyles.diverProfileBodyRow]}>
+                                      <Text style={AppStyles.diverProfileBodyText}>End: </Text>
                                       <TextInput 
-                                        style={styles.diverProfileBodyInput} 
+                                        style={AppStyles.diverProfileBodyInput} 
                                         onChangeText={setEndPressure}
                                         value={endPressure}
                                         placeholder="50"
                                       />
-                                      <Text style={styles.diverProfileBodyMeasure}>bar</Text>
+                                      <Text style={AppStyles.diverProfileBodyMeasure}>bar</Text>
                                   </View>
                               </View>
                         </View>
                         {/* Image for dive profile */}
-                        <View style={styles.diverProfileBodyRow}>
+                        <View style={AppStyles.diverProfileBodyRow}>
                             <Image
-                              style={styles.diveProfileImage}
+                              style={AppStyles.diveProfileImage}
                               source={require('../assets/dive-profile.png')}
                             />
                         </View>
                         {/* Column (centred) */}
-                        <View style={[styles.diverProfileBodyRow, styles.centerAlignedRow]}>
+                        <View style={[AppStyles.diverProfileBodyRow, AppStyles.centerAlignedRow]}>
                             {/* Max depth data */}
-                            <Text style={styles.diverProfileBodyText}>Depth: </Text>
+                            <Text style={AppStyles.diverProfileBodyText}>Depth: </Text>
                             <TextInput 
-                              style={styles.diverProfileBodyInput} 
+                              style={AppStyles.diverProfileBodyInput} 
                               onChangeText={setMaxDepth}
                               value={maxDepth}
                               placeholder="0"
                             />
-                            <Text style={styles.diverProfileBodyMeasure}>m</Text>
+                            <Text style={AppStyles.diverProfileBodyMeasure}>m</Text>
                         </View>
                     </View>
                 </View>
@@ -317,7 +317,7 @@ const AddDiveScreen = ( {navigation }) => {
                     <Cell
                         cellAccessoryView={<DateTimePicker 
                           testID="datePicker"
-                          style={styles.datePicker}
+                          style={AppStyles.datePicker}
                           maximumDate={new Date()} 
                           mode="datetime"
                           value={diveStart}
@@ -325,7 +325,7 @@ const AddDiveScreen = ( {navigation }) => {
                         />}
                         title="Time In"
                         titleTextColor={'#413FEB'}
-                        titleTextStyle={styles.cellTitleText}
+                        titleTextStyle={AppStyles.cellTitleText}
                         hideSeparator={true}
                         cellStyle="RightDetail"
                     >
@@ -334,7 +334,7 @@ const AddDiveScreen = ( {navigation }) => {
                     <Cell
                         cellAccessoryView={<DateTimePicker 
                           testID="datePicker"
-                          style={styles.datePicker}
+                          style={AppStyles.datePicker}
                           maximumDate={new Date()} 
                           mode="datetime"
                           minimumDate={diveStart}
@@ -343,7 +343,7 @@ const AddDiveScreen = ( {navigation }) => {
                         />}
                         title="Time Out"
                         titleTextColor={'#413FEB'}
-                        titleTextStyle={styles.cellTitleText}
+                        titleTextStyle={AppStyles.cellTitleText}
                         hideSeparator={true}
                         // cellStyle="RightDetail"
                     >
@@ -356,7 +356,7 @@ const AddDiveScreen = ( {navigation }) => {
                       contentContainerStyle={{flexDirection: 'row', justifyContent: 'space-between'}}
                       cellContentView={
                           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
-                              <Text style={[styles.cellTitleText, {color: '#413FEB'}]}>Dive Buddies </Text>
+                              <Text style={[AppStyles.cellTitleText, {color: '#413FEB'}]}>Dive Buddies </Text>
                               <View style={{ flexDirection: 'row', marginLeft: 20}}>
                                 { buddies.length > 0 &&
                                   buddies.map((buddy, index) => <Image key={buddy.id} source={{ uri: buddy.image_url }} style={{ width: 30, height: 30, borderRadius: 30, marginLeft: -12, borderWidth: 1, borderColor: 'white'}} /> )
@@ -366,7 +366,7 @@ const AddDiveScreen = ( {navigation }) => {
                       }
                       // detail={buddies}
                       titleTextColor={'#413FEB'}
-                      titleTextStyle={styles.cellTitleText}
+                      titleTextStyle={AppStyles.cellTitleText}
                       hideSeparator={true}
                       onPress={() => setDiveBuddyModalVisible(true)}
                     />
@@ -377,7 +377,7 @@ const AddDiveScreen = ( {navigation }) => {
                       title="Dive Master"
                       detail={diveMaster}
                       titleTextColor={'#413FEB'}
-                      titleTextStyle={styles.cellTitleText}
+                      titleTextStyle={AppStyles.cellTitleText}
                       hideSeparator={true}
                       onPress={() => setDiveMasterSearchModalVisible(true)}
                     />
@@ -429,7 +429,7 @@ const AddDiveScreen = ( {navigation }) => {
 
             {/* Add Dive Button --> Submits dive to database */}
             <TouchableOpacity 
-                style={AppStyles.button} 
+                style={AppStyles.buttonBlue} 
                 onPress={addDive} 
                 disable={userNotVerified ? true : false}>
                 <Text style={AppStyles.buttonText}>Log Dive</Text>
@@ -455,7 +455,7 @@ const styles = StyleSheet.create({
   searchBar: {
     // flex: 1,
     // alignItems: 'center',
-    width: '95%',
+    // width: '95%',
   },
   // button: {
   //   borderRadius: 20,
@@ -488,18 +488,18 @@ const styles = StyleSheet.create({
     //     alignContent: 'space-between',
     //     marginTop: 30,
     // },
-    textInput: {
-      height: 30,
-      marginVertical: 12,
-      padding: 10,
-      paddingHorizontal: 15,
-      borderRadius: 15,
-      backgroundColor: '#413FEB',
-      color: 'white',
-      width: '45%',
-      textAlign: 'center',
-      marginHorizontal: '3%',
-    },
+    // textInput: {
+    //   height: 30,
+    //   marginVertical: 12,
+    //   padding: 10,
+    //   paddingHorizontal: 15,
+    //   borderRadius: 15,
+    //   backgroundColor: '#413FEB',
+    //   color: 'white',
+    //   width: '45%',
+    //   textAlign: 'center',
+    //   marginHorizontal: '3%',
+    // },
 
     dateInput: {
       height: 30,
@@ -545,11 +545,7 @@ const styles = StyleSheet.create({
       fontFamily: 'Helvetica',
       fontWeight: 'bold',
     },
-    smallIcon: {
-      width: 20,
-      height: 20,
-      paddingTop: 5,
-    },
+    
     wave: {
       marginTop: 20,
     },
