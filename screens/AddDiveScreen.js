@@ -1,4 +1,4 @@
-import { ActivityIndicator, Image, KeyboardAvoidingView, Modal, Pressable, RefreshControl, StyleSheet, SafeAreaView, ScrollView, Switch, Text, TextInput, View, TouchableOpacity  } from 'react-native'
+import { ActivityIndicator, FlatList, Image, KeyboardAvoidingView, Modal, Pressable, RefreshControl, StyleSheet, SafeAreaView, ScrollView, Switch, Text, TextInput, View, TouchableOpacity  } from 'react-native'
 import { Cell, Section, TableView } from 'react-native-tableview-simple';
 import { useNavigation } from '@react-navigation/native'
 import React, { useState } from 'react';
@@ -339,7 +339,18 @@ const AddDiveScreen = ( {navigation }) => {
               cellStyle="RightDetail"
               accessory="DisclosureIndicator"
               title="Dive Buddies"
-              detail={buddies}
+              contentContainerStyle={{flexDirection: 'row', justifyContent: 'space-between'}}
+              cellContentView={
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+                  <Text style={[styles.cellTitleText, {color: '#413FEB'}]}>Dive Buddies </Text>
+                  <View style={{ flexDirection: 'row', marginLeft: 20}}>
+                    { buddies.length > 0 &&
+                      buddies.map((buddy, index) => <Image key={buddy.id} source={{ uri: buddy.image_url }} style={{ width: 30, height: 30, borderRadius: 30, marginLeft: -12, borderWidth: 1, borderColor: 'white'}} /> )
+                    }
+                  </View>
+                </View>
+              }
+              // detail={buddies}
               titleTextColor={'#413FEB'}
               titleTextStyle={styles.cellTitleText}
               hideSeparator={true}
@@ -397,6 +408,7 @@ const AddDiveScreen = ( {navigation }) => {
             <AddBuddyModal
               onClose={() => setDiveBuddyModalVisible(false)}
               onSelect={(buddies) => setBuddies(buddies)}
+              selectedBuddies={buddies}
             />
           </Modal>
         </View>

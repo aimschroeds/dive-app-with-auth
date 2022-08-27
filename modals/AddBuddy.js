@@ -17,37 +17,60 @@ const AddBuddyModal =  (({ navigation, ...props }) => {
   const [searchError, setSearchError] = useState(null)
   const inFocus = useIsFocused();
 
-  if (props.selectedBuddies?.length > 0 && loading) {
-    let buds = props.selectedBuddies
-    setBuddies(buds);
-    // setLoading(false);
-  }
+  useEffect(() => {
+    if (props.selectedBuddies?.length > 0 && loading) {
+        console.log('selected buddies', props.selectedBuddies)
+        // let buds = props.selectedBuddies;
+        // setBuddies(props.selectedBuddies)
+        setLoading(false);
+        props.selectedBuddies.forEach(buddy => {
+            console.log('buddy', buddy)
+            // friendAddedAsBuddy(buddy);
+            addBuddy(buddy);
+        })
+        
+    }
+  }, [inFocus])
+  
   
 
   const goBack = () => {
     props.onClose();
   }
 
-  const onBuddySelect = (buddy) => {
-    setBuddy(buddy);
+  const onBuddySelect = () => {
+    // setBuddy(buddy);
     // console.log("onBuddySelect", buddy);
-    props.onSelect(buddy);
+    props.onSelect(buddies);
     goBack();
 }
 
 const addBuddy = (bud) => {
     setBuddies(buddies => [...buddies, bud]);
+    // const updatedFriends = friends.map(friend => {
+    //     if (friend.id === bud.id) {
+    //         return { ...friend, added_to_dive: true };
+    //     }
+    //     return friend;
+    // });
+    // setFriends(updatedFriends);   
+    console.log('buddy', bud) 
+    friendAddedAsBuddy(bud);
+}
+
+const friendAddedAsBuddy = (bud) => {
+    console.log('friendAddedAsBuddy', bud)
+    console.log(friends ? "friends" : "no friends")
     const updatedFriends = friends.map(friend => {
+        console.log('friend', friend)
         if (friend.id === bud.id) {
+            
             return { ...friend, added_to_dive: true };
         }
+        console.log('friend', friend)
         return friend;
     });
-    setFriends(updatedFriends);
-    // setBuddies(...buddies, buddy);
-    
-    // buddies.forEach((buddy) => {console.log(buddy)})
-    
+    setFriends(updatedFriends); 
 }
 
 const removeBuddy = (bud) => {
@@ -64,9 +87,6 @@ const removeBuddy = (bud) => {
     });
     setFriends(updatedFriends);
 }
-useEffect(() => {
-    console.log("useEffect", buddies);
-}, [buddies])
 
   var friendsRef = db.collection("friends").doc(auth.currentUser.uid).collection("relationships");
 
@@ -83,7 +103,7 @@ useEffect(() => {
         .then((querySnapshot) => {
             let eligibleFriends = []
             querySnapshot.forEach((friend) => {
-                console.log(friend.id, " => ", friend.data());
+                // console.log(friend.id, " => ", friend.data());
                 db.collection("users").doc(friend.id).get()
                 .then((user) => {
                     // console.log(user.id, " => ", user.data());
@@ -145,38 +165,30 @@ useEffect(() => {
     <View
       style={{marginTop: '1%'}}
     > 
-      <Pressable onPress={goBack}>
-        <Text style={[AppStyles.plusButtonText, AppStyles.marginVert]}> Back </Text>
-      </Pressable>
-      <Pressable onPress={onBuddySelect}>
-        <Text style={[AppStyles.plusButtonText, AppStyles.marginVert]}> Done </Text>
-      </Pressable>
+        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <Pressable onPress={goBack}>
+                <Text style={[AppStyles.plusButtonText, AppStyles.marginVert]}> Back </Text>
+            </Pressable>
+            <Pressable onPress={onBuddySelect}>
+                <Text style={[AppStyles.plusButtonText, AppStyles.marginVert]}> Done </Text>
+            </Pressable>
+        </View>
       <TextInput 
             style={[AppStyles.input]}
             onChangeText={(text) => updateSearch(text)}
             // value={search}
             placeholder="Search"
         />
-        <View style={{ flexDirection: 'column'}}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap', borderWidth: 1, }}>
         { buddies.length > 0 && <FlatList 
             data={buddies}
             keyExtractor={(buddy) => buddy.id}
             renderItem={(buddy) => (
-                <View style={{ marginLeft: 10, marginBottom: 5, flex: 1, flexDirection: 'row', borderRadius: 15, backgroundColor: '#413FEB', padding: 5, alignSelf: 'flex-start' }}>
+                <View style={{ marginLeft: 10, marginBottom: 5, flex: 1, flexDirection: 'row', borderRadius: 15, borderColor: '#413FEB', borderWidth: 2, padding: 2, alignSelf: 'flex-start' }}>
+                {/* <View style={{ marginLeft: 10, marginBottom: 5, flex: 1, flexDirection: 'row', borderRadius: 15, borderColor: '#413FEB', borderWidth: 2, padding: 2, justifyContent: 'flex-start'}}> */}
                     <Image source={{ uri: buddy.item.image_url }} style={{ width: 25, height: 25, borderRadius: 25 }} />
-                    <Text style={{ color: 'white', fontSize: 13, marginHorizontal: 5, alignSelf: 'center'}}>{buddy.item.display_name}</Text>
+                    <Text style={{ fontSize: 13, marginHorizontal: 5, alignSelf: 'center'}}>{buddy.item.display_name}</Text>
                 </View>
-                // <View
-                //     style={{
-                //         flexDirection: 'row',
-                //         padding: 16,
-                //         alignItems: 'center'
-                //     }}>
-                //     {/* <Image source={{ uri: buddy.image_url }} style={{ width: 25, height: 25, borderRadius: 25 }} /> */}
-                //     <Text style={{ fontSize: 22 }}>
-                //         {buddy.item.display_name}
-                //     </Text>
-                // </View>
             )}
         /> }
         </View>
