@@ -1,74 +1,94 @@
-import { ActivityIndicator, Dimensions, FlatList, HeaderLeft, Image, Modal, Pressable, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { useState, useEffect } from 'react'
-import { db, auth, storage } from '../firebase';
-import { collection, addDoc, query, where, getDocs, deleteDoc, doc, setDoc } from "firebase/firestore"; 
-import getFirebaseImage from '../helpers/getImage';
-import AppStyles from '../styles/AppStyles';
+import { Modal, Pressable, Text, TouchableOpacity, View } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { useIsFocused } from '@react-navigation/native';
+
+import { db } from '../firebase';
+
 import MapView from 'react-native-maps';
 import * as Location from 'expo-location';
 import { Marker } from 'react-native-maps';
-import { useNavigation } from '@react-navigation/native';
-import { useIsFocused } from '@react-navigation/native';
+
 import Icon from 'react-native-ico-material-design';
+
 import NewDiveLocationModal from './NewDiveLocationModal';
 
+import AppStyles from '../styles/AppStyles';
+
+/**
+ * Enable user to set dive location / dive site
+ * @param {*} navigation
+ * @param {*} props 
+ * @returns {JSX.Element}
+ */
+
 const DiveLocationModal = (({ navigation, ...props }) => {
-  const [locations, setLocations] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [markersLoading, setMarkersLoading] = useState(true)
-  const [location, setLocation] = useState(null)
-  const [userLoc, setUserLoc] = useState(null)
-  const [errorMessage, setErrorMessage] = useState(null)
-  const inFocus = useIsFocused();
-  const [newDiveLocationModalVisible, setNewDiveLocationModalVisible] = useState(false)
+    const [locations, setLocations] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [markersLoading, setMarkersLoading] = useState(true)
+    const [location, setLocation] = useState(null)
+    const [userLoc, setUserLoc] = useState(null)
+    const [errorMessage, setErrorMessage] = useState(null)
+    const inFocus = useIsFocused();
+    const [newDiveLocationModalVisible, setNewDiveLocationModalVisible] = useState(false)
 
-  // console.log(Dimensions.get('window').height)
-  
+    
+    // Update map when user returns to this screen
+    useEffect(() => {
+      // setLoading(true);
+      if (inFocus) {
+        setLoading(true);
+      }
+    }, [inFocus])
 
-  useEffect(() => {
-    // setLoading(true);
-    if (inFocus) {
-      setLoading(true);
+
+    // If user returns to this screen, reload data
+    if (props.selectedLocation?.name && loading) {
+        let loc = props.selectedLocation
+        setLocation(loc);
+        setLoading(false)
     }
-}, [inFocus])
 
-if (props.selectedLocation?.name && loading) {
-  let loc = props.selectedLocation
-  setLocation(loc);
-  setLoading(false)
-}
 
+  // Access user location data
   useEffect(() => {
-    (async () => {
-        let { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
-            setErrorMessage('Permission to access location was denied');
-            return;
-        }
+      (async () => {
+          // Get permission for using user location
+          let { status } = await Location.requestForegroundPermissionsAsync();
+          if (status !== 'granted') {
+              setErrorMessage('Permission to access location was denied');
+              return;
+          }
 
-        // Permission granted
-        let location = await Location.getCurrentPositionAsync({});
-        setUserLoc(location);
-    })();
+          // Permission granted
+          // Get user location to use as default position on map
+          let location = await Location.getCurrentPositionAsync({});
+          setUserLoc(location);
+      })();
   }, []);
-  
-  const goBack = () => {
-    props.onClose();
-  }
 
-  const onLocationSelect = (location) => {
-    setLocation(location);
-    console.log("onLocationSelect", location);
-    props.onSelect(location);
-    goBack();
-}
-  
-  var locRef = db.collection("locations");
+    // Return user to previous screen
+    const goBack = () => {
+        props.onClose();
+    }
 
-  let loadLocations = async () => {
-    var locations = locRef
-    .limit(100)
-    .get()
+    // Return dive location data to previous screen
+    const onLocationSelect = (location) => {
+        setLocation(location);
+        props.onSelect(location);
+        goBack();
+    }
+    
+
+    // Reference to locations db in firebase
+    var locRef = db.collection("locations");
+
+
+    // Load locations onto map
+    let loadLocations = async () => {
+        var locations = locRef
+        // TO DO: Remove limit
+        .limit(100)
+        .get()
         .then((querySnapshot) => {
             let eligibleLocations = []
             querySnapshot.forEach((doc) => {
@@ -86,65 +106,69 @@ if (props.selectedLocation?.name && loading) {
             })
             setMarkersLoading(false)
             setLocations(eligibleLocations)
-            })
+        })
         .catch((error) => {
             console.log("Error getting locations: ", error);
         });
-  }
-
-  if (markersLoading) {
-    loadLocations()
-  }
+    }
 
 
-  return (
-    <View
-      style={{marginTop: '1%'}}
-    > 
-      <Pressable onPress={goBack}>
-        <Text style={[AppStyles.plusButtonText, AppStyles.marginVert]}> Back </Text>
-      </Pressable>
-        <MapView
-            style={[AppStyles.map]}
-            initialRegion={{
-            latitude: location ? location.latitude : userLoc ? userLoc.coords.latitude : 37.78825,
-            longitude: location ? location.longitude : userLoc ? userLoc.coords.longitude : -122.4324,
-            latitudeDelta: 0.4822,
-            longitudeDelta: 0.3221,
-            }}
-        >
-            {locations.map((loc, id) => (
-                <Marker
-                key={loc.id}
-                coordinate={{ latitude: loc.latitude, longitude: loc.longitude }}
-                title={loc.name}
-                onCalloutPress={() => onLocationSelect(loc)}
+
+    if (markersLoading) {
+      loadLocations()
+    }
+
+
+    return (
+        <View
+            style={{marginTop: '1%'}}
+        > 
+            <Pressable onPress={goBack}>
+                <Text style={[AppStyles.plusButtonText, AppStyles.marginVert]}> Back </Text>
+            </Pressable>
+            {/* Load map with initial position set to user location if available */}
+            <MapView
+                style={[AppStyles.map]}
+                initialRegion={{
+                latitude: location ? location.latitude : userLoc ? userLoc.coords.latitude : 37.78825,
+                longitude: location ? location.longitude : userLoc ? userLoc.coords.longitude : -122.4324,
+                latitudeDelta: 0.4822,
+                longitudeDelta: 0.3221,
+                }}
+            >
+                {/* Load locations to map as Markers */}
+                {locations.map((loc, id) => (
+                    <Marker
+                    key={loc.id}
+                    coordinate={{ latitude: loc.latitude, longitude: loc.longitude }}
+                    title={loc.name}
+                    onCalloutPress={() => onLocationSelect(loc)}
+                    />
+                ))}
+            </MapView>
+            {/* Button to open modal for adding new dive site (not yet on map) */}
+            <View style={[AppStyles.container, AppStyles.mapViewContainer]}>
+                <Text style={{color: '#413FEB', paddingVertical: 20, paddingHorizontal: 10, backgroundColor: 'white'}}>Dive Site Not On The Map?</Text>
+                <TouchableOpacity style={[AppStyles.buttonBlue, AppStyles.section]} onPress={()=>setNewDiveLocationModalVisible(true)}>
+                    <Icon name="searching-location-gps-indicator" height='20' width='20' color="white"/>
+                    <Text style={AppStyles.locationButtonText}>Add Location</Text>
+                </TouchableOpacity>
+            </View>
+            {/* Modal for add dive site */}
+            <Modal
+                animationType="slide"
+                presentationStyle="pageSheet"
+                visible={newDiveLocationModalVisible}
+                onRequestClose={() => {
+                  setNewDiveLocationModalVisible(!newDiveLocationModalVisible);
+                }}>
+                <NewDiveLocationModal 
+                  onClose={() => setNewDiveLocationModalVisible(false)}
+                  onSelectLocation={(loc) => {onLocationSelect(loc)}}
                 />
-            ))}
-        
-        </MapView>
-        <View style={[AppStyles.container, AppStyles.mapViewContainer]}>
-            
-            <Text style={{color: '#413FEB', paddingVertical: 20, paddingHorizontal: 10, backgroundColor: 'white'}}>Dive Site Not On The Map?</Text>
-            <TouchableOpacity style={[AppStyles.buttonBlue, AppStyles.section]} onPress={()=>setNewDiveLocationModalVisible(true)}>
-              <Icon name="searching-location-gps-indicator" height='20' width='20' color="white"/>
-              <Text style={AppStyles.locationButtonText}>Add Location</Text>
-            </TouchableOpacity>
+            </Modal>
         </View>
-        <Modal
-            animationType="slide"
-            presentationStyle="pageSheet"
-            visible={newDiveLocationModalVisible}
-            onRequestClose={() => {
-              setNewDiveLocationModalVisible(!newDiveLocationModalVisible);
-            }}>
-          <NewDiveLocationModal 
-            onClose={() => setNewDiveLocationModalVisible(false)}
-            onSelectLocation={(loc) => {onLocationSelect(loc)}}
-          />
-        </Modal>
-    </View>
-  )
+    )
 });
 
 export default DiveLocationModal;

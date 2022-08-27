@@ -205,7 +205,7 @@ headerButton: {
   },
 plusButtonText: {
     color: '#00b5ec',
-    paddingLeft: 10,
+    paddingHorizontal: 10,
 },
 paragraph: {
     fontSize: 15,

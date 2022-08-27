@@ -1,9 +1,10 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import React, { useState, useEffect } from 'react';
-import { NavigationContainer, StackActions, useNavigation } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+import { auth } from './firebase';
+
 import CoreTabs from './menu/CoreTabs';
 import LoginScreen from './screens/LoginScreen';
 import RegistrationScreen from './screens/RegistrationScreen';
@@ -12,66 +13,54 @@ import ProfileEditScreen from './modals/ProfileEditScreen';
 import ResetPasswordScreen from './screens/ResetPasswordScreen';
 import DiveScreen from './modals/DiveScreen';
 import FriendScreen from './screens/FriendScreen';
-import { auth } from './firebase';
 import DiveLocationModal from './modals/DiveLocationModal';
 import AddBuddyModal from './modals/AddBuddy';
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
-  // Set an initializing state whilst Firebase connects
-  const [initializing, setInitializing] = useState(true);
-  const [user, setUser] = useState();
-  // navigation = useNavigation();
-  // Handle user state changes
-  function onAuthStateChanged(user) {
-    setUser(user);
-    if (initializing) setInitializing(false);
-  }
+    // Set an initializing state whilst Firebase connects
+    const [initializing, setInitializing] = useState(true);
+    const [user, setUser] = useState();
+    // navigation = useNavigation();
+    // Handle user state changes
+    function onAuthStateChanged(user) {
+      setUser(user);
+      if (initializing) setInitializing(false);
+    }
 
-  useEffect(() => {
-    const subscriber = auth.onAuthStateChanged(onAuthStateChanged);
-    return subscriber; // unsubscribe on unmount
-  }, []);
+    useEffect(() => {
+      const subscriber = auth.onAuthStateChanged(onAuthStateChanged);
+      return subscriber; // unsubscribe on unmount
+    }, []);
 
-  if (initializing) return null;
+    if (initializing) return null;
 
-  // if (!user) {
-  //   navigation.navigate('Login');
-  // }
+    // if (!user) {
+    //   navigation.navigate('Login');
+    // }
 
-  return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Group>
-          { auth.currentUser && <Stack.Screen name="CoreTabs" component={CoreTabs} options={{ headerShown: false, }} /> }
-          <Stack.Screen name="Core" component={CoreTabs} options={{ headerShown: false, }}/>
-          <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false, }}/>
-          <Stack.Screen name="Registration" component={RegistrationScreen} options={{ headerShown: false, }}/>
-          <Stack.Screen name="Reset Password" component={ResetPasswordScreen} options={{ headerShown: false, }} />
-        </Stack.Group>
-        <Stack.Group screenOptions={{ presentation: 'modal' }}>
-          <Stack.Screen name="Notifications" component={NotificationsScreen} />
-          <Stack.Screen name="Edit Profile" component={ProfileEditScreen} />
-          <Stack.Screen name="Dive" component={DiveScreen} />
-          <Stack.Screen name="Friend" component={FriendScreen} />
-          <Stack.Screen name="Select Dive Location" component={DiveLocationModal} 
-            options={{
-              headerTitle: (props) => <LogoTitle {...props} />,
-              headerRight: () => (
-                <Button
-                  onPress={() => alert('This is a button!')}
-                  title="Info"
-                  color="#fff"
-                />
-              ),
-          }}/>
-          <Stack.Screen name="Select Buddy" component={AddBuddyModal} title="Add Dive Buddies"/>
-        </Stack.Group>
-      </Stack.Navigator>
-    </NavigationContainer>
-    
-  );
+    return (
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Group>
+            { auth.currentUser && <Stack.Screen name="CoreTabs" component={CoreTabs} options={{ headerShown: false, }} /> }
+            <Stack.Screen name="Core" component={CoreTabs} options={{ headerShown: false, }}/>
+            <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false, }}/>
+            <Stack.Screen name="Registration" component={RegistrationScreen} options={{ headerShown: false, }}/>
+            <Stack.Screen name="Reset Password" component={ResetPasswordScreen} options={{ headerShown: false, }} />
+          </Stack.Group>
+          <Stack.Group screenOptions={{ presentation: 'modal' }}>
+            <Stack.Screen name="Notifications" component={NotificationsScreen} />
+            <Stack.Screen name="Edit Profile" component={ProfileEditScreen} />
+            <Stack.Screen name="Dive" component={DiveScreen} />
+            <Stack.Screen name="Friend" component={FriendScreen} />
+            <Stack.Screen name="Select Dive Location" component={DiveLocationModal} />
+            <Stack.Screen name="Select Buddy" component={AddBuddyModal} title="Add Dive Buddies"/>
+          </Stack.Group>
+        </Stack.Navigator>
+      </NavigationContainer>  
+    );
 }
 
 const styles = StyleSheet.create({

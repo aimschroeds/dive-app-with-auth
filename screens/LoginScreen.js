@@ -1,27 +1,18 @@
-import { useNavigation } from '@react-navigation/core'
-import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import { auth } from '../firebase'
-import AppStyles from '../styles/AppStyles'
+import { KeyboardAvoidingView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+
+import { auth } from '../firebase';
+
+import AppStyles from '../styles/AppStyles';
 
 // Adapted from: https://www.youtube.com/watch?v=ql4J6SpLXZA
 
 const LoginScreen = ( {navigation} ) => {
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-    const [errorMessage, setErrorMessage] = useState(null)
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [errorMessage, setErrorMessage] = useState(null);
 
-    // const navigation = useNavigation()
-
-    // useEffect (() => {
-    //     const unsubscribe = auth.onAuthStateChanged(user => {
-    //         if (user) {
-    //             navigation.navigate('Home')
-    //         }
-    //     })
-    //     return unsubscribe
-    // }, [])
-
+    // Handle auth when user attempts to login
     const handleLogin = () => {
         auth
         .signInWithEmailAndPassword(email, password)
@@ -38,6 +29,7 @@ const LoginScreen = ( {navigation} ) => {
             style={AppStyles.loginContainer}
             behavior="padding"
         >
+            {/* Email and password input for login */}
             <View style={AppStyles.loginInputContainer}>
                 <TextInput
                     placeholder='Email'
@@ -54,16 +46,22 @@ const LoginScreen = ( {navigation} ) => {
                 />
             </View>
             <View style={AppStyles.loginButtonContainer}>
+                {/* Login button */}
                 <TouchableOpacity
                     onPress={handleLogin}
                     style={AppStyles.loginButton}
                 >
                     <Text style={AppStyles.loginButtonText}>Login</Text>
                 </TouchableOpacity>
-                {errorMessage && <Text style={AppStyles.errorMessage}>{errorMessage}</Text>}
+                {/* Login error message to user */}
+                { errorMessage && 
+                    <Text style={AppStyles.errorMessage}>{errorMessage}</Text>
+                }
+                {/* Button to redirect user to registration screen */}
                 <TouchableOpacity onPress={() => navigation.navigate('Registration')}>
                     <Text style={AppStyles.loginButtonOutlineText}>Want to Sign Up? Register. </Text>
                 </TouchableOpacity>
+                {/* Button to redirect user to password reset screen */}
                 <TouchableOpacity onPress={() => navigation.navigate('Reset Password')}>
                     <Text style={AppStyles.loginButtonOutlineText}>Forgotten Password? Reset Password. </Text>
                 </TouchableOpacity>

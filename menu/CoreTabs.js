@@ -1,14 +1,22 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+import Icon from 'react-native-ico-material-design';
+
 import HomeScreen from '../screens/HomeScreen';
 import AddDiveScreen from '../screens/AddDiveScreen';
 import ExploreScreen from '../screens/ExploreScreen';
 import FindFriendsScreen from '../screens/FindFriendsScreen';
-import Icon from 'react-native-ico-material-design';
 import ProfileScreen from '../screens/ProfileScreen';
+
 import { auth } from '../firebase';
 
 const Tab = createBottomTabNavigator();
+
+/**
+ * Primary bottom tab navigation for the app (logged in users only)
+ * @returns {JSX.Element} 
+ */
 
 function CoreTabs() {
     return (
@@ -68,7 +76,6 @@ function CoreTabs() {
               ),
           }}
       />  
-    
     </Tab.Navigator>
     );}
 

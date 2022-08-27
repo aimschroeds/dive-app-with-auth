@@ -1,18 +1,22 @@
-import { useNavigation } from '@react-navigation/core'
-import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { KeyboardAvoidingView, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { auth } from '../firebase'
 import AppStyles from '../styles/AppStyles'
 import { sendEmailVerification } from 'firebase/auth'
 // Adapted from: https://www.youtube.com/watch?v=ql4J6SpLXZA
 
+/**
+ * Enable user to register
+ * @param {*} navigation 
+ * @returns 
+ */
+
 const RegistrationScreen = ( { navigation }) => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [errorMessage, setErrorMessage] = useState(null)
 
-    // const navigation = useNavigation()
-
+    // If user becomes logged in, redirect to Home screen
     useEffect (() => {
         const unsubscribe = auth.onAuthStateChanged(user => {
             if (user) {
@@ -22,6 +26,7 @@ const RegistrationScreen = ( { navigation }) => {
         return unsubscribe
     }, [])
 
+    // Handle user signup; create account
     const handleSignUp = () => {
         auth
          .createUserWithEmailAndPassword(email, password)
@@ -31,6 +36,14 @@ const RegistrationScreen = ( { navigation }) => {
             auth.currentUser.sendEmailVerification()
             .then(() => {
                 // Email verification sent
+                // TO DO: verify this works
+                auth.currentUser.sendEmailVerification()
+                .then(() => {
+                    setSuccessMessage('Verification email sent!')
+                })
+                .catch(error => {
+                    setErrorMessage(error.message)
+                })
             })
          })
          .catch(error => console.log(error.message))
@@ -41,6 +54,7 @@ const RegistrationScreen = ( { navigation }) => {
             style={AppStyles.loginContainer}
             behavior="padding"
         >
+            {/* Email and password input fields */}
             <View style={AppStyles.loginInputContainer}>
                 <TextInput
                     placeholder='Email'
@@ -57,7 +71,10 @@ const RegistrationScreen = ( { navigation }) => {
                 />
             </View>
             <View style={AppStyles.loginButtonContainer}>
-            {errorMessage && <Text style={AppStyles.errorMessage}>{errorMessage}</Text>}
+                {errorMessage && 
+                    <Text style={AppStyles.errorMessage}>{errorMessage}</Text>
+                }
+                {/* Sign Up Button */}
                 <TouchableOpacity
                     onPress={handleSignUp}
                     style={[AppStyles.loginButton, AppStyles.loginButtonOutline]}

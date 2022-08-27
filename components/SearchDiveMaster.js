@@ -5,6 +5,11 @@ import Icon from 'react-native-ico-material-design';
 import Feather from 'react-native-vector-icons/Feather'
 Feather.loadFont()
 
+/**
+ * Enables the user to search for a dive master.
+ * @param {Object} props
+ * @returns {React.Component}
+ */
 const SearchDiveMaster = memo(({...props}) => {
   const [loading, setLoading] = useState(false)
   const [suggestionsList, setSuggestionsList] = useState(null)
