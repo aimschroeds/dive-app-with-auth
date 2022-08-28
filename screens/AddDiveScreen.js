@@ -10,6 +10,7 @@ import { Marker } from 'react-native-maps';
 import DiveMasterSelection from '../modals/DiveMasterSelection';
 import DiveLocationModal from '../modals/DiveLocationModal';
 import AddBuddyModal from '../modals/AddBuddy';
+import MultiImageUploader from '../modals/MultiImageUploader';
 
 import { Cell, Section, TableView } from 'react-native-tableview-simple';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -41,6 +42,8 @@ const AddDiveScreen = ( {navigation }) => {
   const [startPressure, setStartPressure] = useState('');
   const [endPressure, setEndPressure] = useState('');
   const [maxDepth, setMaxDepth] = useState('');
+  const [trainingDive, setTrainingDive] = useState(false);
+  const [images, setImages] = useState([]);
 
 
   // Constants enabling management of search Modals for various fields
@@ -48,6 +51,7 @@ const AddDiveScreen = ( {navigation }) => {
   const [diveMasterSearchModalVisible, setDiveMasterSearchModalVisible] = useState(false);
   const [diveLocationModalVisible, setDiveLocationModalVisible] = useState(false);
   const [diveBuddyModalVisible, setDiveBuddyModalVisible] = useState(false);
+  const [imagePickerModalVisible, setImagePickerModalVisible] = useState(false);
 
   // Constants for managing user status
   const [userNotVerified, setUserNotVerified] = useState(!auth.currentUser.emailVerified);
@@ -369,7 +373,8 @@ const AddDiveScreen = ( {navigation }) => {
                       titleTextStyle={AppStyles.cellTitleText}
                       hideSeparator={true}
                       onPress={() => setDiveBuddyModalVisible(true)}
-                    />
+                    ></Cell>
+                    
                     {/* Dive master search */}
                     <Cell
                       cellStyle="RightDetail"
@@ -380,7 +385,47 @@ const AddDiveScreen = ( {navigation }) => {
                       titleTextStyle={AppStyles.cellTitleText}
                       hideSeparator={true}
                       onPress={() => setDiveMasterSearchModalVisible(true)}
-                    />
+                    ></Cell>
+                    {/* Dive type */}
+                    <Cell
+                      cellStyle="Basic"
+                      contentContainerStyle={{flexDirection: 'row', justifyContent: 'space-between', padding: 10, margin: 5}}
+                      cellContentView={
+                          <View style={{ backgroundColor: '#F5F5F5', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', borderRadius: 15}}>
+                                <TouchableOpacity 
+                                  style={[AppStyles.toggle, trainingDive ? AppStyles.toggleUnselected : AppStyles.toggleSelected]}
+                                  onPress={() => setTrainingDive(false)}
+                                >
+                                  <Text style={trainingDive ? AppStyles.toggleTextUnselected : AppStyles.toggleTextSelected}>Fun Dive</Text>
+                              </TouchableOpacity>
+                              <TouchableOpacity 
+                                  style={[AppStyles.toggle, trainingDive ? AppStyles.toggleSelected : AppStyles.toggleUnselected]}
+                                  onPress={() => setTrainingDive(true)}
+                              >
+                                  <Text style={trainingDive ? AppStyles.toggleTextSelected : AppStyles.toggleTextUnselected}>Training Dive</Text>
+                              </TouchableOpacity>
+                          </View>
+                      }
+                      hideSeparator={true}
+                    ></Cell>
+                    {/* Add Images */}
+                    <Cell
+                      cellStyle="Basic"
+                      title="Add Images"
+                      titleTextColor={'#413FEB'}
+                      titleTextStyle={AppStyles.cellTitleText}
+                      contentContainerStyle={{flexDirection: 'row', justifyContent: 'space-between', padding: 10, margin: 5}}
+                      cellContentView={
+                          <View style={{ width: '100%', height: 100,  backgroundColor: '#F5F5F5', borderColor: '#413FEB', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', borderRadius: 15, borderStyle: 'dashed', borderWidth: 1}}>
+                              <TouchableOpacity>
+                                <Icon name="camera" size={30} color="#413FEB" />
+                              </TouchableOpacity>
+                          </View>
+                      }
+                      hideSeparator={true}
+                      onPress={() => setImagePickerModalVisible(true)}
+                    ></Cell>
+                    
                 </Section>
             </TableView>  
             <View style={AppStyles.centeredView}>
@@ -423,6 +468,20 @@ const AddDiveScreen = ( {navigation }) => {
                       onClose={() => setDiveBuddyModalVisible(false)}
                       onSelect={(buddies) => setBuddies(buddies)}
                       selectedBuddies={buddies}
+                    />
+                </Modal>
+                <Modal
+                    animationType="slide"
+                    // transparent={true}
+                    presentationStyle="pageSheet"
+                    visible={imagePickerModalVisible}
+                    onRequestClose={() => {
+                      setImagePickerModalVisible(!imagePickerModalVisible);
+                    }}>
+                    <MultiImageUploader
+                      onClose={() => setImagePickerModalVisible(false)}
+                      onSelect={(images) => setImages(images)}
+                      selectedImages={images}
                     />
                 </Modal>
             </View>
