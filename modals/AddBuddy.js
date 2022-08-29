@@ -19,38 +19,50 @@ const AddBuddyModal =  (({ navigation, ...props }) => {
     const [buddies, setBuddies] = useState([])
     const [searchError, setSearchError] = useState(null)
     const inFocus = useIsFocused();
+    const [friendsLoaded, setFriendsLoaded] = useState(false)
 
     // When user returns to this screen, reload data
     useEffect(() => {
-    if (props.selectedBuddies?.length > 0 && loading) {
-        console.log('selected buddies', props.selectedBuddies)
-        setLoading(false);
-        props.selectedBuddies.forEach(buddy => {
-            console.log('buddy', buddy)
-            addBuddy(buddy);
-        })       
-    }
-    }, [inFocus])
+        // setLoading(true);
+        if (props.selectedBuddies?.length > 0 && friendsLoaded) {
+            props.selectedBuddies.forEach(buddy => {
+                console.log('buddy', buddy)
+                // addBuddy(buddy);
+                // setBuddies(buddies => [...buddies, buddy]);
+                friendAddedAsBuddy(buddy);
+            }) 
+        }
+        setFriendsLoaded(false);
+    }, [friendsLoaded])
 
+    useEffect(() => {
+        if (props.selectedBuddies?.length > 0 ) {
+            props.selectedBuddies.forEach(buddy => {
+                console.log('buddy', buddy)
+                // addBuddy(buddy);
+                setBuddies(buddies => [...buddies, buddy]);
+            }) 
+        }
+    }, [props.selectedBuddies])
 
     // Return user to previous screen
     const goBack = () => {
-    props.onClose();
+        props.onClose();
     }
 
 
     // Pass selected buddies to previous screen
     const onBuddySelect = () => {
-    props.onSelect(buddies);
-    goBack();
+        props.onSelect(buddies);
+        goBack();
     }
 
 
     // Add friend to buddies
     const addBuddy = (bud) => {
-    setBuddies(buddies => [...buddies, bud]);
-    console.log('buddy', bud) 
-    friendAddedAsBuddy(bud);
+        setBuddies(buddies => [...buddies, bud]);
+        console.log('buddy', bud) 
+        friendAddedAsBuddy(bud);
     }
 
     
@@ -67,6 +79,7 @@ const AddBuddyModal =  (({ navigation, ...props }) => {
             console.log('friend', friend)
             return friend;
         });
+        console.log(updatedFriends);
         setFriends(updatedFriends); 
     }
 
@@ -113,7 +126,8 @@ const AddBuddyModal =  (({ navigation, ...props }) => {
             .then((querySnapshot) => {
                 let eligibleFriends = []
                 querySnapshot.forEach((friend) => {
-                    db.collection("users").doc(friend.id).get()
+                    db.collection("users").doc(friend.id)
+                    .get(getOptions)
                     .then((user) => {
                         let friend_data = {
                             id: user.id,
@@ -147,7 +161,8 @@ const AddBuddyModal =  (({ navigation, ...props }) => {
                     })                
                     .finally(() => {
                         setFriends(eligibleFriends)
-                        setLoading(false)
+                        setLoading(false)  
+                        setFriendsLoaded(true);  
                     })
                 })     
             })
@@ -157,7 +172,8 @@ const AddBuddyModal =  (({ navigation, ...props }) => {
             .finally(() => {
                 // setFriends(eligibleFriends);
                 // setLoading(false);
-            });
+                                   
+            }) 
     }
 
 
