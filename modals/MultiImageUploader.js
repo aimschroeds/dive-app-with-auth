@@ -82,15 +82,20 @@ const MultiImageUploader = ({...props}) => {
         {
             pickerResult.map(async (img) => {
                 const url = await handleImageUpload(img.uri)
-                setImages(images => [...images, url]);              
+                setImages(images => [...images, url]);   
+                props.onSelect(images => [...images, url]);
             })
             
         }
     }, [pickerResult])
 
+    const removeImages = () => {
+        setImages([]);
+        props.onSelect([]);
+    }
+
     useEffect(() => {
         setLoading(false);
-        console.log('images', images);
     }, [images])
 
     
@@ -146,7 +151,7 @@ const MultiImageUploader = ({...props}) => {
                 
             }
             { images?.length > 0 &&
-                <TouchableOpacity style={{justifyContent: 'center'}} onPress={()=> {setImages([])}}>
+                <TouchableOpacity style={{justifyContent: 'center'}} onPress={removeImages}>
                     <Icon name="rounded-remove-button" size={120} style={{width: 60, height: 60, margin: 15,  borderWidth: 1, borderColor: 'white'}} />
                 </TouchableOpacity>
             }

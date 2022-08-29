@@ -28,9 +28,9 @@ export default StyleSheet.create({
   },
 
   buttonBlue: {
-    height: 39,
-    marginVertical: 12,
-    padding: 10,
+    height: 30,
+    marginVertical: 6,
+    padding: 6,
     paddingHorizontal: 15,
     borderRadius: 15,
     backgroundColor: '#413FEB',
@@ -41,6 +41,16 @@ export default StyleSheet.create({
   },
   buttonBlueSmall: {
     width: '30%',
+  },
+  buttonBlueLarge: {
+    width: '95%',
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: -10,
+  },
+  buttonIcon: {
+    marginTop: 2,
   },
   cellContainer: {
     flexDirection: 'row', justifyContent: 'space-between', padding: 10, marginVertical: 3,
@@ -79,7 +89,7 @@ export default StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignContent: 'space-between',
-    marginTop: 30,
+    marginTop: 10,
     // borderWidth: 1,
     },  
   containerColumnDir: {
@@ -125,7 +135,8 @@ export default StyleSheet.create({
     marginTop: -15,
     paddingTop: 15,
     flex: 1, 
-    
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
     // flexDirection: 'column',     
   },
   diverProfileBodyContents: {
@@ -160,6 +171,12 @@ export default StyleSheet.create({
   },
   
   errorMessage: {
+    width: '100%',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginTop: 10,
+    marginBottom: 20,
+    backgroundColor: '#F5F5F5',
     color: 'red',
   },
   headerButton: {
@@ -313,6 +330,12 @@ export default StyleSheet.create({
     paddingTop: 5,
   },
   successMessage: {
+    width: '100%',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginTop: 10,
+    marginBottom: 20,
+    backgroundColor: '#F5F5F5',
     color: 'green',
 },
   textStyle: {
@@ -376,5 +399,6 @@ export default StyleSheet.create({
   }, 
   wave: {
     marginTop: 20,
+    width: '100%',
   },  
 });

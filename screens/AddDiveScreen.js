@@ -1,7 +1,7 @@
 import { Image, KeyboardAvoidingView, Modal, RefreshControl, StyleSheet, SafeAreaView, 
           ScrollView, Text, TextInput, View, TouchableOpacity  } from 'react-native';
 
-import React, { useState, useLayoutEffect } from 'react';
+import React, { useState, useLayoutEffect, useEffect } from 'react';
 
 import { db, auth } from '../firebase';
 
@@ -33,12 +33,9 @@ const wait = (timeout) => {
 const AddDiveScreen = ( {navigation }) => {
   // Constants capturing dive data
   // TO DO: Refactor to use object?
-  const [dives, setDives] = useState([]);
   const [diveLocation, setDiveLocation] = useState({});
   const [diveStart, setDiveStart] = useState(new Date());
   const [diveEnd, setDiveEnd] = useState(new Date());
-  const [diveCenter, setDiveCenter] = useState(null);
-  const [diveMaster, setDiveMaster] = useState(null);
   const [buddies, setBuddies] = useState([]);
   const [surfaceInterval, setSurfaceInterval] = useState('');
   const [startPressure, setStartPressure] = useState('');
@@ -56,11 +53,8 @@ const AddDiveScreen = ( {navigation }) => {
 
 
   // Constants enabling management of search Modals for various fields
-  const [diveCenterSearchModalVisible, setDiveCenterSearchModalVisible] = useState(false);
-  const [diveMasterSearchModalVisible, setDiveMasterSearchModalVisible] = useState(false);
   const [diveLocationModalVisible, setDiveLocationModalVisible] = useState(false);
   const [diveBuddyModalVisible, setDiveBuddyModalVisible] = useState(false);
-  const [imagePickerModalVisible, setImagePickerModalVisible] = useState(false);
 
   // Constants for managing user status
   const [userNotVerified, setUserNotVerified] = useState(!auth.currentUser.emailVerified);
@@ -122,6 +116,9 @@ const AddDiveScreen = ( {navigation }) => {
         })
     }
     
+    useEffect(() => {
+      console.log('images passed to add dive', images)
+    }, [images])
 
   // Add dive to "dives" collection in Firebase
     let addDive = async () => {
@@ -150,6 +147,7 @@ const AddDiveScreen = ( {navigation }) => {
           userId: auth.currentUser.uid,
           createdAt: new Date(),
         }
+        console.log(dive);
         db.collection("dives").add(dive)
         .then((docRef) => {
             console.log("Document written with ID: ", docRef.id);
@@ -158,7 +156,7 @@ const AddDiveScreen = ( {navigation }) => {
         })
         .catch((error) => {
             console.error("Error adding document: ", error);
-            setErrorMessage(error.message)
+            setErrorMessage(error)
         });
     };
 
@@ -200,7 +198,8 @@ const AddDiveScreen = ( {navigation }) => {
                   <Text style={AppStyles.errorMessage}>To Log A Dive, Please Verify Your Email</Text>
               }
               { userNotVerified && 
-                  <TouchableOpacity style={AppStyles.loginButton} onPress={sendVerificationEmail}>
+                  <TouchableOpacity style={[AppStyles.buttonBlue, AppStyles.buttonBlueLarge]} 
+                        onPress={sendVerificationEmail}>
                       <Text style={AppStyles.loginButtonText}>Send Verification Email</Text>
                   </TouchableOpacity> 
               }
@@ -211,9 +210,6 @@ const AddDiveScreen = ( {navigation }) => {
               { errorMessage && 
                   <Text style={AppStyles.errorMessage}>{errorMessage}</Text>
               }
-              {/* Dev purposes only TODO: Remove */}
-              <Text>Email: {auth.currentUser?.email}</Text>
-              <Text>UUID: {auth.currentUser?.uid}</Text>
               {/* Capture dive data */}
               {/* Dive Location Data */}
               <View style={AppStyles.container}>
@@ -221,7 +217,7 @@ const AddDiveScreen = ( {navigation }) => {
                   <TouchableOpacity style={[AppStyles.buttonBlue, AppStyles.section]} 
                     onPress={() => setDiveLocationModalVisible(true)}
                   >
-                      <Icon name="searching-location-gps-indicator" height='20' width='20' color="white"/>
+                      <Icon name="searching-location-gps-indicator" height='15' width='15' color="white" style={AppStyles.buttonIcon}/>
                       {/* If Dive Location is set, then show name of dive site. Otherwise prompt user to add data */}
                       { diveLocation.name ? <Text style={AppStyles.locationButtonText}>{diveLocation.name}</Text> : 
                                             <Text style={AppStyles.locationButtonText}>Add Dive Site</Text> }         
@@ -244,7 +240,7 @@ const AddDiveScreen = ( {navigation }) => {
                   <TouchableOpacity style={[AppStyles.buttonBlue, AppStyles.section]}
                     onPress={() => setDiveLocationModalVisible(true)}
                   >
-                      <Icon name="location-arrow" height='20' width='20' color="white"/>
+                      <Icon name="location-arrow" height='15' width='15' color="white" style={AppStyles.buttonIcon}/>
                       {/* If Dive Location is set, then show region of dive site. Otherwise prompt user to add data */}
                       { diveLocation.name ? <Text style={AppStyles.locationButtonText}>{diveLocation.location.region}</Text> : 
                                           <Text style={AppStyles.locationButtonText}>Region</Text> }
@@ -396,18 +392,6 @@ const AddDiveScreen = ( {navigation }) => {
                       titleTextStyle={AppStyles.cellTitleText}
                       hideSeparator={true}
                       onPress={() => setDiveBuddyModalVisible(true)}
-                    ></Cell>
-                    
-                    {/* Dive master search */}
-                    <Cell
-                      cellStyle="RightDetail"
-                      accessory="DisclosureIndicator"
-                      title="Dive Master"
-                      detail={diveMaster}
-                      titleTextColor={'#413FEB'}
-                      titleTextStyle={AppStyles.cellTitleText}
-                      hideSeparator={true}
-                      onPress={() => setDiveMasterSearchModalVisible(true)}
                     ></Cell>
                     {/* Dive type */}
                     <Cell
@@ -580,17 +564,6 @@ const AddDiveScreen = ( {navigation }) => {
                     }
                   ></Cell>
                   <Cell
-                    hideSeparator={true}
-                    cellStyle="Basic"
-                    title="Save"
-                    titleTextColor={'#413FEB'}
-                    titleTextStyle={AppStyles.cellTitleText}
-                    contentContainerStyle={AppStyles.cellContainer}
-                    cellContentView={
-                      <Text>Some content coming here</Text>
-                    }
-                  ></Cell>
-                  <Cell
                     cellStyle="Basic"
                     contentContainerStyle={AppStyles.cellContainer}
                     cellContentView={
@@ -647,21 +620,6 @@ const AddDiveScreen = ( {navigation }) => {
                 }}>
                 
               </Modal> */}
-                {/* Dive master search modal */}
-                <Modal
-                    animationType="slide"
-                    // transparent={true}
-                    presentationStyle="pageSheet"
-                    visible={diveMasterSearchModalVisible}
-                    onRequestClose={() => {
-                      setDiveMasterSearchModalVisible(!diveMasterSearchModalVisible);
-                    }}>
-                    <DiveMasterSelection 
-                      // onClose={(text) => setDiveMasterSearchModalVisible(false)}
-                      onClose={(text) => console.log(text)}
-                      onSelect={(diveMaster) => {setDiveMaster(diveMaster)}}
-                    />
-                </Modal>
                 {/* Dive buddy search modal */}
                 <Modal
                     animationType="slide"
@@ -681,7 +639,7 @@ const AddDiveScreen = ( {navigation }) => {
 
             {/* Add Dive Button --> Submits dive to database */}
             <TouchableOpacity 
-                style={AppStyles.buttonBlue} 
+                style={[AppStyles.buttonBlue, AppStyles.buttonBlueLarge, {marginBottom: 50}]} 
                 onPress={addDive} 
                 disable={userNotVerified ? true : false}>
                 <Text style={AppStyles.buttonText}>Log Dive</Text>
@@ -753,104 +711,100 @@ const styles = StyleSheet.create({
     //   marginHorizontal: '3%',
     // },
 
-    dateInput: {
-      height: 30,
-      marginVertical: 12,
-      padding: 10,
-      // borderRadius: 15,
-      // backgroundColor: '#413FEB',
-      // textColor: 'white',
-      width: '95%',
-      marginHorizontal: '3%',
-      // textAlign: 'left',
-      alignContent: 'right',
-      // justifyContent: 'center',
-      alignItems: 'flex-end',
-    },
-    datePicker: {
-      // margin:-2,
-      // borderWidth: 1,
-      width: '80%',
-      // alignSelf: 'flex-end',
-    },
-    diverProfile: {
-      marginVertical: 20,
-      borderColor: '#DDDDDD',
-      borderWidth: 1,
-      borderRadius: 16,
-      // marginTop: 30,
-    },
-    diverProfileHeader: {
-      flexDirection: 'row',
-      flex: 1,
-      justifyContent: 'center',
-      marginTop: 20,
-    },
-    diverProfileText: {
-      fontSize: 16,
-      color: '#413FEB',
-      marginHorizontal: 10,
-      fontFamily: 'Helvetica',
-    },
-    cellTitleText: {
-      fontSize: 14,
-      fontFamily: 'Helvetica',
-      fontWeight: 'bold',
-    },
-    
-    wave: {
-      marginTop: 20,
-    },
-    diverProfileBody: {
-      backgroundColor: '#EBF6FA',
-      marginTop: -15,
-      paddingTop: 15,
-      flex: 1, 
+    // dateInput: {
+    //   height: 30,
+    //   marginVertical: 12,
+    //   padding: 10,
+    //   // borderRadius: 15,
+    //   // backgroundColor: '#413FEB',
+    //   // textColor: 'white',
+    //   width: '95%',
+    //   marginHorizontal: '3%',
+    //   // textAlign: 'left',
+    //   alignContent: 'right',
+    //   // justifyContent: 'center',
+    //   alignItems: 'flex-end',
+    // },
+    // datePicker: {
+    //   // margin:-2,
+    //   // borderWidth: 1,
+    //   width: '80%',
+    //   // alignSelf: 'flex-end',
+    // },
+    // diverProfile: {
+    //   marginVertical: 20,
+    //   borderColor: '#DDDDDD',
+    //   borderWidth: 1,
+    //   borderRadius: 16,
+    //   // marginTop: 30,
+    // },
+    // diverProfileHeader: {
+    //   flexDirection: 'row',
+    //   flex: 1,
+    //   justifyContent: 'center',
+    //   marginTop: 20,
+    // },
+    // diverProfileText: {
+    //   fontSize: 16,
+    //   color: '#413FEB',
+    //   marginHorizontal: 10,
+    //   fontFamily: 'Helvetica',
+    // },
+    // cellTitleText: {
+    //   fontSize: 14,
+    //   fontFamily: 'Helvetica',
+    //   fontWeight: 'bold',
+    // },
+    // diverProfileBody: {
+    //   backgroundColor: '#EBF6FA',
+    //   marginTop: -15,
+    //   paddingTop: 15,
+    //   flex: 1, 
       
-      // flexDirection: 'column',     
-    },
-    diverProfileBodyContents: {
-      marginHorizontal: 30,
-    },
-    diverProfileBodyRow: {
-      flexDirection: 'row',
-      // justifyContent: 'space-between',
-      // marginHorizontal: 30,
-      marginBottom: 10,
-      width: '100%',
-      flex: 1,
-      alignSelf: 'center',
-      justifyContent: 'space-around',
-    },
-    leftAlignedRow: {
-      justifyContent: 'flex-start',
-    },
-    centerAlignedRow: {
-      justifyContent: 'center',
-      marginTop: -20,
-    },
-    leftAlignedText:{
-      textAlign: 'left',
-    },
-    diverProfileBodyColumn: {
-      flexDirection: 'column',
-      flex: 1,
-      width: '100%',
-      alignItems: 'stretch',
-    },
-    diverProfileBodyText: {
-      color: '#413FEB',
-      fontWeight: 'bold',
-    },
-    diverProfileBodyInput: {
-      color: '#626262',
-      marginHorizontal: 5,
-      borderBottomColor: '#626262',
-      borderBottomWidth: 1,
-      width: 40,
-    },
-    diveProfileImage: {
-      alignSelf: 'stretch',
-      marginTop: -10,
-    },
+    //   // flexDirection: 'column',     
+    // },
+    // diverProfileBodyContents: {
+    //   marginHorizontal: 30,
+    // },
+    // diverProfileBodyRow: {
+    //   flexDirection: 'row',
+    //   // justifyContent: 'space-between',
+    //   // marginHorizontal: 30,
+    //   marginBottom: 10,
+    //   width: '100%',
+    //   flex: 1,
+    //   alignSelf: 'center',
+    //   justifyContent: 'space-around',
+    // },
+    // leftAlignedRow: {
+    //   justifyContent: 'flex-start',
+    // },
+    // centerAlignedRow: {
+    //   justifyContent: 'center',
+    //   marginTop: -20,
+    // },
+    // leftAlignedText:{
+    //   textAlign: 'left',
+    // },
+    // diverProfileBodyColumn: {
+    //   flexDirection: 'column',
+    //   flex: 1,
+    //   width: '100%',
+    //   alignItems: 'stretch',
+    // },
+    // diverProfileBodyText: {
+    //   color: '#413FEB',
+    //   fontWeight: 'bold',
+    // },
+    // diverProfileBodyInput: {
+    //   color: '#626262',
+    //   marginHorizontal: 5,
+    //   borderBottomColor: '#626262',
+    //   borderBottomWidth: 1,
+    //   width: 40,
+    // },
+    // diveProfileImage: {
+    //   alignSelf: 'stretch',
+    //   marginTop: -10,
+    // },
 })
