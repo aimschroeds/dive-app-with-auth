@@ -42,10 +42,19 @@ export default StyleSheet.create({
   buttonBlueSmall: {
     width: '30%',
   },
+  cellContainer: {
+    flexDirection: 'row', justifyContent: 'space-between', padding: 10, marginVertical: 3,
+  },
   cellTitleText: {
     fontSize: 14,
     fontFamily: 'Helvetica',
     fontWeight: 'bold',
+    color: '#413FEB',
+    // marginBottom: 5,
+  },
+  cellTitleTextWithMargin: {
+    marginTop: 10,
+    marginBottom: 20,
   },
   centerAlignedRow: {
     justifyContent: 'center',
@@ -152,14 +161,14 @@ export default StyleSheet.create({
   
   errorMessage: {
     color: 'red',
-},
-headerButton: {
-  // borderWidth: 2,
-  // borderColor: "#00b5ec",
-  // borderRadius: 30,
-  padding: 6,
-  marginRight: 10,
-},
+  },
+  headerButton: {
+    // borderWidth: 2,
+    // borderColor: "#00b5ec",
+    // borderRadius: 30,
+    padding: 6,
+    marginRight: 10,
+  },
   imageContainer: {
     flex: 1,
     backgroundColor: '#fff',
@@ -189,51 +198,51 @@ headerButton: {
   locationButtonText: {
     color: 'white', 
     marginLeft: 10,
-},
+  },
   loginContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-},
-loginInputContainer: {
-    width: '80%',
-},
-loginInput: {
-    backgroundColor: 'white',
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderRadius: 10,
-    marginTop: 5,
-},
-loginButtonContainer: {
-    width: '60%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 40,
-},
-loginButton: {
-    backgroundColor: '#00b5ec',
-    width: '100%',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-},
-loginButtonText: {
-    color: 'white',
-    fontWeight: '700',
-    fontSize: 18,
-},
-loginButtonOutline: {
-    backgroundColor: 'white',
-    marginTop: 5,
-    borderColor: '#00b5ec',
-    borderWidth: 2,
-},
-loginButtonOutlineText: {
-    color: '#00b5ec',
-    fontWeight: '700',
-    fontSize: 18,
-},
+  },
+  loginInputContainer: {
+      width: '80%',
+  },
+  loginInput: {
+      backgroundColor: 'white',
+      paddingHorizontal: 15,
+      paddingVertical: 10,
+      borderRadius: 10,
+      marginTop: 5,
+  },
+  loginButtonContainer: {
+      width: '60%',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginTop: 40,
+  },
+  loginButton: {
+      backgroundColor: '#00b5ec',
+      width: '100%',
+      padding: 15,
+      borderRadius: 10,
+      alignItems: 'center',
+  },
+  loginButtonText: {
+      color: 'white',
+      fontWeight: '700',
+      fontSize: 18,
+  },
+  loginButtonOutline: {
+      backgroundColor: 'white',
+      marginTop: 5,
+      borderColor: '#00b5ec',
+      borderWidth: 2,
+  },
+  loginButtonOutlineText: {
+      color: '#00b5ec',
+      fontWeight: '700',
+      fontSize: 18,
+  },
   marginVert: {
     // marginVertical: 5,
     paddingVertical: 15,
@@ -272,14 +281,14 @@ loginButtonOutlineText: {
     marginLeft: '5%',
   },
   
-plusButtonText: {
-    color: '#00b5ec',
-    paddingHorizontal: 10,
-},
-paragraph: {
-    fontSize: 15,
-    marginTop: 8,
+  plusButtonText: {
+      color: '#00b5ec',
+      paddingHorizontal: 10,
   },
+  paragraph: {
+      fontSize: 15,
+      marginTop: 8,
+    },
   read: {
     backgroundColor: '#fff',
   },
@@ -317,6 +326,36 @@ paragraph: {
     textAlign: 'center',
     // marginBottom: 10,
   },
+  toggle: {
+    paddingVertical: 5, 
+    borderRadius: 15, 
+    paddingHorizontal: 30, 
+    // marginRight: 15,
+    width: '50%',
+    alignItems: 'center',
+    
+  },
+  toggleShort: {
+    paddingVertical: 5, 
+    borderRadius: 15, 
+    // paddingHorizontal: 10, 
+    // marginRight: 15,
+    width: '33.3%',
+    alignItems: 'center',
+  },
+  toggleSelected: {
+    backgroundColor: '#413FEB',
+  },
+  toggleTextSelected: {
+    color: 'white',
+  },
+  toggleTextUnselected: {
+    color: 'black',
+  },
+  toggleUnselected: {
+    backgroundColor: '#F5F5F5',
+
+  },
   topMargin: {
     marginTop: 150,
     position: 'absolute',
@@ -337,8 +376,5 @@ paragraph: {
   }, 
   wave: {
     marginTop: 20,
-  },
-  
-  
-  
+  },  
 });

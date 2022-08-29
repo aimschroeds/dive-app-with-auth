@@ -1,5 +1,6 @@
 import { Image, KeyboardAvoidingView, Modal, RefreshControl, StyleSheet, SafeAreaView, 
           ScrollView, Text, TextInput, View, TouchableOpacity  } from 'react-native';
+
 import React, { useState, useLayoutEffect } from 'react';
 
 import { db, auth } from '../firebase';
@@ -13,6 +14,7 @@ import AddBuddyModal from '../modals/AddBuddy';
 import MultiImageUploader from '../modals/MultiImageUploader';
 
 import { Cell, Section, TableView } from 'react-native-tableview-simple';
+import Slider from '@react-native-community/slider';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Icon from 'react-native-ico-material-design';
 import AppStyles from '../styles/AppStyles';
@@ -44,6 +46,13 @@ const AddDiveScreen = ( {navigation }) => {
   const [maxDepth, setMaxDepth] = useState('');
   const [trainingDive, setTrainingDive] = useState(false);
   const [images, setImages] = useState([]);
+  const [temperature, setTemperature] = useState(25);
+  const [visibility, setVisibility] = useState(10);
+  const [sky, setSky] = useState('');
+  const [waves, setWaves] = useState('');
+  const [saltwater, setSaltwater] = useState(true);
+  const [entry, setEntry] = useState('Shore');
+  const [notes, setNotes] = useState('');
 
 
   // Constants enabling management of search Modals for various fields
@@ -118,14 +127,26 @@ const AddDiveScreen = ( {navigation }) => {
     let addDive = async () => {
         let dive = {
           diveSite: diveLocation.id,
-          diveStart: diveStart,
-          diveEnd: diveEnd,
-          diveCenter: diveCenter,
-          diveMaster: diveMaster,
-          surfaceInterval: surfaceInterval,
-          startPressure: {value: Number(startPressure), dimension: 'bar'},
-          endPressure: {value: Number(endPressure), dimension: 'bar'},
-          maxDepth: {value: Number(maxDepth), dimension: 'meter'},
+          buddies: buddies,
+          diveProfile: {
+            diveStart: diveStart,
+            diveEnd: diveEnd,
+            surfaceInterval: surfaceInterval,
+            startPressure: {value: Number(startPressure), dimension: 'bar'},
+            endPressure: {value: Number(endPressure), dimension: 'bar'},
+            maxDepth: {value: Number(maxDepth), dimension: 'meter'},
+          },
+          trainingDive: trainingDive,
+          images: images,
+          conditions: {
+            temperature: {value: Number(temperature), dimension: 'celsius'},
+            visibility: {value: Number(visibility), dimension: 'meter'},
+            sky: sky,
+            waves: waves,
+            saltwater: saltwater,
+            entry: entry,
+          },
+          notes: notes,
           userId: auth.currentUser.uid,
           createdAt: new Date(),
         }
@@ -315,8 +336,10 @@ const AddDiveScreen = ( {navigation }) => {
                     </View>
                 </View>
             </View>
-            <TableView>
-                <Section hideSeparator>
+            <TableView hideSeparator>
+                <Section hideSeparator
+                  hideSurroundingSeparators
+                >
                     {/* Dive start time */}
                     <Cell
                         cellAccessoryView={<DateTimePicker 
@@ -389,9 +412,9 @@ const AddDiveScreen = ( {navigation }) => {
                     {/* Dive type */}
                     <Cell
                       cellStyle="Basic"
-                      contentContainerStyle={{flexDirection: 'row', justifyContent: 'space-between', padding: 10, margin: 5}}
+                      contentContainerStyle={AppStyles.cellContainer}
                       cellContentView={
-                          <View style={{ backgroundColor: '#F5F5F5', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', borderRadius: 15}}>
+                          <View style={{ backgroundColor: '#F5F5F5', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', borderRadius: 15, width: '100%'}}>
                                 <TouchableOpacity 
                                   style={[AppStyles.toggle, trainingDive ? AppStyles.toggleUnselected : AppStyles.toggleSelected]}
                                   onPress={() => setTrainingDive(false)}
@@ -414,20 +437,204 @@ const AddDiveScreen = ( {navigation }) => {
                       title="Add Images"
                       titleTextColor={'#413FEB'}
                       titleTextStyle={AppStyles.cellTitleText}
-                      contentContainerStyle={{flexDirection: 'row', justifyContent: 'space-between', padding: 10, margin: 5}}
+                      contentContainerStyle={AppStyles.cellContainer}
                       cellContentView={
-                          <View style={{ width: '100%', height: 100,  backgroundColor: '#F5F5F5', borderColor: '#413FEB', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', borderRadius: 15, borderStyle: 'dashed', borderWidth: 1}}>
-                              <TouchableOpacity>
-                                <Icon name="camera" size={30} color="#413FEB" />
-                              </TouchableOpacity>
-                          </View>
+                          <MultiImageUploader
+                            selectedImages = {images}
+                            onSelect={(images) => setImages(images)}
+                          />
                       }
                       hideSeparator={true}
-                      onPress={() => setImagePickerModalVisible(true)}
                     ></Cell>
-                    
                 </Section>
             </TableView>  
+            <View style={AppStyles.diverProfile}>
+              <TableView>
+                <Section
+                  hideSeparator={true}
+                  hideSurroundingSeparators={true}
+                  headerComponent={<Text style={[AppStyles.diverProfileText, {alignSelf: 'center'}]}>Conditions</Text>}
+                >
+                  <Cell
+                    cellStyle="Basic"
+                    contentContainerStyle={AppStyles.cellContainer}
+                    cellContentView={
+                      <View style={{width: '100%'}}>
+                        <Text style={[AppStyles.cellTitleText, AppStyles.cellTitleTextWithMargin]}>Bottom Temperature</Text>
+                        <Text>{temperature}°C</Text>
+                        <Slider style={{width: '100%'}} 
+                                maximumValue={40} 
+                                minimumValue={-20} 
+                                step={1} 
+                                value={temperature} 
+                                onSlidingComplete={(value)=>setTemperature(value)} 
+                                minimumTrackTintColor="#413FEB"
+                                maximumTrackTintColor="#413FEB"
+                                thumbTintColor='#FBDA76'
+                        />
+                      </View>
+                    }
+                  ></Cell>
+                  <Cell
+                    cellStyle="Basic"
+                    contentContainerStyle={AppStyles.cellContainer}
+                    cellContentView={
+                      <View style={{width: '100%'}}>
+                        <Text style={[AppStyles.cellTitleText, AppStyles.cellTitleTextWithMargin]}>Skies</Text>
+                        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                        <TouchableOpacity style={AppStyles.skySelector} onPress={() => setSky('Clear')}>
+                          <Image source={sky === 'Clear' ? require('../assets/sun-select.png') : require('../assets/sun.png')} style={{width: 50, height: 50, resizeMode: 'contain'}} />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={AppStyles.skySelector} onPress={() => setSky('PartialClouds')}>
+                          <Image source={sky === 'PartialClouds' ? require('../assets/partialClouds-select.png') : require('../assets/partialClouds.png')} style={{width: 50, height: 50, resizeMode: 'contain'}} />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={AppStyles.skySelector} onPress={() => setSky('Clouds')}>
+                          <Image source={sky === 'Clouds' ? require('../assets/Clouds-select.png') : require('../assets/Clouds.png')} style={{width: 50, height: 50, resizeMode: 'contain'}} />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={AppStyles.skySelector} onPress={() => setSky('Rain')}>
+                          <Image source={sky === 'Rain' ? require('../assets/Rain-select.png') : require('../assets/Rain.png')} style={{width: 50, height: 50, resizeMode: 'contain'}} />
+                        </TouchableOpacity>
+                        </View>
+                      </View>
+                    }
+                  ></Cell>
+                  <Cell
+                      cellStyle="Basic"
+                      contentContainerStyle={AppStyles.cellContainer}
+                      cellContentView={
+                        <View style={{width: '100%'}}>
+                        <Text style={[AppStyles.cellTitleText, AppStyles.cellTitleTextWithMargin]}>Entry</Text>
+                                <View style={{ backgroundColor: '#F5F5F5', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', borderRadius: 15, width: '100%'}}>
+                                
+                                <TouchableOpacity 
+                                  style={[AppStyles.toggleShort, entry === 'Shore' ? AppStyles.toggleSelected : AppStyles.toggleUnselected]}
+                                  onPress={() => setEntry('Shore')}
+                                >
+                                  <Text style={entry === 'Shore' ? AppStyles.toggleTextSelected : AppStyles.toggleTextUnselected}>Shore</Text>
+                              </TouchableOpacity>
+                              <TouchableOpacity 
+                                  style={[AppStyles.toggleShort, entry === 'Boat' ? AppStyles.toggleSelected : AppStyles.toggleUnselected]}
+                                  onPress={() => setEntry('Boat')}
+                              >
+                                  <Text style={entry === 'Boat' ? AppStyles.toggleTextSelected : AppStyles.toggleTextUnselected}>Boat</Text>
+                              </TouchableOpacity>
+                              <TouchableOpacity 
+                                  style={[AppStyles.toggleShort, entry === 'Controlled' ? AppStyles.toggleSelected : AppStyles.toggleUnselected]}
+                                  onPress={() => setEntry('Controlled')}
+                              >
+                                  <Text style={entry === 'Controlled' ? AppStyles.toggleTextSelected : AppStyles.toggleTextUnselected}>Controlled</Text>
+                              </TouchableOpacity>
+                          </View></View>
+                      }
+                      hideSeparator={true}
+                    ></Cell>
+                  <Cell
+                      cellStyle="Basic"
+                      contentContainerStyle={AppStyles.cellContainer}
+                      cellContentView={
+                        <View style={{width: '100%'}}>
+                        <Text style={[AppStyles.cellTitleText, AppStyles.cellTitleTextWithMargin]}>Water</Text>
+                                <View style={{ backgroundColor: '#F5F5F5', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', borderRadius: 15, width: '100%'}}>
+                                
+                                <TouchableOpacity 
+                                  style={[AppStyles.toggle, saltwater ? AppStyles.toggleUnselected : AppStyles.toggleSelected]}
+                                  onPress={() => setSaltwater(false)}
+                                >
+                                  <Text style={saltwater ? AppStyles.toggleTextUnselected : AppStyles.toggleTextSelected}>Fresh</Text>
+                              </TouchableOpacity>
+                              <TouchableOpacity 
+                                  style={[AppStyles.toggle, saltwater ? AppStyles.toggleSelected : AppStyles.toggleUnselected]}
+                                  onPress={() => setSaltwater(true)}
+                              >
+                                  <Text style={saltwater ? AppStyles.toggleTextSelected : AppStyles.toggleTextUnselected}>Salt</Text>
+                              </TouchableOpacity>
+                          </View></View>
+                      }
+                      hideSeparator={true}
+                    ></Cell>
+                  <Cell
+                    cellStyle="Basic"
+                    contentContainerStyle={AppStyles.cellContainer}
+                    cellContentView={
+                      <View style={{width: '100%'}}>
+                        <Text style={[AppStyles.cellTitleText, AppStyles.cellTitleTextWithMargin]}>Waves</Text>
+                        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                        <TouchableOpacity style={AppStyles.skySelector} onPress={() => setWaves('Surge')}>
+                          <Image source={waves === 'Surge' ? require('../assets/surge-select.png') : require('../assets/surge.png')} style={{width: 50, height: 50, resizeMode: 'contain'}} />
+                          <Text style={{alignSelf: 'center', marginTop: 5}}>Surge</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={AppStyles.skySelector} onPress={() => setWaves('Waves')}>
+                          <Image source={waves === 'Waves' ? require('../assets/wave-select.png') : require('../assets/waves.png')} style={{width: 50, height: 50, resizeMode: 'contain'}} />
+                          <Text style={{alignSelf: 'center', marginTop: 5}}>Waves</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={AppStyles.skySelector} onPress={() => setWaves('Surf')}>
+                          <Image source={waves === 'Surf' ? require('../assets/surf-select.png') : require('../assets/surf.png')} style={{width: 50, height: 50, resizeMode: 'contain'}} />
+                          <Text style={{alignSelf: 'center', marginTop: 5}}>Surf</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={AppStyles.skySelector} onPress={() => setWaves('Chill')}>
+                          <Image source={waves === 'Chill' ? require('../assets/chill-select.png') : require('../assets/chill.png')} style={{width: 50, height: 50, resizeMode: 'contain'}} />
+                          <Text style={{alignSelf: 'center', marginTop: 5}}>Chill</Text>
+                        </TouchableOpacity>
+                        </View>
+                      </View>
+                    }
+                  ></Cell>
+                  <Cell
+                    hideSeparator={true}
+                    cellStyle="Basic"
+                    title="Save"
+                    titleTextColor={'#413FEB'}
+                    titleTextStyle={AppStyles.cellTitleText}
+                    contentContainerStyle={AppStyles.cellContainer}
+                    cellContentView={
+                      <Text>Some content coming here</Text>
+                    }
+                  ></Cell>
+                  <Cell
+                    cellStyle="Basic"
+                    contentContainerStyle={AppStyles.cellContainer}
+                    cellContentView={
+                      <View style={{width: '100%'}}>
+                        <Text style={[AppStyles.cellTitleText, AppStyles.cellTitleTextWithMargin]}>Visibility</Text>
+                        <Text>{visibility}m</Text>
+                        <Slider style={{width: '100%'}} 
+                                maximumValue={50} minimumValue={0} step={1} value={visibility} 
+                                onSlidingComplete={(value)=>setVisibility(value)} 
+                                minimumTrackTintColor="#413FEB"
+                                maximumTrackTintColor="#413FEB"
+                                thumbTintColor='#FBDA76'
+                        />
+                      </View>
+                    }
+                  ></Cell>
+                </Section>
+              </TableView>
+            </View>
+            <View style={AppStyles.diverProfile}>
+              <TableView>
+                <Section
+                  hideSeparator={true}
+                  hideSurroundingSeparators={true}
+                  headerComponent={<Text style={[AppStyles.diverProfileText, {alignSelf: 'center'}]}>Notes</Text>}
+                >
+                  <Cell
+                    cellStyle="Basic"
+                    contentContainerStyle={AppStyles.cellContainer}
+                    cellContentView={
+                      <View style={{width: '100%'}}>
+                        <TextInput
+                          style={{height: 100, borderColor: 'gray', borderWidth: 1, borderRadius: 5, paddingHorizontal: 10, paddingVertical: 15}}
+                          onChangeText={text => setNotes(text)}
+                          value={notes}
+                          multiline={true}
+                          numberOfLines={4}
+                        />
+                      </View>
+                    }
+                  ></Cell>
+                </Section>
+              </TableView>
+            </View>
             <View style={AppStyles.centeredView}>
               {/* Dive center search modal */}
               {/* <Modal
@@ -468,20 +675,6 @@ const AddDiveScreen = ( {navigation }) => {
                       onClose={() => setDiveBuddyModalVisible(false)}
                       onSelect={(buddies) => setBuddies(buddies)}
                       selectedBuddies={buddies}
-                    />
-                </Modal>
-                <Modal
-                    animationType="slide"
-                    // transparent={true}
-                    presentationStyle="pageSheet"
-                    visible={imagePickerModalVisible}
-                    onRequestClose={() => {
-                      setImagePickerModalVisible(!imagePickerModalVisible);
-                    }}>
-                    <MultiImageUploader
-                      onClose={() => setImagePickerModalVisible(false)}
-                      onSelect={(images) => setImages(images)}
-                      selectedImages={images}
                     />
                 </Modal>
             </View>
