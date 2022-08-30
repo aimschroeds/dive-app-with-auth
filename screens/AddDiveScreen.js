@@ -1,7 +1,7 @@
 import { Image, KeyboardAvoidingView, Modal, RefreshControl, StyleSheet, SafeAreaView, 
           ScrollView, Text, TextInput, View, TouchableOpacity  } from 'react-native';
 
-import React, { useState, useLayoutEffect, useEffect } from 'react';
+import React, { useState, useLayoutEffect, useEffect, useRef } from 'react';
 
 import { db, auth } from '../firebase';
 
@@ -62,6 +62,7 @@ const AddDiveScreen = ( {navigation }) => {
   // Constants for managing messaging to user
   const [errorMessage, setErrorMessage] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
+  const scrollRef = useRef();
 
   // Constants managing state of screen
   const [refreshing, setRefreshing] = useState(false);
@@ -89,6 +90,14 @@ const AddDiveScreen = ( {navigation }) => {
         wait(2000).then(() => setRefreshing(false));
     }, []);
 
+    // https://stackoverflow.com/questions/31883211/scroll-to-top-of-scrollview
+    // Scroll to top of screen if error message is set
+    const goToTop = () => {
+      scrollRef.current?.scrollTo({
+        y: 0,
+        animated: true,
+      });
+    }
 
     // Set dive start time
     const onChangeStart = (event, selectedTime) => {
@@ -117,11 +126,70 @@ const AddDiveScreen = ( {navigation }) => {
     }
     
     useEffect(() => {
-      console.log('images passed to add dive', images)
-    }, [images])
+      if (errorMessage)
+      {
+        goToTop();
+      }
+    }, [errorMessage])
+
+    const validateDive = (dive) => {
+        if (dive.diveSite === undefined) {
+            setErrorMessage('Please select a dive location')
+            return false
+        } else if (dive.diveProfile.surfaceInterval === '') {
+          setErrorMessage('Please enter a surface interval')
+          return false
+        } else if (dive.diveProfile.diveStart === null) {
+            setErrorMessage('Please select a dive start time')
+            return false
+        } else if (dive.diveProfile.diveEnd === null) {
+            setErrorMessage('Please select a dive end time')
+            return false       
+        } else if (dive.diveProfile.startPressure.value === '') {
+            setErrorMessage('Please enter a start pressure')
+            return false
+        } else if (dive.diveProfile.endPressure.value === '') {
+            setErrorMessage('Please enter an end pressure')
+            return false
+        } else if (dive.diveProfile.maxDepth.value === '') {
+            setErrorMessage('Please enter a max depth')
+            return false
+        } else if (dive.conditions.temperature.value === '') {
+            setErrorMessage('Please enter a temperature')
+            return false
+        } else if (dive.conditions.visibility.value === '') {
+            setErrorMessage('Please enter a visibility')
+            return false
+        } else if (dive.conditions.sky === '') {
+            setErrorMessage('Please select the weather conditions in the sky')
+            return false
+        } else if (dive.conditions.waves === '') {
+            setErrorMessage('Please select the state of waves at entry')
+            return false
+        } else if (dive.conditions.entry === '') {
+            setErrorMessage('Please select an entry')
+            return false
+          }
+
+      if (dive.buddies) {
+        setBuddies(null)
+      }
+      if (dive.notes === '') {
+        setNotes(null)
+      } 
+      if (dive.images) {
+        setImages(null);  
+      }
+
+      setErrorMessage(null)
+      return true
+        
+    }
 
   // Add dive to "dives" collection in Firebase
     let addDive = async () => {
+      console.log('add dive called')
+      setErrorMessage('');
         let dive = {
           diveSite: diveLocation.id,
           buddies: buddies,
@@ -147,22 +215,42 @@ const AddDiveScreen = ( {navigation }) => {
           userId: auth.currentUser.uid,
           createdAt: new Date(),
         }
-        console.log(dive);
-        db.collection("dives").add(dive)
-        .then((docRef) => {
-            console.log("Document written with ID: ", docRef.id);
-            setSuccessMessage('Dive added!')
-            navigation.navigate('Home')
-        })
-        .catch((error) => {
-            console.error("Error adding document: ", error);
-            setErrorMessage(error)
-        });
+        if (dive && validateDive(dive)) {
+          console.log('dive is valid')
+              db.collection("dives").add(dive)
+              .then((docRef) => {
+                  console.log("Document written with ID: ", docRef.id);
+                  setSuccessMessage('Dive added!')
+                  setDiveLocation({});
+                  setBuddies([]);
+                  setDiveStart(new Date());
+                  setDiveEnd(new Date());
+                  setSurfaceInterval('');
+                  setStartPressure('');
+                  setEndPressure('');
+                  setMaxDepth('');
+                  setTrainingDive(false);
+                  setImages([]);
+                  setTemperature(25);
+                  setVisibility(10);
+                  setSky('');
+                  setWaves('');
+                  setSaltwater(true);
+                  setEntry('');
+                  setNotes('');
+                  setImages([]);
+                  navigation.navigate('Home')
+                })
+                .catch(error => {
+                    setErrorMessage(error.message)
+                })
+            }
     };
 
   return (
     <SafeAreaView style={{backgroundColor: 'white'}}>  
         <ScrollView style={{height:"100%"}} 
+          ref={scrollRef}
           refreshControl={
               <RefreshControl
                 refreshing={refreshing}
@@ -176,7 +264,7 @@ const AddDiveScreen = ( {navigation }) => {
                 style={{marginHorizontal: 20}}
             >
               {/* If dive location is set, show map with pin on dive site */}
-              { diveLocation.name && <MapView
+              { diveLocation?.name && <MapView
                   style={[AppStyles.smallMap]}
                   region={{
                   latitude: diveLocation.latitude,
@@ -381,7 +469,7 @@ const AddDiveScreen = ( {navigation }) => {
                           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
                               <Text style={[AppStyles.cellTitleText, {color: '#413FEB'}]}>Dive Buddies </Text>
                               <View style={{ flexDirection: 'row', marginLeft: 20}}>
-                                { buddies.length > 0 &&
+                                { buddies?.length > 0 &&
                                   buddies.map((buddy, index) => <Image key={buddy.id} source={{ uri: buddy.image_url }} style={{ width: 30, height: 30, borderRadius: 30, marginLeft: -12, borderWidth: 1, borderColor: 'white'}} /> )
                                 }
                               </View>
@@ -398,7 +486,7 @@ const AddDiveScreen = ( {navigation }) => {
                       cellStyle="Basic"
                       contentContainerStyle={AppStyles.cellContainer}
                       cellContentView={
-                          <View style={{ backgroundColor: '#F5F5F5', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', borderRadius: 15, width: '100%'}}>
+                          <View style={AppStyles.cellPrimaryView}>
                                 <TouchableOpacity 
                                   style={[AppStyles.toggle, trainingDive ? AppStyles.toggleUnselected : AppStyles.toggleSelected]}
                                   onPress={() => setTrainingDive(false)}
@@ -488,7 +576,7 @@ const AddDiveScreen = ( {navigation }) => {
                       cellContentView={
                         <View style={{width: '100%'}}>
                         <Text style={[AppStyles.cellTitleText, AppStyles.cellTitleTextWithMargin]}>Entry</Text>
-                                <View style={{ backgroundColor: '#F5F5F5', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', borderRadius: 15, width: '100%'}}>
+                                <View style={AppStyles.cellPrimaryView}>
                                 
                                 <TouchableOpacity 
                                   style={[AppStyles.toggleShort, entry === 'Shore' ? AppStyles.toggleSelected : AppStyles.toggleUnselected]}
@@ -518,7 +606,7 @@ const AddDiveScreen = ( {navigation }) => {
                       cellContentView={
                         <View style={{width: '100%'}}>
                         <Text style={[AppStyles.cellTitleText, AppStyles.cellTitleTextWithMargin]}>Water</Text>
-                                <View style={{ backgroundColor: '#F5F5F5', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', borderRadius: 15, width: '100%'}}>
+                                <View style={AppStyles.cellPrimaryView}>
                                 
                                 <TouchableOpacity 
                                   style={[AppStyles.toggle, saltwater ? AppStyles.toggleUnselected : AppStyles.toggleSelected]}
@@ -609,17 +697,6 @@ const AddDiveScreen = ( {navigation }) => {
               </TableView>
             </View>
             <View style={AppStyles.centeredView}>
-              {/* Dive center search modal */}
-              {/* <Modal
-                animationType="slide"
-                // transparent={true}
-                presentationStyle="pageSheet"
-                visible={diveCenterSearchModalVisible}
-                onRequestClose={() => {
-                  setDiveCenterSearchModalVisible(!diveCenterSearchModalVisible);
-                }}>
-                
-              </Modal> */}
                 {/* Dive buddy search modal */}
                 <Modal
                     animationType="slide"
@@ -636,7 +713,9 @@ const AddDiveScreen = ( {navigation }) => {
                     />
                 </Modal>
             </View>
-
+            { errorMessage && 
+                  <Text style={AppStyles.errorMessage}>{errorMessage}</Text>
+              }
             {/* Add Dive Button --> Submits dive to database */}
             <TouchableOpacity 
                 style={[AppStyles.buttonBlue, AppStyles.buttonBlueLarge, {marginBottom: 50}]} 
@@ -652,159 +731,3 @@ const AddDiveScreen = ( {navigation }) => {
 
 export default AddDiveScreen
 
-const styles = StyleSheet.create({
-  // centeredView: {
-  //   flex: 1,
-  //   justifyContent: 'center',
-  //   alignItems: 'center',
-  //   marginTop: 22,
-  // },
-  // scrollContainer: {
-  //   flex: 1,
-  // },
-  searchBar: {
-    // flex: 1,
-    // alignItems: 'center',
-    // width: '95%',
-  },
-  // button: {
-  //   borderRadius: 20,
-  //   padding: 10,
-  //   elevation: 2,
-  // },
-  // buttonOpen: {
-  //   backgroundColor: '#F194FF',
-  // },
-  // buttonClose: {
-  //   backgroundColor: '#2196F3',
-  // },
-  // textStyle: {
-  //   color: 'white',
-  //   fontWeight: 'bold',
-  //   textAlign: 'center',
-  // },
-  // modalText: {
-  //   marginBottom: 15,
-  //   textAlign: 'center',
-  // },  
-  // plusButtonText: {
-  //       color: '#00b5ec',
-  //       paddingLeft: 10,
-  //   },
-    // container: {
-    //     flex: 1,
-    //     flexDirection: 'row',
-    //     justifyContent: 'center',
-    //     alignContent: 'space-between',
-    //     marginTop: 30,
-    // },
-    // textInput: {
-    //   height: 30,
-    //   marginVertical: 12,
-    //   padding: 10,
-    //   paddingHorizontal: 15,
-    //   borderRadius: 15,
-    //   backgroundColor: '#413FEB',
-    //   color: 'white',
-    //   width: '45%',
-    //   textAlign: 'center',
-    //   marginHorizontal: '3%',
-    // },
-
-    // dateInput: {
-    //   height: 30,
-    //   marginVertical: 12,
-    //   padding: 10,
-    //   // borderRadius: 15,
-    //   // backgroundColor: '#413FEB',
-    //   // textColor: 'white',
-    //   width: '95%',
-    //   marginHorizontal: '3%',
-    //   // textAlign: 'left',
-    //   alignContent: 'right',
-    //   // justifyContent: 'center',
-    //   alignItems: 'flex-end',
-    // },
-    // datePicker: {
-    //   // margin:-2,
-    //   // borderWidth: 1,
-    //   width: '80%',
-    //   // alignSelf: 'flex-end',
-    // },
-    // diverProfile: {
-    //   marginVertical: 20,
-    //   borderColor: '#DDDDDD',
-    //   borderWidth: 1,
-    //   borderRadius: 16,
-    //   // marginTop: 30,
-    // },
-    // diverProfileHeader: {
-    //   flexDirection: 'row',
-    //   flex: 1,
-    //   justifyContent: 'center',
-    //   marginTop: 20,
-    // },
-    // diverProfileText: {
-    //   fontSize: 16,
-    //   color: '#413FEB',
-    //   marginHorizontal: 10,
-    //   fontFamily: 'Helvetica',
-    // },
-    // cellTitleText: {
-    //   fontSize: 14,
-    //   fontFamily: 'Helvetica',
-    //   fontWeight: 'bold',
-    // },
-    // diverProfileBody: {
-    //   backgroundColor: '#EBF6FA',
-    //   marginTop: -15,
-    //   paddingTop: 15,
-    //   flex: 1, 
-      
-    //   // flexDirection: 'column',     
-    // },
-    // diverProfileBodyContents: {
-    //   marginHorizontal: 30,
-    // },
-    // diverProfileBodyRow: {
-    //   flexDirection: 'row',
-    //   // justifyContent: 'space-between',
-    //   // marginHorizontal: 30,
-    //   marginBottom: 10,
-    //   width: '100%',
-    //   flex: 1,
-    //   alignSelf: 'center',
-    //   justifyContent: 'space-around',
-    // },
-    // leftAlignedRow: {
-    //   justifyContent: 'flex-start',
-    // },
-    // centerAlignedRow: {
-    //   justifyContent: 'center',
-    //   marginTop: -20,
-    // },
-    // leftAlignedText:{
-    //   textAlign: 'left',
-    // },
-    // diverProfileBodyColumn: {
-    //   flexDirection: 'column',
-    //   flex: 1,
-    //   width: '100%',
-    //   alignItems: 'stretch',
-    // },
-    // diverProfileBodyText: {
-    //   color: '#413FEB',
-    //   fontWeight: 'bold',
-    // },
-    // diverProfileBodyInput: {
-    //   color: '#626262',
-    //   marginHorizontal: 5,
-    //   borderBottomColor: '#626262',
-    //   borderBottomWidth: 1,
-    //   width: 40,
-    // },
-    // diveProfileImage: {
-    //   alignSelf: 'stretch',
-    //   marginTop: -10,
-    // },
-})
