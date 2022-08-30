@@ -1,4 +1,4 @@
-import { Image, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { useIsFocused } from '@react-navigation/native';
 
@@ -6,6 +6,8 @@ import { db, auth, storage } from '../firebase';
 
 import Icon from 'react-native-ico-material-design';
 import AppStyles from '../styles/AppStyles';
+import DiveShort from '../components/DiveShort';
+import UserDetails from '../components/UserDetails';
 
 
 /**
@@ -22,6 +24,7 @@ const ProfileScreen = ( { route, navigation }) => {
     const [userProfilePictureURL, setUserProfilePictureURL] = useState(null)
     const [loading, setLoading] = useState(true)
     const inFocus = useIsFocused();
+    const [dives, setDives] = useState([]);
 
     // Show edit button in header
     useLayoutEffect(() => {
@@ -86,6 +89,23 @@ const ProfileScreen = ( { route, navigation }) => {
         });
         setLoading(false);
     }
+
+  // Load user's dives
+  useEffect(() => {
+    const unsubscribe = db
+      .collection('dives')
+      .where('userId', '==', userId)
+      .orderBy('createdAt', 'desc')
+      .onSnapshot((snapshot) =>
+        setDives(
+          snapshot.docs.map((doc) => ({
+            id: doc.id,
+          }))
+        )
+      );
+      console.log(dives)
+    return unsubscribe;
+  }, [userId]);
   
   // Get image ref, download image and set for use on screen
   // TO DO: refactor into helper
@@ -126,30 +146,21 @@ const ProfileScreen = ( { route, navigation }) => {
 
   return (
     <>
-    <View style={[AppStyles.container]}>
-        {/* <Text>{userProfilePictureURL}</Text> */}
-        {/* { loading && <ActivityIndicator size="large" color="#00b5ec" /> } */}
-        {/* When loading complete, show user profile picture */}
-        { !loading && 
-            userProfilePictureURL &&  
-            <Image source={{uri: userProfilePictureURL,}} style={[AppStyles.profilePic]}/> 
-        }
-        {/* If no user profile picture, show generic avatar icon */}
-        { !loading && 
-            !userProfilePictureURL &&  
-            <Icon name='round-account-button-with-user-inside' width='100' height='100' color='gray' /> 
-        }    
-        {/* If still loading, show generic avatar icon */}
-        { loading && 
-            !userProfilePictureURL &&  
-            <Icon name='round-account-button-with-user-inside' width='100' height='100' color='gray' /> }     
-    </View>
-    <View style={[AppStyles.section]}>
-        <Text style={[AppStyles.titleText]}>{userDisplayName} {loading}</Text>        
-    </View>
-    <View style={[AppStyles.section]}>
-        <Text style={[AppStyles.titleText]}>{userId}</Text>
-    </View>
+    <FlatList
+        ListHeaderComponent={<UserDetails
+          displayName={userDisplayName}
+          profilePic={userProfilePictureURL}
+        />}
+        data={dives}
+        renderItem={({item, index}) => (
+            <DiveShort
+              id={item.id}
+              key={index}
+              navigation={navigation}
+            />
+        )}
+        keyExtractor={item => item.id}
+    />
       </>
 )
 }
