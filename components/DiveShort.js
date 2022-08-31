@@ -37,6 +37,16 @@ const DiveShort = ({...props}) => {
         }
     }
 
+    const deleteDive = () => {
+        // Delete dive
+        db.collection("dives").doc(props.id).delete().then(() => {
+            console.log("Dive successfully deleted!");
+            navigation.navigate('Home')
+        }).catch((error) => {
+            console.error("Error removing dive: ", error);
+        });
+    }    
+
     if (loading) {
         // Get dive data
         // console.log('props,', props.id)
@@ -122,9 +132,9 @@ const DiveShort = ({...props}) => {
                                     <Icon name="three-dots-more-indicator" size={20} color="#0000ff" />
                                 </TouchableOpacity>
                             }
-                            { props.editable && authUser === dive.userId &&
-                                <TouchableOpacity style={[AppStyles.cell5View, {flexDirection: 'row', justifyContent: 'flex-end'}]} onPress={() => navigation.navigate('Dive-Edit', {id: props.id})}>
-                                    <Icon name="create-new-pencil-button" size={20} color="#0000ff" />
+                            { props.delete && authUser === dive.userId &&
+                                <TouchableOpacity style={[AppStyles.cell5View, {flexDirection: 'row', justifyContent: 'flex-end'}]} onPress={deleteDive}>
+                                    <Icon name="rubbish-bin-delete-button" size={20} color="#0000ff" />
                                 </TouchableOpacity>
                             }
                         </View>

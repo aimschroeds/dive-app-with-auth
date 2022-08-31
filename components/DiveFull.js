@@ -51,7 +51,7 @@ const [dive, setDive] = useState(null);
         id={props.id}
         navigation={props.navigation}
         more={false}
-        editable={true}
+        delete={true}
       />
       <TableView style={{marginTop: -30}}>
         <Section
