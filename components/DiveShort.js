@@ -6,6 +6,7 @@ import { db, auth, storage } from '../firebase';
 import get200ImageRef from '../helpers/get200ImageRef';
 import { TableView, Section, Cell } from 'react-native-tableview-simple';
 import AppStyles from '../styles/AppStyles';
+import Icon from 'react-native-ico-material-design';
 
 import MapView from 'react-native-maps';
 import { Marker } from 'react-native-maps';
@@ -96,25 +97,37 @@ const DiveShort = ({...props}) => {
     return (
         <View>
             <TableView>
-                <Section>
+                <Section
+                    hideSeparator={true}
+                    hideSurroundingSeparators={true}
+                >
                 <Cell
                       cellStyle="Basic"
                       contentContainerStyle={AppStyles.cellContainer}
                       cellContentView={
-                        // <View style={{flexDirection: 'row'}}>
-                          <TouchableOpacity style={{flexDirection: 'row'}} onPress={viewFriend}>
-                            <View style={[AppStyles.cell25View, {justifyContent: 'flex-start'}]}>
+                        // <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
+                          <View style={{flexDirection: 'row', justifyContent: 'space-between'}} onPress={viewFriend}>
+                            <View style={[AppStyles.cell25View,{justifyContent: 'flex-start'}]}>
                                     { !loading && userProfilePicture ? <Image source={{uri: userProfilePicture,}} style={dive.userId === authUser ? AppStyles.profilePicSmallBorder : AppStyles.profilePicSmall}/> :
                                     <ActivityIndicator size="large" color="#0000ff" />}
                                     <Text style={AppStyles.cellPrimaryText}>{user ? user.display_name : 'Loading...'}</Text>
                                     
                             </View>
-                            <View style={[AppStyles.cell75View, {justifyContent: 'center', flexDirection: 'column', alignItems: 'flex-end'}]}>
+                            <View style={[AppStyles.cell70View, {justifyContent: 'center', flexDirection: 'column', alignItems: 'flex-end'}]}>
                                 { diveSite && <Text style={AppStyles.cellSecondaryText}>{diveSite.location.name}, {diveSite.location.region}, {diveSite.location.isoCountryCode}</Text>}
                                 { diveDate && <Text style={AppStyles.cellMetaText}>{months[diveDate.getMonth()-1]} {diveDate.getDate()}, {diveDate.getFullYear()} at {diveDate.getHours()}:{diveDate.getMinutes()}</Text>}
                             </View>
-                        </TouchableOpacity>
-                        // </View>
+                            { props.more &&
+                                <TouchableOpacity style={[AppStyles.cell5View, {flexDirection: 'row', justifyContent: 'flex-end'}]} onPress={() => navigation.navigate('Dive', {id: props.id})}>
+                                    <Icon name="three-dots-more-indicator" size={20} color="#0000ff" />
+                                </TouchableOpacity>
+                            }
+                            { props.editable && authUser === dive.userId &&
+                                <TouchableOpacity style={[AppStyles.cell5View, {flexDirection: 'row', justifyContent: 'flex-end'}]} onPress={() => navigation.navigate('Dive-Edit', {id: props.id})}>
+                                    <Icon name="create-new-pencil-button" size={20} color="#0000ff" />
+                                </TouchableOpacity>
+                            }
+                        </View>
                       }
                       hideSeparator={true}
                     ></Cell>
@@ -152,7 +165,7 @@ const DiveShort = ({...props}) => {
                     
                     <Cell
                       cellStyle="Basic"
-                      contentContainerStyle={{flex: 1, marginBottom: 20}}
+                      contentContainerStyle={{ marginBottom: 20}}
                       cellContentView={ diveSite &&
                           <ScrollView horizontal bounces>
                                 <MapView

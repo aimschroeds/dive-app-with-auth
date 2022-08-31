@@ -72,7 +72,7 @@ export default StyleSheet.create({
     marginHorizontal: 5,
   },
   cellSecondaryText: {
-    fontSize: 13,
+    fontSize: 12,
     marginHorizontal: 1,
   },
   cellMetaText: {
@@ -95,6 +95,38 @@ export default StyleSheet.create({
     justifyContent: 'center', 
     borderRadius: 15, 
     width: '100%',
+  },
+  cell10View : {
+    // backgroundColor: '#F5F5F5', 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    borderRadius: 15, 
+    width: '10%',
+  },
+  cell5View : {
+    // backgroundColor: '#F5F5F5', 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    borderRadius: 15, 
+    width: '10%',
+  },
+  cell65View : {
+    // backgroundColor: '#F5F5F5', 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    borderRadius: 15, 
+    width: '65%',
+  },
+  cell70View : {
+    // backgroundColor: '#F5F5F5', 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    borderRadius: 15, 
+    width: '65%',
   },
   cell33View : {
     // backgroundColor: '#F5F5F5', 
@@ -194,6 +226,10 @@ export default StyleSheet.create({
     // borderWidth: 1,
     width: '80%',
     // alignSelf: 'flex-end',
+  },
+  diveBuddies: { width: 30, height: 30, borderRadius: 15, marginLeft: -8, borderWidth: 2, borderColor: 'white'},
+  diveIcon: {
+    width: 28, height: 28, resizeMode: 'contain'
   },
   diverProfile: {
     marginVertical: 20,

@@ -1,11 +1,13 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
+import DiveFull from '../components/DiveFull'
 
 const DiveScreen = ( { route, navigation }) => {
   return (
-    <View>
-      <Text>Dive Screen</Text>
-    </View>
+    <DiveFull
+      id={route.params.id}
+      navigation={navigation}
+    />
   )
 }
 
