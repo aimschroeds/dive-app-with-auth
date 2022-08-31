@@ -204,7 +204,7 @@ const AddBuddyModal =  (({ navigation, ...props }) => {
             placeholder="Search"
         />
         {/* Selected buddy tags */}
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap', borderWidth: 1, }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap', }}>
             { buddies.length > 0 && <FlatList 
                 data={buddies}
                 keyExtractor={(buddy) => buddy.id}
