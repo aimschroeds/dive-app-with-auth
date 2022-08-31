@@ -136,9 +136,6 @@ const AddDiveScreen = ( {navigation }) => {
         if (dive.diveSite === undefined) {
             setErrorMessage('Please select a dive location')
             return false
-        } else if (dive.diveProfile.surfaceInterval === '') {
-          setErrorMessage('Please enter a surface interval')
-          return false
         } else if (dive.diveProfile.diveStart === null) {
             setErrorMessage('Please select a dive start time')
             return false
@@ -179,6 +176,9 @@ const AddDiveScreen = ( {navigation }) => {
       } 
       if (dive.images) {
         setImages(null);  
+      }
+      if (dive.diveProfile.surfaceInterval === '') {
+      setSurfaceInterval(null); 
       }
 
       setErrorMessage(null)

@@ -7,6 +7,7 @@ import Icon from 'react-native-ico-material-design';
 import AppStyles from '../styles/AppStyles';
 import UserDetails from '../components/UserDetails';
 import FriendStatus from '../components/FriendStatus';
+import DiveShort from '../components/DiveShort';
 
 
 /**

@@ -98,55 +98,13 @@ const MultiImageUploader = ({...props}) => {
         setLoading(false);
     }, [images])
 
-    
-    // Pass selected buddies to previous screen
-    const onImagesSelected = () => {
-        props.onSelect(images);
-        // goBack();
-    }
-
-    // Get user profile picture
-    const setImage = (image) => {
-        // Create a reference to the file we want to show
-        var storageRef = storage.ref();
-        var imageRef = storageRef.child(auth.currentUser.uid + '/' + image);
-        // Get the download URL
-        imageRef.getDownloadURL()
-        .then((url) => {
-          // Insert url into an <img> tag to "download"
-          setImages(images => [...images, url]);
-        })
-        .catch((error) => {
-            // A full list of error codes is available at
-            // https://firebase.google.com/docs/storage/web/handle-errors
-            switch (error.code) {
-              case 'storage/object-not-found':
-                // File doesn't exist
-                setErrorMessage('File doesn\'t exist')
-                break;
-              case 'storage/unauthorized':
-                // User doesn't have permission to access the object
-                setErrorMessage('User doesn\'t have permission to access the object')
-                break;
-              case 'storage/canceled':
-                // User canceled the upload
-                setErrorMessage('User canceled the upload')
-                break;
-              case 'storage/unknown':
-                // Unknown error occurred, inspect the server response
-                setErrorMessage('Unknown error occurred, please try again')
-                break;
-            }
-        });
-    }
-
     return (
         <View style={{flexDirection: 'column', width: '100%'}}>
             
             <View style={{flexDirection: 'row', justifyContent: 'flex-start'}}>
             { images?.length > 0 &&
                 images.map((image, index) => 
-                    <Image key={index} source={{ uri: image }} style={{ width: 60, height: 60, margin: 2,  borderWidth: 1, borderColor: 'white'}} />
+                    <Image key={index} source={{ uri: image }} style={{ width: 60, height: 60, margin: 2,  borderWidth: 1, borderColor: 'black'}} />
                 ) 
                 
             }

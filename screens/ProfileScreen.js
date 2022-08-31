@@ -35,7 +35,7 @@ const ProfileScreen = ( { route, navigation }) => {
                 onPress={showEdit}
                 style={AppStyles.headerButton}
               >
-              <Icon name="create-new-pencil-button" height='20' width='20' color="#00b5ec" />
+              <Icon name="create-new-pencil-button" height='20' width='20' color="#413FEB" />
             </TouchableOpacity>
             ),
         });
