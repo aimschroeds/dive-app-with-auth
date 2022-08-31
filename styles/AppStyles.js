@@ -403,6 +403,10 @@ export default StyleSheet.create({
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height - 200,
   },
+  mapExplore: {
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height,
+  },
   mapSetMarker: {
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height - 250,
@@ -459,7 +463,7 @@ export default StyleSheet.create({
     // marginLeft: '5%',
   },
   plusButtonText: {
-      color: '#00b5ec',
+      color: '#413FEB',
       paddingHorizontal: 10,
   },
   paragraph: {
