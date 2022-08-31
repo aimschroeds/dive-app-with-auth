@@ -118,7 +118,7 @@ const DiveShort = ({...props}) => {
                         // <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
                           <View style={{flexDirection: 'row', justifyContent: 'space-between'}} onPress={viewFriend}>
                             <View style={[AppStyles.cell25View,{justifyContent: 'flex-start'}]}>
-                                    { !loading && userProfilePicture ? <Image source={{uri: userProfilePicture,}} style={dive.userId === authUser ? AppStyles.profilePicSmallBorder : AppStyles.profilePicSmall}/> :
+                                    { !loading && userProfilePicture && dive?.userId ? <Image source={{uri: userProfilePicture,}} style={dive.userId === authUser ? AppStyles.profilePicSmallBorder : AppStyles.profilePicSmall}/> :
                                     <ActivityIndicator size="large" color="#0000ff" />}
                                     <Text style={AppStyles.cellPrimaryText}>{user ? user.display_name : 'Loading...'}</Text>
                                     
@@ -132,7 +132,7 @@ const DiveShort = ({...props}) => {
                                     <Icon name="three-dots-more-indicator" size={20} color="#0000ff" />
                                 </TouchableOpacity>
                             }
-                            { props.delete && authUser === dive.userId &&
+                            { props.delete && dive?.userId && authUser === dive.userId &&
                                 <TouchableOpacity style={[AppStyles.cell5View, {flexDirection: 'row', justifyContent: 'flex-end'}]} onPress={deleteDive}>
                                     <Icon name="rubbish-bin-delete-button" size={20} color="#0000ff" />
                                 </TouchableOpacity>

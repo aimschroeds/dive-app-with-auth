@@ -107,8 +107,8 @@ const [dive, setDive] = useState(null);
                 contentContainerStyle={AppStyles.cellContainer}
                 cellContentView={
                     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around'}}>
-                        <View style={[AppStyles.cell33View, {justifyContent: 'space-evenly', flexDirection: 'row'}]}>
-                        <View style={{justifyContent: 'center', flexDirection: 'column'}}>
+                        <View style={[AppStyles.cell33View, {justifyContent: 'center', flexDirection: 'row'}]}>
+                        <View style={{justifyContent: 'flex-start'}}>
                             { dive.conditions.sky === 'Clear' &&
                                 <Image source={require('../assets/sun.png')} style={AppStyles.diveIcon} />
                             }
@@ -122,7 +122,7 @@ const [dive, setDive] = useState(null);
                                 <Image source={require('../assets/Rain.png')} style={AppStyles.diveIcon} />
                             }
                         </View>
-                        <View style={[AppStyles.cell10View, {justifyContent: 'center', flexDirection: 'column'}]}>
+                        <View style={{justifyContent: 'flex-end', marginLeft: 10}}>
                             { dive.conditions.waves === 'Surge' &&
                                 <Image source={require('../assets/surge.png')} style={AppStyles.diveIcon} />
                             }
