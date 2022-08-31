@@ -17,11 +17,12 @@ const NotificationsScreen = ({ navigation }) => {
 
     // When user returns to view, reload data
     useEffect (() => {
-        if (inFocus)
+        if (inFocus && loading)
         {
             setLoading(true);
+            // loadNotifications();
         }
-    }, [inFocus]);
+    }, [inFocus, loading]);
 
 
     // Add back button to header
@@ -56,7 +57,7 @@ const NotificationsScreen = ({ navigation }) => {
             }
         })
         .catch((error) => {
-            console.log("let lastViewedNotification = async () => {:", error);
+            console.log("lastViewedNotification:Error ", error);
         });
     }
     
@@ -147,6 +148,7 @@ const NotificationsScreen = ({ navigation }) => {
         setLoading(false)
     }
 
+    // loadNotifications();    
     if (loading) 
     {
         loadNotifications();
@@ -155,9 +157,8 @@ const NotificationsScreen = ({ navigation }) => {
   return (
     <View>
         {/* When loading complete, show list of notifications */}
-        { !loading && <FlatList
+        { notifications && <FlatList
             data={notifications}
-            // TO DO: Refactor from item to noti
             keyExtractor={item => item.id}
             renderItem={({ item }) => (
             <View
@@ -183,7 +184,7 @@ const NotificationsScreen = ({ navigation }) => {
             )}
         />}
         {/* Show loading indicator */}
-        { loading && <View
+        { !notifications && <View
             style={{
                 paddingVertical: 20,
                 borderTopWidth: 1,
