@@ -8,6 +8,7 @@ import Icon from 'react-native-ico-material-design';
 import AppStyles from '../styles/AppStyles';
 import DiveShort from '../components/DiveShort';
 import UserDetails from '../components/UserDetails';
+import LogoutButton from '../components/LogoutButton';
 
 
 /**
@@ -147,16 +148,18 @@ const ProfileScreen = ( { route, navigation }) => {
   return (
     <>
     <FlatList
-        ListHeaderComponent={<UserDetails
+        ListHeaderComponent={<View><UserDetails
           displayName={userDisplayName}
           profilePic={userProfilePictureURL}
-        />}
+        /><LogoutButton/></View>}
         data={dives}
         renderItem={({item, index}) => (
             <DiveShort
               id={item.id}
               key={index}
               navigation={navigation}
+              more={true}
+              delete={false}
             />
         )}
         keyExtractor={item => item.id}

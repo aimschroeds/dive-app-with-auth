@@ -2,6 +2,7 @@ import { Image, View, Text } from 'react-native'
 import React from 'react'
 import { TableView, Section, Cell } from 'react-native-tableview-simple';
 
+
 import AppStyles from '../styles/AppStyles';
 import Icon from 'react-native-ico-material-design';
 
