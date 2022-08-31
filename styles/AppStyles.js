@@ -221,6 +221,14 @@ export default StyleSheet.create({
   //   marginTop: 30,
       marginHorizontal: '5%',
     },  
+    containerColumn: {
+      flex: 1,
+      flexDirection: 'column',
+    //   justifyContent: 'center',
+    //   alignContent: 'space-between',
+    //   marginTop: 30,
+        marginHorizontal: '5%',
+      },  
   datePicker: {
     // margin:-2,
     // borderWidth: 1,
@@ -304,6 +312,8 @@ export default StyleSheet.create({
     backgroundColor: '#F5F5F5',
     color: 'red',
   },
+  friendStatusButton: {width: '100%', alignItems: 'center'},
+  friendStatusText: { fontSize: 12, borderWidth: 1, borderColor: '#CED0CE', padding: 10 },
   headerButton: {
     // borderWidth: 2,
     // borderColor: "#00b5ec",
