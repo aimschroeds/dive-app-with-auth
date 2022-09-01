@@ -8,22 +8,10 @@ import { db, auth, storage } from '../firebase';
 
 import get200ImageRef from '../helpers/get200ImageRef';
 import get200ImageUrl from '../helpers/get200ImageUrl';
-import handleImageUpload from '../helpers/uploadImage';
+import handleImageUpload from '../helpers/handleImageUpload';
 
 import Icon from 'react-native-ico-material-design';
 import AppStyles from '../styles/AppStyles';
-
-// async function getImageUrls (pickerImages) {
-//     let images = [];
-//     console.log(
-//         pickerImages.map( async (img) => {
-//             console.log('temp img', img);
-//             setImages(images => [...images, (handleImageUpload(img.uri))]);
-//             return await handleImageUpload(img.uri);              
-//         }));
-   
-    
-// }
 
 const MultiImageUploader = ({...props}) => {
     const [images, setImages] = useState([]);
@@ -31,17 +19,13 @@ const MultiImageUploader = ({...props}) => {
     const [errorMessage, setErrorMessage] = useState(null);
     const [loading, setLoading] = useState(false);
     const [pickerResult, setPickerResult] = useState(null);
+    const [localImages, setLocalImages] = useState([]);
 
     useEffect(() => {
         if (props.selectedImages) {
-            setImages(props.selectedImages);
+            // setImages(props.selectedImages);
         }
-        // openImagePickerAsync();
-    }, [props.selectedImages])
-    // Return user to previous screen
-    // const goBack = () => {
-    //     props.onClose();
-    // }
+    }, [props.selectedImages, inFocus])
 
     // Handle image picking
     let openImagePickerAsync = async () => {
@@ -58,6 +42,7 @@ const MultiImageUploader = ({...props}) => {
         let result = await ImagePicker.launchImageLibraryAsync({
             allowsMultipleSelection: true,
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            quality: 1,
             selectionLimit: 4,
           });
 
@@ -81,15 +66,16 @@ const MultiImageUploader = ({...props}) => {
         if (pickerResult)
         {
             pickerResult.map(async (img) => {
+                setLocalImages(localImages => [...localImages, img.uri]);
                 const url = await handleImageUpload(img.uri)
                 setImages(images => [...images, url]);   
-                props.onSelect(images => [...images, url]);
+                props.onSelect(images => [...images, url]);  
             })
-            
         }
     }, [pickerResult])
 
     const removeImages = () => {
+        setLocalImages([]);
         setImages([]);
         props.onSelect([]);
     }
@@ -102,15 +88,15 @@ const MultiImageUploader = ({...props}) => {
         <View style={{flexDirection: 'column', width: '100%'}}>
             
             <View style={{flexDirection: 'row', justifyContent: 'flex-start'}}>
-            { images?.length > 0 &&
-                images.map((image, index) => 
+            { localImages?.length > 0 &&
+                localImages.map((image, index) => 
                     <Image key={index} source={{ uri: image }} style={{ width: 60, height: 60, margin: 2,  borderWidth: 1, borderColor: 'black'}} />
                 ) 
                 
             }
             { images?.length > 0 &&
                 <TouchableOpacity style={{justifyContent: 'center'}} onPress={removeImages}>
-                    <Icon name="rounded-remove-button" size={120} style={{width: 60, height: 60, margin: 15,  borderWidth: 1, borderColor: 'white'}} />
+                    <Icon name="rubbish-bin-delete-button" size={120} color="#413FEB" style={{width: 60, height: 60, margin: 15,  borderWidth: 1, borderColor: 'white'}} />
                 </TouchableOpacity>
             }
             </View>
