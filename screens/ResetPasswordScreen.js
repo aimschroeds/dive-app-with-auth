@@ -42,16 +42,16 @@ const ResetPasswordScreen = ( { navigation } ) => {
                     placeholder='Email'
                     value={email}
                     onChangeText={text => setEmail(text)}
-                    style={AppStyles.loginInput}
+                    style={AppStyles.input}
                 />
             </View>
             <View style={AppStyles.loginButtonContainer}>
                 {/* Reset password button */}
                 <TouchableOpacity
                     onPress={handleResetPassword}
-                    style={[AppStyles.button, AppStyles.loginButtonOutline]}
+                    style={[AppStyles.buttonBlue, AppStyles.buttonBlueLarge]}
                 >
-                    <Text style={AppStyles.loginButtonOutlineText}>Reset Password</Text>
+                    <Text style={AppStyles.buttonText}>Reset Password</Text>
                 </TouchableOpacity>
                 {/* Error/Success messaging */}
                 {errorMessage && 
@@ -62,7 +62,7 @@ const ResetPasswordScreen = ( { navigation } ) => {
                 }
                 {/* Button to return user to Login Screen */}
                 <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                    <Text style={AppStyles.loginButtonOutlineText}>Return to Login. </Text>
+                    <Text style={AppStyles.loginButtonOutlineText}>Return to Login </Text>
                 </TouchableOpacity>
             </View>
         </KeyboardAvoidingView>

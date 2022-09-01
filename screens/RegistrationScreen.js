@@ -60,13 +60,13 @@ const RegistrationScreen = ( { navigation }) => {
                     placeholder='Email'
                     value={email}
                     onChangeText={text => setEmail(text)}
-                    style={AppStyles.loginInput}
+                    style={AppStyles.input}
                 />
                 <TextInput
                     placeholder='Password'
                     value={password}
                     onChangeText={text => setPassword(text)}
-                    style={AppStyles.loginInput}
+                    style={AppStyles.input}
                     secureTextEntry
                 />
             </View>
@@ -77,9 +77,9 @@ const RegistrationScreen = ( { navigation }) => {
                 {/* Sign Up Button */}
                 <TouchableOpacity
                     onPress={handleSignUp}
-                    style={[AppStyles.loginButton, AppStyles.loginButtonOutline]}
+                    style={[AppStyles.buttonBlue, AppStyles.buttonBlueLarge]}
                 >
-                    <Text style={AppStyles.loginButtonOutlineText}>Register</Text>
+                    <Text style={AppStyles.buttonText}>Register</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => navigation.navigate('Login')}>
                     <Text style={AppStyles.loginButtonOutlineText}>Already Signed Up? Login. </Text>
