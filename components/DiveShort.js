@@ -21,7 +21,7 @@ const DiveShort = ({...props}) => {
     const [userProfilePicture, setUserProfilePicture] = useState(null);
     const [diveSite, setDiveSite] = useState(null);
     const inFocus = useIsFocused();
-    const authUser = String(auth.currentUser.uid);
+    const authUser = String(auth?.currentUser.uid);
     const navigation = props.navigation;
 
     // console.log('loading,', loading)
@@ -125,7 +125,22 @@ const DiveShort = ({...props}) => {
                             </View>
                             <View style={[AppStyles.cell70View, {justifyContent: 'center', flexDirection: 'column', alignItems: 'flex-end'}]}>
                                 { diveSite && <Text style={AppStyles.cellSecondaryText}>{diveSite.location.name}, {diveSite.location.region}, {diveSite.location.isoCountryCode}</Text>}
-                                { diveDate && <Text style={AppStyles.cellMetaText}>{months[diveDate.getMonth()-1]} {diveDate.getDate()}, {diveDate.getFullYear()} at {diveDate.getHours()}:{diveDate.getMinutes()}</Text>}
+                                { dive?.conditions && <View style={{justifyContent: 'flex-start', flexDirection: 'row'}}>
+                                    { dive.conditions.sky === 'Clear' &&
+                                        <Image source={require('../assets/sun.png')} style={AppStyles.diveIconSmall} />
+                                    }
+                                    { dive.conditions.sky === 'PartialClouds' &&
+                                        <Image source={require('../assets/partialClouds.png')} style={AppStyles.diveIconSmall} />
+                                    }
+                                    { dive.conditions.sky === 'Clouds' &&
+                                        <Image source={require('../assets/Clouds.png')} style={AppStyles.diveIconSmall}/>
+                                    }
+                                    { dive.conditions.sky === 'Rain' &&
+                                        <Image source={require('../assets/Rain.png')} style={AppStyles.diveIconSmall} />
+                                    }
+                                    { diveDate && <Text style={AppStyles.cellMetaText}>{months[diveDate.getMonth()-1]} {diveDate.getDate()}, {diveDate.getFullYear()} at {diveDate.getHours()}:{diveDate.getMinutes()}</Text>}
+                                </View>
+                                }
                             </View>
                             { props.more &&
                                 <TouchableOpacity style={[AppStyles.cell5View, {flexDirection: 'row', justifyContent: 'flex-end'}]} onPress={() => navigation.navigate('Dive', {id: props.id})}>
@@ -179,7 +194,7 @@ const DiveShort = ({...props}) => {
                       cellContentView={ diveSite &&
                           <ScrollView horizontal bounces>
                                 <MapView
-                                    style={dive.images ? AppStyles.feedMap : AppStyles.feedMapNoImages}
+                                    style={dive.images?.length > 0 ? AppStyles.feedMap : AppStyles.feedMapNoImages}
                                     region={{
                                     latitude: diveSite.latitude,
                                     longitude: diveSite.longitude,
@@ -194,7 +209,7 @@ const DiveShort = ({...props}) => {
                                         title={diveSite.name}
                                     />
                                 </MapView>
-                                { dive.images && dive.images.map((image, index) => 
+                                { dive.images?.length > 0 && dive.images.map((image, index) => 
                                     <Image key={index} source={{ uri: image }} style={{ width: 200, height: 200, marginHorizontal: 10, }} />
                                 ) }
                           </ScrollView>

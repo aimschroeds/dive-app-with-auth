@@ -46,7 +46,7 @@ const [dive, setDive] = useState(null);
         setLoading(false);  
     }
   return (
-    <View style={{flex: 1, flexDirection: 'column'}}>
+    <ScrollView style={{flex: 1, flexDirection: 'column'}}>
       <DiveShort
         id={props.id}
         navigation={props.navigation}
@@ -58,16 +58,40 @@ const [dive, setDive] = useState(null);
             hideSeparator={true}
             hideSurroundingSeparators={true}
         >
+            { dive?.notes && 
+            <Cell
+                cellStyle="Basic"
+                contentContainerStyle={AppStyles.cellContainer}
+                cellContentView={
+                     <View style={{flexDirection: 'row'}}>
+                        { dive.notes && <View style={[AppStyles.cell100NotesView, {justifyContent: 'flex-start', flexDirection: 'column'}]}>
+                            <Text style={AppStyles.cellSecondaryText}>{dive.notes}</Text>
+                        </View> }
+                    </View>
+                }
+                hideSeparator={true}
+            ></Cell> }
             { dive && 
             <Cell
                 cellStyle="Basic"
                 contentContainerStyle={AppStyles.cellContainer}
                 cellContentView={
                      <View style={{flexDirection: 'row'}}>
-                        { dive.diveProfile.surfaceInterval && <View style={[AppStyles.cell33View, {justifyContent: 'center', flexDirection: 'column'}]}>
-                            <Text style={AppStyles.cellPrimaryText}>{dive.diveProfile.surfaceInterval} mins</Text>
-                            <Text style={AppStyles.cellSecondaryText}>Surface Interval</Text>
-                        </View> }
+                         <View style={[AppStyles.cell33View, {justifyContent: 'center', flexDirection: 'column'}]}>
+                            { dive.conditions.waves === 'Surge' &&
+                                <Image source={require('../assets/surge.png')} style={AppStyles.diveIcon} />
+                            }
+                            { dive.conditions.waves === 'Waves' &&
+                                <Image source={require('../assets/waves.png')} style={AppStyles.diveIcon} />
+                            }
+                            { dive.conditions.waves === 'Chill' &&
+                                <Image source={require('../assets/chill.png')} style={AppStyles.diveIcon} />
+                            }
+                            { dive.conditions.waves === 'Surf' &&
+                                <Image source={require('../assets/surf.png')} style={AppStyles.diveIcon} />
+                            }
+                            <Text style={[AppStyles.cellSecondaryText]}>Surface</Text>
+                        </View> 
                         <View style={[AppStyles.cell33View, {justifyContent: 'center', flexDirection: 'column'}]}>
                             <Text style={AppStyles.cellPrimaryText}>{dive.conditions.temperature.value} °C </Text>
                             <Text style={AppStyles.cellSecondaryText}>Temperature</Text>
@@ -102,49 +126,32 @@ const [dive, setDive] = useState(null);
                 hideSeparator={true}
                 onPress={() => setDiveBuddyModalVisible(true)}
             ></Cell> }
-            { dive?.conditions && <Cell
+            { dive?.diveProfile.surfaceInterval && <Cell
                 cellStyle="Basic"
                 contentContainerStyle={AppStyles.cellContainer}
                 cellContentView={
                     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around'}}>
-                        <View style={[AppStyles.cell33View, {justifyContent: 'center', flexDirection: 'row'}]}>
-                        <View style={{justifyContent: 'flex-start'}}>
-                            { dive.conditions.sky === 'Clear' &&
-                                <Image source={require('../assets/sun.png')} style={AppStyles.diveIcon} />
-                            }
-                            { dive.conditions.sky === 'PartialClouds' &&
-                                <Image source={require('../assets/partialClouds.png')} style={AppStyles.diveIcon} />
-                            }
-                            { dive.conditions.sky === 'Clouds' &&
-                                <Image source={require('../assets/Clouds.png')} style={AppStyles.diveIcon}/>
-                            }
-                            { dive.conditions.sky === 'Rain' &&
-                                <Image source={require('../assets/Rain.png')} style={AppStyles.diveIcon} />
-                            }
+                        <View style={[AppStyles.cell100View, {justifyContent: 'center', flexDirection: 'column'}]}>
+                            <Text style={AppStyles.cellPrimaryText}>{dive.diveProfile.surfaceInterval} mins </Text>
+                            <Text style={AppStyles.cellSecondaryText}>Surface Interval</Text>
                         </View>
-                        <View style={{justifyContent: 'flex-end', marginLeft: 10}}>
-                            { dive.conditions.waves === 'Surge' &&
-                                <Image source={require('../assets/surge.png')} style={AppStyles.diveIcon} />
-                            }
-                            { dive.conditions.waves === 'Waves' &&
-                                <Image source={require('../assets/waves.png')} style={AppStyles.diveIcon} />
-                            }
-                            { dive.conditions.waves === 'Chill' &&
-                                <Image source={require('../assets/chill.png')} style={AppStyles.diveIcon} />
-                            }
-                            { dive.conditions.waves === 'Surf' &&
-                                <Image source={require('../assets/surf.png')} style={AppStyles.diveIcon} />
-                            }
-                        </View>
-                        </View>
-                        { dive.buddies?.length > 0 && <View style={[AppStyles.cell66View, {justifyContent: 'center', flexDirection: 'row'}]}>
+                    </View>
+                }
+                ></Cell>
+            }
+            { dive?.buddies && <Cell
+                cellStyle="Basic"
+                contentContainerStyle={AppStyles.cellContainer}
+                cellContentView={
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around'}}>
+                        { dive.buddies?.length > 0 ? <View style={[AppStyles.cell100View, {justifyContent: 'center', flexDirection: 'row'}]}>
                             <View style={{ flexDirection: 'row'}}>
                             { dive.buddies?.length > 0 &&
                                 dive.buddies.map((buddy, index) => <Image key={buddy.id} source={{ uri: buddy.image_url }} style={AppStyles.diveBuddies} /> )
                             }
                             </View>
                             <Text style={AppStyles.cellPrimaryText}>Dive Buddies </Text>
-                        </View>
+                        </View> : <View></View> 
                     }
                     </View>
                 }
@@ -152,7 +159,7 @@ const [dive, setDive] = useState(null);
             }
         </Section>
       </TableView>
-    </View>
+    </ScrollView>
   )
 }
 

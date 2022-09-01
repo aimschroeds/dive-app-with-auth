@@ -74,6 +74,7 @@ export default StyleSheet.create({
   cellSecondaryText: {
     fontSize: 12,
     marginHorizontal: 1,
+    marginTop: 8,
   },
   cellMetaText: {
     fontSize: 12,
@@ -95,6 +96,15 @@ export default StyleSheet.create({
     justifyContent: 'center', 
     borderRadius: 15, 
     width: '100%',
+  },
+  cell100NotesView : {
+    // backgroundColor: '#F5F5F5', 
+    flexDirection: 'row', 
+    alignItems: 'flex-start', 
+    justifyContent: 'flex-start', 
+    borderRadius: 15, 
+    width: '100%',
+    marginHorizontal: 15,
   },
   cell10View : {
     // backgroundColor: '#F5F5F5', 
@@ -237,7 +247,10 @@ export default StyleSheet.create({
   },
   diveBuddies: { width: 30, height: 30, borderRadius: 15, marginLeft: -8, borderWidth: 2, borderColor: 'white'},
   diveIcon: {
-    width: 28, height: 28, resizeMode: 'contain'
+    width: 18, height: 18, resizeMode: 'contain'
+  },
+  diveIconSmall: {
+    width: 14, height: 14, resizeMode: 'contain'
   },
   diverProfile: {
     marginVertical: 20,
@@ -391,9 +404,10 @@ export default StyleSheet.create({
       borderWidth: 2,
   },
   loginButtonOutlineText: {
-      color: '#00b5ec',
-      fontWeight: '700',
-      fontSize: 18,
+      color: 'black',
+      fontSize: 16,
+      marginVertical: 10,
+      width: '100%',
   },
   marginVert: {
     // marginVertical: 5,
