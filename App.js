@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
+import { useNavigation } from '@react-navigation/native';
 import { auth } from './firebase';
 
+import HomeScreen from './screens/HomeScreen';
 import CoreTabs from './menu/CoreTabs';
 import LoginScreen from './screens/LoginScreen';
 import RegistrationScreen from './screens/RegistrationScreen';

@@ -1,5 +1,6 @@
 import { db, auth, storage } from '../firebase';
-import get200ImageUrl from '../helpers/get200ImageUrl';
+import get200ImageUrl from './get200ImageUrl';
+import get800ImageUrl from './get800ImageUrl';
 
 
     // Upload image to firebase bucket  
@@ -7,10 +8,8 @@ import get200ImageUrl from '../helpers/get200ImageUrl';
         // Attempt to upload image and set as profile picture
         try {
             let downloadUrl = await uploadImageAsync(uri);
-            console.log('downloadUrl2', downloadUrl);
-            let downloadUrl200 = get200ImageUrl(downloadUrl);
-            console.log('downloadUrl200', downloadUrl200);
-            return downloadUrl200;
+            let downloadUrl800 = get800ImageUrl(downloadUrl);
+            return downloadUrl800;
         }
         catch (error) {
             console.log(error.message);
