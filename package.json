@@ -44,7 +44,8 @@
     "react-native-web": "~0.18.7",
     "unimodules-permissions-interface": "^6.1.0",
     "uuid": "^8.3.2",
-    "@react-native-community/slider": "4.2.3"
+    "@react-native-community/slider": "4.2.3",
+    "expo-splash-screen": "~0.16.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9"
