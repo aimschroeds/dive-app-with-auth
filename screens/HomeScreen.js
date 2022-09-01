@@ -8,19 +8,29 @@ import AppStyles from '../styles/AppStyles';
 
 import DiveShort from '../components/DiveShort';
  
+// Configure wait to prevent reloading page too often
+const wait = (timeout) => {
+    return new Promise(resolve => setTimeout(resolve, timeout));
+}
+
+
 /**
  * Home screen
  * @param {*} navigation 
  * @returns {JSX.Element}
  */
 
+
  const HomeScreen = ({ navigation }) => {
     const [dives, setDives] = useState([]);
     const userId = auth.currentUser.uid;
     const [friends, setFriends] = useState([auth.currentUser.uid]);
+    const [loadingFriends, setLoadingFriends] = useState(true);
     const [loading, setLoading] = useState(true);
     const [lastViewed, setLastViewed] = useState(null);
     const [notifications, setNotifications] = useState({count: 0})
+    // Constants managing state of screen
+    const [refreshing, setRefreshing] = useState(false);
 
     // Show notifications button in header
     useLayoutEffect(() => {
@@ -44,8 +54,18 @@ import DiveShort from '../components/DiveShort';
         navigation.navigate('Notifications')
       }
 
+    // https://reactnative.dev/docs/refreshcontrol
+    // Enables user to be able to reload screen every 2000 ms
+    const onRefresh = React.useCallback(() => {
+        setRefreshing(true);
+        setLoading(true);
+        wait(2000).then(() => setRefreshing(false));
+    }, []);
+
   // Load user's dives
   useEffect(() => {
+    if (friends.length > 0)
+    {
         const unsubscribe = db
         .collection('dives')
         .where('userId', 'in', friends)
@@ -57,14 +77,20 @@ import DiveShort from '../components/DiveShort';
             }))
             )
         );
-        return unsubscribe;    
-  }, [loading]);
+        return unsubscribe; 
+    }
+  }, [friends]);
 
   // Load notification count
   useEffect(() => {
+    loadFriends();
     setNotifications({count: 0})
-    loadNotifications();
+    lastViewedNotification();
 }, [loading]);
+
+useEffect(() => {
+    loadNotifications();
+}, [lastViewed]);
 
     // Reference to relationships of current user db in firebase
     var friendsRef = db.collection("friends").doc(auth.currentUser.uid).collection("relationships");
@@ -72,27 +98,28 @@ import DiveShort from '../components/DiveShort';
     /**
      * Load friends from friendsRef
      */
-   let loadFriends = async () => {
-    var getOptions = {
-        source: 'default'
-        };
-    let eligibleFriends = [];
-    friendsRef.get()
-        .then((querySnapshot) => {
-            querySnapshot.forEach((friend) => {
-                if (friend.data().status == "friends") {
-                    eligibleFriends.push(friend.data().friendId)
-                }
-            })     
-        })
-        .catch((error) => {
-            console.log("Error getting friends: ", error);
-        })
-        .finally(() => {
-            setFriends({friends: [...friends, ...eligibleFriends]});
-            setLoading(false);     
-        }) 
-    }
+    let loadFriends = async () => {
+        setLoadingFriends(true);
+        var getOptions = {
+            source: 'default'
+            };
+        friendsRef.get()
+            .then((querySnapshot) => {
+                querySnapshot.forEach((friend) => {
+                    console.log(friend.id, " => ", friend.data().status);
+                    if (friend.data().status == "friends") {
+                        setFriends(friends => [...friends, friend.id]);
+                    }
+                })     
+            })
+            .catch((error) => {
+                console.log("Error getting friends: ", error);
+            })
+            .finally(() => {
+                setLoading(false);   
+                setLoadingFriends(false);  
+            }) 
+        }
     // Reference to notifications in firebase db
     var notificationsRef = db.collection("notifications");
     // Reference to users in firebase db
@@ -113,7 +140,6 @@ import DiveShort from '../components/DiveShort';
 
     // Load notifications 
     let loadNotifications = async () => {
-        lastViewedNotification()
         var getOptions = {
             source: 'default'
         };
@@ -150,15 +176,19 @@ import DiveShort from '../components/DiveShort';
             />
         )}
         keyExtractor={item => item.id}
+        onRefresh={onRefresh}
+        refreshing={refreshing}
     />
-    { dives.length == 0 && <Text style={AppStyles.loginButtonOutlineText}>Welcome to Octos Log Book</Text> }
-    { dives.length == 0 && <TouchableOpacity
-                    // onPress={navigation.navigate('Add Dive')}
-                    style={[AppStyles.buttonBlue, AppStyles.buttonBlueLarge]}
-                >
-                    <Text style={AppStyles.buttonText}>Log A Dive</Text>
-                </TouchableOpacity>
-    }
+        <View style={AppStyles.loginButtonContainer}>
+            { dives.length == 0 && <Text style={AppStyles.loginButtonOutlineText}>Welcome to Octos Log Book</Text> }
+            { dives.length == 0 && <TouchableOpacity
+                            onPress={navigation.navigate('Add Dive')}
+                            style={[AppStyles.buttonBlue, AppStyles.buttonBlueLarge]}
+                        >
+                            <Text style={AppStyles.buttonText}>Log A Dive</Text>
+                        </TouchableOpacity>
+            }
+        </View>
     </View>
    )
  }
