@@ -181,6 +181,7 @@ const FriendScreen = ( { route, navigation }) => {
           <FriendStatus
               relationship={relationship}
               friendId={userId}
+              loading={true}
           />
         </View>}
         data={dives}
@@ -191,7 +192,7 @@ const FriendScreen = ( { route, navigation }) => {
               navigation={navigation}
               more={true}
               delete={false}
-            />
+            /> 
         )}
         keyExtractor={item => item.id}
     />

@@ -1,27 +1,30 @@
-import { View, Text, TouchableOpacity } from 'react-native';
+import {  ActivityIndicator, View, Text, TouchableOpacity } from 'react-native';
 import React, { useState, useEffect } from 'react';
-import { db, auth, storage } from '../firebase';
+import { db, auth } from '../firebase';
 import { useIsFocused } from '@react-navigation/native';
 
 import AppStyles from '../styles/AppStyles';
 
 const FriendStatus = ({...props}) => {
     const initialRelationship = props.relationship;
-    const [relationship, setRelationship] = useState(props.relationship);
+    const [relationship, setRelationship] = useState(null);
     const friendId  = props.friendId;
     const inFocus = useIsFocused();
     const [errorMessage, setErrorMessage] = useState(null);
     const [successMessage, setSuccessMessage] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(props.loading);
     
     useEffect(() => {
-        if (inFocus) {
+        if (inFocus && loading) {
             setRelationship(initialRelationship);
-            setLoading(true);
+            // setLoading(true);
         }
-    }, [inFocus])
+    }, [inFocus, loading])
 
-    console.log(props, relationship)
+    useEffect(() => {
+        setLoading(false);
+    }, [relationship])
+    console.log(props, relationship, loading, initialRelationship)
     // Send notification data
     const sendNotification = (notification_type) => {
         var notification_data = {
@@ -149,33 +152,7 @@ const FriendStatus = ({...props}) => {
         }
         </View>
         {/* If no relationship, user can request as friend */}
-        { !relationship && <View>
-            {initialRelationship === 'none' &&
-            <TouchableOpacity style={AppStyles.friendStatusButton} onPress={() => friendStatusUpdate('Add')}>
-                <Text style={AppStyles.friendStatusText}>Add Friend</Text>
-            </TouchableOpacity> }
-            {/* If second user has requested friendship of current user, current user can accept or decline */}
-            {initialRelationship === 'pending' &&
-            <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-            <TouchableOpacity style={AppStyles.friendStatusButton} onPress={() => friendStatusUpdate('Accept')}>
-                <Text style={AppStyles.friendStatusText}>Accept</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={AppStyles.friendStatusButton} onPress={() => friendStatusUpdate('Decline')}>
-                <Text style={AppStyles.friendStatusText}>Decline</Text>
-            </TouchableOpacity> 
-            {/* If current user has already requested friendship, the user can take no further action */}
-            </View> }
-            {initialRelationship === 'requested' &&
-            <TouchableOpacity style={AppStyles.friendStatusButton} >
-                <Text style={AppStyles.friendStatusText}>Requested</Text>
-            </TouchableOpacity> }
-            {/* If users are currently friends, current user can opt to remove/end friendship */}
-            {initialRelationship === 'friends' &&
-            <TouchableOpacity style={AppStyles.friendStatusButton} onPress={() => friendStatusUpdate('Remove')}>
-                <Text style={AppStyles.friendStatusText}>Remove Friend</Text>
-            </TouchableOpacity> }
-        </View> }
-        { relationship && <View>
+            { !loading && <View> 
             {relationship === 'none' &&
             <TouchableOpacity style={AppStyles.friendStatusButton} onPress={() => friendStatusUpdate('Add')}>
                 <Text style={AppStyles.friendStatusText}>Add Friend</Text>
@@ -189,8 +166,9 @@ const FriendStatus = ({...props}) => {
             <TouchableOpacity style={AppStyles.friendStatusButton} onPress={() => friendStatusUpdate('Decline')}>
                 <Text style={AppStyles.friendStatusText}>Decline</Text>
             </TouchableOpacity> 
-            {/* If current user has already requested friendship, the user can take no further action */}
+            
             </View> }
+            {/* If current user has already requested friendship, the user can take no further action */}
             {relationship === 'requested' &&
             <TouchableOpacity style={AppStyles.friendStatusButton} >
                 <Text style={AppStyles.friendStatusText}>Requested</Text>
@@ -200,8 +178,9 @@ const FriendStatus = ({...props}) => {
             <TouchableOpacity style={AppStyles.friendStatusButton} onPress={() => friendStatusUpdate('Remove')}>
                 <Text style={AppStyles.friendStatusText}>Remove Friend</Text>
             </TouchableOpacity> }
-        </View> }
-    </View>
+            </View>}
+            { loading && <ActivityIndicator size="large" color="#0000ff" /> }
+        </View>
   )
 }
 
