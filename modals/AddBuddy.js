@@ -134,7 +134,7 @@ const AddBuddyModal =  (({ navigation, ...props }) => {
                             display_name: user.data().display_name,
                             image_url: user.data().image_200_url,
                             image: user.data().image,
-                            created_at: user.data().created_at,
+                            created_at: user.data().createdAt,
                             loading: true,
                             added_to_dive: false,
                         }
