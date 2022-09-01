@@ -171,7 +171,7 @@ const FriendScreen = ( { route, navigation }) => {
   };
   return (
     <>
-      
+      { relationship == 'friends' ?
       <FlatList
         ListHeaderComponent={<View>
           <UserDetails
@@ -195,7 +195,17 @@ const FriendScreen = ( { route, navigation }) => {
             /> 
         )}
         keyExtractor={item => item.id}
-    />
+    /> : <View style={{flex: 1}}>
+          <UserDetails
+            displayName={userDisplayName}
+            profilePic={userProfilePictureURL}
+          />
+          <FriendStatus
+            relationship={relationship}
+            friendId={userId}
+            loading={true}
+          />
+        </View> }
     </>
   )
 }

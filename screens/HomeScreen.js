@@ -83,6 +83,7 @@ const wait = (timeout) => {
 
   // Load notification count
   useEffect(() => {
+    setFriends([auth.currentUser.uid]);
     loadFriends();
     setNotifications({count: 0})
     lastViewedNotification();
@@ -182,7 +183,7 @@ useEffect(() => {
         <View style={AppStyles.loginButtonContainer}>
             { dives.length == 0 && <Text style={AppStyles.loginButtonOutlineText}>Welcome to Octos Log Book</Text> }
             { dives.length == 0 && <TouchableOpacity
-                            onPress={navigation.navigate('Add Dive')}
+                            // onPress={navigation.navigate('Add Dive')}
                             style={[AppStyles.buttonBlue, AppStyles.buttonBlueLarge]}
                         >
                             <Text style={AppStyles.buttonText}>Log A Dive</Text>
