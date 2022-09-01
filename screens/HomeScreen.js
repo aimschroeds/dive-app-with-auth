@@ -24,18 +24,19 @@ import DiveShort from '../components/DiveShort';
 
     // Show notifications button in header
     useLayoutEffect(() => {
-        navigation.setOptions({
+        const unsubscribe = navigation.setOptions({
             headerRight: () => (
             <TouchableOpacity
                 onPress={showNotifications}
                 style={AppStyles.headerButton}
                 >
                 { notifications.count > 1 && <Icon name="notifications-button" height='20' width='20' color="#413FEB" /> }
-                { notifications.count > 1 && <Text>{notifications.count}</Text> }
+                {/* { notifications.count > 1 && <Text style={{backgroundColor: '#413FEB', color: 'white'}}>{notifications.count}</Text> } */}
                 { notifications.count == 0 && <Icon name="notifications-bell-button" height='20' width='20' color="#413FEB" /> }
             </TouchableOpacity>
             ),
         })
+        return unsubscribe;
     }, [navigation])
 
     // Handle user hitting notifications button
@@ -45,7 +46,6 @@ import DiveShort from '../components/DiveShort';
 
   // Load user's dives
   useEffect(() => {
-    
         const unsubscribe = db
         .collection('dives')
         .where('userId', 'in', friends)
@@ -58,8 +58,13 @@ import DiveShort from '../components/DiveShort';
             )
         );
         return unsubscribe;    
-    
   }, [loading]);
+
+  // Load notification count
+  useEffect(() => {
+    setNotifications({count: 0})
+    loadNotifications();
+}, [loading]);
 
     // Reference to relationships of current user db in firebase
     var friendsRef = db.collection("friends").doc(auth.currentUser.uid).collection("relationships");
@@ -98,11 +103,7 @@ import DiveShort from '../components/DiveShort';
         usersRef.doc(auth.currentUser.uid).get().then((doc) => {
             if (doc.exists) 
             {
-                doc.data().last_viewed_notification ? setLastViewed(doc.data().last_viewed_notification) : setLastViewed(new Date())
-            }
-            else 
-            {
-                setLastViewed(new Date())
+                setLastViewed(doc.data().last_viewed_notification)
             }
         })
         .catch((error) => {
@@ -124,7 +125,8 @@ import DiveShort from '../components/DiveShort';
         .get(getOptions)
         .then((querySnapshot) => {
             querySnapshot.forEach((doc) => {
-                if (doc.data().createdAt > lastViewed) {
+                console.log(doc.data().createdAt.toDate())
+                if ((doc.data().createdAt.toDate()) < (lastViewed.toDate())) {
                     setNotifications({count: notifications.count + 1})
                 }
             })
@@ -135,6 +137,7 @@ import DiveShort from '../components/DiveShort';
     }
 
    return (
+    <View>
     <FlatList
         data={dives}
         renderItem={({item, index}) => (
@@ -148,7 +151,15 @@ import DiveShort from '../components/DiveShort';
         )}
         keyExtractor={item => item.id}
     />
-     
+    { dives.length == 0 && <Text style={AppStyles.loginButtonOutlineText}>Welcome to Octos Log Book</Text> }
+    { dives.length == 0 && <TouchableOpacity
+                    // onPress={navigation.navigate('Add Dive')}
+                    style={[AppStyles.buttonBlue, AppStyles.buttonBlueLarge]}
+                >
+                    <Text style={AppStyles.buttonText}>Log A Dive</Text>
+                </TouchableOpacity>
+    }
+    </View>
    )
  }
  
