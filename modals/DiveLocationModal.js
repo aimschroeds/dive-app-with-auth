@@ -1,4 +1,4 @@
-import { Modal, Pressable, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Modal, Pressable, Text, TouchableOpacity, View } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { useIsFocused } from '@react-navigation/native';
 
@@ -26,7 +26,8 @@ const DiveLocationModal = (({ navigation, ...props }) => {
     const [loading, setLoading] = useState(true)
     const [markersLoading, setMarkersLoading] = useState(true)
     const [location, setLocation] = useState(null)
-    const [userLoc, setUserLoc] = useState(null)
+    const [userLoc, setUserLoc] = useState(null);
+    const [coords, setCoords] = useState({latitude: null, longitude: null});
     const [errorMessage, setErrorMessage] = useState(null)
     const inFocus = useIsFocused();
     const [newDiveLocationModalVisible, setNewDiveLocationModalVisible] = useState(false)
@@ -43,9 +44,10 @@ const DiveLocationModal = (({ navigation, ...props }) => {
 
     // If user returns to this screen, reload data
     if (props.selectedLocation?.name && loading) {
-        let loc = props.selectedLocation
+        let loc = props.selectedLocation;
         setLocation(loc);
-        setLoading(false)
+        setLoading(false);
+        setCoords(loc.coords);
     }
 
 
@@ -56,13 +58,15 @@ const DiveLocationModal = (({ navigation, ...props }) => {
           let { status } = await Location.requestForegroundPermissionsAsync();
           if (status !== 'granted') {
               setErrorMessage('Permission to access location was denied');
+              setCoords({latitude: 51.5229, longitude: 0.1308});
               return;
           }
 
           // Permission granted
           // Get user location to use as default position on map
-          let location = await Location.getCurrentPositionAsync({});
-          setUserLoc(location);
+          let user_location = await Location.getCurrentPositionAsync({});
+          setUserLoc(user_location);
+          setCoords(user_location.coords);
       })();
   }, []);
 
@@ -74,6 +78,7 @@ const DiveLocationModal = (({ navigation, ...props }) => {
     // Return dive location data to previous screen
     const onLocationSelect = (location) => {
         setLocation(location);
+        setCoords(location.coords);
         props.onSelect(location);
         goBack();
     }
@@ -127,11 +132,14 @@ const DiveLocationModal = (({ navigation, ...props }) => {
                 <Text style={[AppStyles.plusButtonText, AppStyles.marginVert]}> Back </Text>
             </Pressable>
             {/* Load map with initial position set to user location if available */}
+            {/* If coords are set, show Map */}
+            {/* Otherwise show 'Map Loading' */}
+            { coords?.latitude ? 
             <MapView
                 style={[AppStyles.map]}
                 initialRegion={{
-                latitude: location ? location.latitude : userLoc ? userLoc.coords.latitude : 37.78825,
-                longitude: location ? location.longitude : userLoc ? userLoc.coords.longitude : -122.4324,
+                latitude: coords.latitude,
+                longitude: coords.longitude,
                 latitudeDelta: 0.4822,
                 longitudeDelta: 0.3221,
                 }}
@@ -145,10 +153,13 @@ const DiveLocationModal = (({ navigation, ...props }) => {
                     onCalloutPress={() => onLocationSelect(loc)}
                     />
                 ))}
-            </MapView>
+            </MapView> :   <View style={[AppStyles.mapSetMarker]}>
+              <ActivityIndicator size="large" color="#0000ff" style={{marginTop: '50%'}}/>
+              <Text style={{alignSelf: 'center', marginVertical: 25}} >Map Loading...</Text>
+            </View> }
             {/* Button to open modal for adding new dive site (not yet on map) */}
             <View style={[AppStyles.container, AppStyles.mapViewContainer]}>
-                <Text style={{color: '#413FEB', paddingVertical: 20, paddingHorizontal: 10, backgroundColor: 'white'}}>Dive Site Not On The Map?</Text>
+                <Text style={{color: '#413FEB', paddingVertical: 12, height: 40, paddingHorizontal: 10, backgroundColor: 'white'}}>Dive Site Not On The Map?</Text>
                 <TouchableOpacity style={[AppStyles.buttonBlue, AppStyles.section]} onPress={()=>setNewDiveLocationModalVisible(true)}>
                     <Icon name="searching-location-gps-indicator" height='20' width='20' color="white"/>
                     <Text style={AppStyles.locationButtonText}>Add Location</Text>

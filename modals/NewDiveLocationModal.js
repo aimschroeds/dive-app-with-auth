@@ -72,7 +72,7 @@ const NewDiveLocationModal = (({ navigation, ...props }) => {
             if (status !== 'granted') {
                 setErrorMessage('Permission to access location was denied');
                 // Use default set of coordinates
-                setCoords({latitude: -33.9188, longitude: 18.4233});
+                setCoords({latitude: 51.5229, longitude: 0.1308});
                 return;
             }
 
@@ -201,12 +201,12 @@ const NewDiveLocationModal = (({ navigation, ...props }) => {
                 {/* While address is loading, show "Add" button as disabled */}
                 {/* Otherwise show 'Add' button */}
                 { addressLoading ? 
-                <TouchableOpacity disabled style={[AppStyles.buttonBlue, AppStyles.section, AppStyles.buttonBlueSmall]} onPress={addLocation}>    
+                <TouchableOpacity disabled style={[AppStyles.buttonBlue, AppStyles.section, AppStyles.buttonBlueSmall, {marginTop: 18}]} onPress={addLocation}>    
                     <ActivityIndicator size="small" color="#00ff00" />
                     <Text style={AppStyles.locationButtonText}>Add</Text>
                 </TouchableOpacity>
                 : 
-                <TouchableOpacity style={[AppStyles.buttonBlue, AppStyles.section, AppStyles.buttonBlueSmall]} onPress={addLocation}>    
+                <TouchableOpacity style={[AppStyles.buttonBlue, AppStyles.section, AppStyles.buttonBlueSmall, {marginTop: 18}]} onPress={addLocation}>    
                     <Icon name="searching-location-gps-indicator" height='20' width='20' color="white"/>
                     <Text style={AppStyles.locationButtonText}>Add</Text>
                 </TouchableOpacity> }
