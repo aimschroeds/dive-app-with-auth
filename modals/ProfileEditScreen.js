@@ -262,7 +262,7 @@ const ProfileEditScreen = ( { navigation }) => {
                 { !userProfilePictureURL &&  <Icon name='round-account-button-with-user-inside' width='100' height='100' color='gray' style={[AppStyles.profilePic]} /> }
                 {/* Upload button to trigger image picker */}
                 <TouchableOpacity style={{zIndex: 30, position: 'absolute', top: 30, left: 45}}  onPress={openImagePickerAsync}>
-                    { imageLoading && <ActivityIndicator size="small" color="#FBDA76" /> }
+                    { imageLoading && <ActivityIndicator size={40} color="#FBDA76" /> }
                     { !imageLoading && <Icon name='create-new-pencil-button' width='40' height='40' color='white' background={{type: 'circle', color: '#FBDA76'}} /> }
                 </TouchableOpacity>   
                {/* Input for setting username */}

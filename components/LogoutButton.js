@@ -20,7 +20,7 @@ const handleLogOut = () => {
     .catch(error => setErrorMessage(error.message))
 }
   return (
-    <View style={{alignItems: 'flex-end', marginTop: -70}}>
+    <View style={{alignItems: 'center', marginTop: -55}}>
       {/* Log out button */}
         <TouchableOpacity
             onPress={handleLogOut}
