@@ -8,7 +8,6 @@ import { db, auth } from '../firebase';
 import MapView from 'react-native-maps';
 import { Marker } from 'react-native-maps';
 
-import DiveMasterSelection from '../modals/DiveMasterSelection';
 import DiveLocationModal from '../modals/DiveLocationModal';
 import AddBuddyModal from '../modals/AddBuddy';
 import MultiImageUploader from '../modals/MultiImageUploader';
@@ -103,6 +102,8 @@ const AddDiveScreen = ( {navigation }) => {
     const onChangeStart = (event, selectedTime) => {
         const currentSelectedTime = selectedTime;
         setDiveStart(currentSelectedTime);
+        // End time updated to be same as start time to reduce hassle
+        setDiveEnd(currentSelectedTime);
     };
 
 
@@ -216,7 +217,7 @@ const AddDiveScreen = ( {navigation }) => {
           createdAt: new Date(),
         }
         if (dive && validateDive(dive)) {
-          console.log('dive is valid')
+          console.log('dive is valid', dive)
               db.collection("dives").add(dive)
               .then((docRef) => {
                   console.log("Document written with ID: ", docRef.id);
