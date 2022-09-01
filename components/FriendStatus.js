@@ -12,19 +12,24 @@ const FriendStatus = ({...props}) => {
     const inFocus = useIsFocused();
     const [errorMessage, setErrorMessage] = useState(null);
     const [successMessage, setSuccessMessage] = useState(null);
-    const [loading, setLoading] = useState(props.loading);
+    const [loading, setLoading] = useState(true);
     
     useEffect(() => {
-        if (inFocus && loading) {
-            setRelationship(initialRelationship);
-            // setLoading(true);
+        if (inFocus) {
+            console.log('in focus')
+            setLoading(true);
         }
-    }, [inFocus, loading])
+    }, [inFocus, initialRelationship])
 
-    useEffect(() => {
+    if (loading)
+    {
+        setRelationship(initialRelationship);
         setLoading(false);
-    }, [relationship])
-    console.log(props, relationship, loading, initialRelationship)
+    }
+    // useEffect(() => {
+    //     setLoading(false);
+    // }, [relationship])
+    console.log(props, relationship, loading, initialRelationship, auth.currentUser.uid)
     // Send notification data
     const sendNotification = (notification_type) => {
         var notification_data = {
@@ -47,12 +52,15 @@ const FriendStatus = ({...props}) => {
 
     // Update friend status
     const friendStatusUpdate = (action) => {
+        console.log('action', action)
         if (action === 'Add' || action === 'Accept') 
         {
+            console.log('add or accept')
             addFriend(action)
         }
         else if (action === 'Decline' || action === 'Remove') 
         {
+            console.log('decline or remove')
             removeFriend()
         }
     }
@@ -101,7 +109,7 @@ const FriendStatus = ({...props}) => {
       }
       else if (action === 'Accept') 
       {
-          setRelationship('accepted')
+          setRelationship('friends')
           var currentUserStatus = {
               status: 'friends',
               createdAt: new Date(),
@@ -160,13 +168,12 @@ const FriendStatus = ({...props}) => {
             {/* If second user has requested friendship of current user, current user can accept or decline */}
             {relationship === 'pending' &&
             <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-            <TouchableOpacity style={AppStyles.friendStatusButton} onPress={() => friendStatusUpdate('Accept')}>
-                <Text style={AppStyles.friendStatusText}>Accept</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={AppStyles.friendStatusButton} onPress={() => friendStatusUpdate('Decline')}>
-                <Text style={AppStyles.friendStatusText}>Decline</Text>
-            </TouchableOpacity> 
-            
+                <TouchableOpacity style={AppStyles.friendStatusButton} onPress={() => friendStatusUpdate('Accept')}>
+                    <Text style={AppStyles.friendStatusText}>Accept</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={AppStyles.friendStatusButton} onPress={() => friendStatusUpdate('Decline')}>
+                    <Text style={AppStyles.friendStatusText}>Decline</Text>
+                </TouchableOpacity> 
             </View> }
             {/* If current user has already requested friendship, the user can take no further action */}
             {relationship === 'requested' &&
@@ -179,7 +186,7 @@ const FriendStatus = ({...props}) => {
                 <Text style={AppStyles.friendStatusText}>Remove Friend</Text>
             </TouchableOpacity> }
             </View>}
-            { loading && <ActivityIndicator size="large" color="#0000ff" /> }
+            { loading && <ActivityIndicator size="large" color="black" /> }
         </View>
   )
 }
