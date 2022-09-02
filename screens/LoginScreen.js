@@ -25,7 +25,7 @@ const LoginScreen = () => {
         .then(userCredentials => {
             const user = userCredentials.user
             console.log('Logged in: ', user.email);
-            navigation.navigate('Core', {name: 'Home'});
+            navigation.navigate('CoreTabs', {name: 'Home'});
         })
         .catch(error => setErrorMessage(error.message))
     }
@@ -33,7 +33,7 @@ const LoginScreen = () => {
     useEffect (() => {
         const unsubscribe = auth.onAuthStateChanged(user => {
             if (user) {
-                navigation.navigate('Home')
+                navigation.navigate('CoreTabs', {name: 'Home'});
             }
         })
         return unsubscribe

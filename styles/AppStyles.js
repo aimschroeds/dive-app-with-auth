@@ -369,6 +369,13 @@ export default StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  homeContainer: {
+    // flex: 1,
+    // justifyContent: 'center',
+    alignContent: 'center',
+    alignItems: 'center',
+    marginVertical: 100,
+  },
   loginInputContainer: {
       width: '80%',
   },
@@ -409,6 +416,11 @@ export default StyleSheet.create({
       marginVertical: 10,
       width: '100%',
   },
+  homeWelcomeText: {
+    color: 'black',
+    fontSize: 16,
+    marginVertical: 30,
+},
   marginVert: {
     // marginVertical: 5,
     paddingVertical: 15,

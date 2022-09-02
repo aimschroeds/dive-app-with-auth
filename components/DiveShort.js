@@ -16,7 +16,7 @@ const DiveShort = ({...props}) => {
     const [dive, setDive] = useState(null);
     const [diveDate, setDiveDate] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [user, setUser] = useState(null);
+    const [diver, setDiver] = useState(null);
     const [diveTime, setDiveTime] = useState(null);
     const [userProfilePicture, setUserProfilePicture] = useState(null);
     const [diveSite, setDiveSite] = useState(null);
@@ -64,7 +64,7 @@ const DiveShort = ({...props}) => {
                 // Set user
                 userRef.get().then((userDoc) => {
                     if (userDoc.exists) {
-                        setUser(userDoc.data());
+                        setDiver(userDoc.data());
                         // Get user profile picture
                         var profilePictureRef = storage.ref().child(userDoc.id + '/' + userDoc.data().image);
                         profilePictureRef.getDownloadURL().then((url) => {
@@ -118,9 +118,12 @@ const DiveShort = ({...props}) => {
                         // <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
                           <View style={{flexDirection: 'row', justifyContent: 'space-between'}} onPress={viewFriend}>
                             <View style={[AppStyles.cell25View,{justifyContent: 'flex-start'}]}>
-                                    { !loading && userProfilePicture && dive?.userId ? <Image source={{uri: userProfilePicture,}} style={dive.userId === authUser ? AppStyles.profilePicSmallBorder : AppStyles.profilePicSmall}/> :
+                                {/* If no profile picture set, loading indicator persists TODO */}
+                                    { !loading && userProfilePicture && dive?.userId && <Image source={{uri: userProfilePicture,}} style={dive.userId === authUser ? AppStyles.profilePicSmallBorder : AppStyles.profilePicSmall}/> }
+                                    { !loading && !userProfilePicture && dive?.userId && <Icon name='round-account-button-with-user-inside' width='50' height='50' color='gray' />  }
+                                    { loading && dive?.userId &&
                                     <ActivityIndicator size="large" color="#0000ff" />}
-                                    <Text style={AppStyles.cellPrimaryText}>{user ? user.display_name : 'Loading...'}</Text>
+                                    <Text style={AppStyles.cellPrimaryText}>{diver ? diver.display_name : 'Loading...'}</Text>
                                     
                             </View>
                             <View style={[AppStyles.cell70View, {justifyContent: 'center', flexDirection: 'column', alignItems: 'flex-end'}]}>
@@ -201,6 +204,10 @@ const DiveShort = ({...props}) => {
                                     latitudeDelta: 0.0922,
                                     longitudeDelta: 0.0421,
                                     }}
+                                    scrollEnabled={false}
+                                    zoomEnabled={false}
+                                    pitchEnabled={false}
+                                    rotateEnabled={false}
                                 >
                                     {/* Pin showing dive location */}
                                     <Marker

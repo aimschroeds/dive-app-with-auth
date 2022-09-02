@@ -1,5 +1,5 @@
 import { ActivityIndicator, FlatList, Image, Text, TouchableOpacity, View } from 'react-native'
-import React, { useState, useLayoutEffect, useEffect } from 'react';
+import React, { useState, useRef, useLayoutEffect, useEffect } from 'react';
 import { db, auth, storage } from '../firebase';
 import { useIsFocused } from '@react-navigation/native';
 
@@ -30,12 +30,22 @@ const FriendScreen = ( { route, navigation }) => {
     const [imageLoading, setImageLoading] = useState(true)
     const inFocus = useIsFocused();
     const [dives, setDives] = useState([]);
+    const scrollRef = useRef();
 
+    // https://stackoverflow.com/questions/31883211/scroll-to-top-of-scrollview
+    // Scroll to top of screen
+    const goToTop = () => {
+      scrollRef.current?.scrollTo({
+        y: 0,
+        animated: true,
+      });
+    }
     // When user returns to screen, reload data
     useEffect(() => {
       // setLoading(true);
       if (inFocus) {
           setLoading(true);
+          goToTop();
       }
   }, [inFocus]);
 

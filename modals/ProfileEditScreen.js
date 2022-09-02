@@ -131,15 +131,25 @@ const ProfileEditScreen = ( { navigation }) => {
     // Update user data
     let updateUserDataPublic = async () => {
         // Save 200x200 image as user profile picture
-        let image_200 = get200ImageRef(userProfilePicture)
-        let image_200_url = get200ImageUrl(userProfilePictureURL)
-        let data = {
+        let data = {};
+        if (userProfilePicture && userProfilePictureURL) {
+          let image_200 = get200ImageRef(userProfilePicture)
+          let image_200_url = get200ImageUrl(userProfilePictureURL)
+          data = {
             display_name: userName,
             image_ref: userProfilePictureURL,
             image: image_200,
             image_200_url: image_200_url,
             searchable: userSearchEnabled,
             createdAt: new Date(),
+          }
+        }
+        else {
+          data = {
+            display_name: userName,
+            searchable: userSearchEnabled,
+            createdAt: new Date(),
+          }
         }
         // Merge new user data with existing
         db.collection("users").doc(auth.currentUser.uid).set(data, { merge: true })
@@ -171,7 +181,9 @@ const ProfileEditScreen = ( { navigation }) => {
                 setScreenLoading(false)
             } else {
                 // doc.data() will be undefined in this case
-                console.log("No such document!");
+                setUserName('')
+                setUserProfilePictureURL('')
+                console.log("No such document! (Public data)");
                 setScreenLoading(false)
             }
         })

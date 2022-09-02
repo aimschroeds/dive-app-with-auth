@@ -247,6 +247,7 @@ const AddBuddyModal =  (({ navigation, ...props }) => {
             </View>
             )}
         />
+        { friends.length == 0 && <Text style={{ fontSize: 22, textAlign: 'center', marginTop: 20 }}>No friends found</Text> }
         { loading && <View
             style={{
                 paddingVertical: 20,

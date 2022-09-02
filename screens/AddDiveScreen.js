@@ -18,6 +18,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import Icon from 'react-native-ico-material-design';
 import AppStyles from '../styles/AppStyles';
 
+import { useIsFocused } from '@react-navigation/native';
+
 
 // Configure wait to prevent reloading page too often
 const wait = (timeout) => {
@@ -55,9 +57,6 @@ const AddDiveScreen = ( {navigation }) => {
   const [diveLocationModalVisible, setDiveLocationModalVisible] = useState(false);
   const [diveBuddyModalVisible, setDiveBuddyModalVisible] = useState(false);
 
-  // Constants for managing user status
-  const [userNotVerified, setUserNotVerified] = useState(!auth.currentUser.emailVerified);
-
   // Constants for managing messaging to user
   const [errorMessage, setErrorMessage] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
@@ -65,6 +64,7 @@ const AddDiveScreen = ( {navigation }) => {
 
   // Constants managing state of screen
   const [refreshing, setRefreshing] = useState(false);
+  const inFocus = useIsFocused();
 
   // Cancel button; when hit returns user to home
     const cancelAddDive = () => {
@@ -81,6 +81,8 @@ const AddDiveScreen = ( {navigation }) => {
             ),
         })
     }, [navigation])
+
+    
     
     // https://reactnative.dev/docs/refreshcontrol
     // Enables user to be able to reload screen every 2000 ms
@@ -90,13 +92,17 @@ const AddDiveScreen = ( {navigation }) => {
     }, []);
 
     // https://stackoverflow.com/questions/31883211/scroll-to-top-of-scrollview
-    // Scroll to top of screen if error message is set
+    // Scroll to top of screen
     const goToTop = () => {
       scrollRef.current?.scrollTo({
         y: 0,
         animated: true,
       });
     }
+
+    useEffect(() => {
+      goToTop();
+    }, [inFocus]);
 
     // Set dive start time
     const onChangeStart = (event, selectedTime) => {
@@ -112,19 +118,6 @@ const AddDiveScreen = ( {navigation }) => {
         const currentSelectedDate = selectedDate;
         setDiveEnd(currentSelectedDate);
     };
-
-
-    // Send user verification email 
-    // Prevent users from adding dives if not verified user (prevent spam)
-    const sendVerificationEmail = () => {
-        auth.currentUser.sendEmailVerification()
-        .then(() => {
-            setSuccessMessage('Verification email sent!')
-        })
-        .catch(error => {
-            setErrorMessage(error.message)
-        })
-    }
     
     useEffect(() => {
       if (errorMessage)
@@ -189,7 +182,6 @@ const AddDiveScreen = ( {navigation }) => {
 
   // Add dive to "dives" collection in Firebase
     let addDive = async () => {
-      console.log('add dive called')
       setErrorMessage('');
         let dive = {
           diveSite: diveLocation.id,
@@ -239,7 +231,7 @@ const AddDiveScreen = ( {navigation }) => {
                   setSaltwater(true);
                   setEntry('');
                   setNotes('');
-                  setImages([]);
+                  setImages(null);
                   navigation.navigate('Home')
                 })
                 .catch(error => {
@@ -250,20 +242,21 @@ const AddDiveScreen = ( {navigation }) => {
 
   return (
     <SafeAreaView style={{backgroundColor: 'white'}}>  
-        <ScrollView style={{height:"100%"}} 
-          ref={scrollRef}
-          refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={onRefresh}
-              />
+        <KeyboardAvoidingView
+            // style={AppStyles.loginContainer}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={{marginHorizontal: 20}}
+            keyboardVerticalOffset={100}
+        >
+              <ScrollView
+                ref={scrollRef}
+                refreshControl={
+                    <RefreshControl
+                      refreshing={refreshing}
+                      onRefresh={onRefresh}
+                    />
           }
         >
-            <KeyboardAvoidingView
-                // style={AppStyles.loginContainer}
-                behavior="padding"
-                style={{marginHorizontal: 20}}
-            >
               {/* If dive location is set, show map with pin on dive site */}
               { diveLocation?.name && <MapView
                   style={[AppStyles.smallMap]}
@@ -282,16 +275,6 @@ const AddDiveScreen = ( {navigation }) => {
                       title={diveLocation.name}
                   />
               </MapView> }
-              {/* Unverified users receive prompt to verify their email address */}
-              { userNotVerified && 
-                  <Text style={AppStyles.errorMessage}>To Log A Dive, Please Verify Your Email</Text>
-              }
-              { userNotVerified && 
-                  <TouchableOpacity style={[AppStyles.buttonBlue, AppStyles.buttonBlueLarge]} 
-                        onPress={sendVerificationEmail}>
-                      <Text style={AppStyles.loginButtonText}>Send Verification Email</Text>
-                  </TouchableOpacity> 
-              }
               {/* Surface success/error messaging */}
               { successMessage && 
                   <Text style={AppStyles.successMessage}>{successMessage}</Text>
@@ -362,6 +345,9 @@ const AddDiveScreen = ( {navigation }) => {
                                 style={AppStyles.diverProfileBodyInput} 
                                 onChangeText={setSurfaceInterval}
                                 value={surfaceInterval}
+                                returnKeyType="next"
+                                keyboardType='numeric'
+                                onSubmitEditing={() => {}}
                               />
                               <Text style={AppStyles.diverProfileBodyMeasure}>minutes</Text>
                           </View>
@@ -377,6 +363,8 @@ const AddDiveScreen = ( {navigation }) => {
                                       onChangeText={setStartPressure}
                                       value={startPressure}
                                       placeholder="200"
+                                      returnKeyType="next"
+                                      keyboardType='numeric'
                                     />
                                     <Text style={AppStyles.diverProfileBodyMeasure}>bar</Text>
                                   </View>
@@ -394,6 +382,8 @@ const AddDiveScreen = ( {navigation }) => {
                                         onChangeText={setEndPressure}
                                         value={endPressure}
                                         placeholder="50"
+                                        returnKeyType="next"
+                                        keyboardType='numeric'
                                       />
                                       <Text style={AppStyles.diverProfileBodyMeasure}>bar</Text>
                                   </View>
@@ -415,6 +405,8 @@ const AddDiveScreen = ( {navigation }) => {
                               onChangeText={setMaxDepth}
                               value={maxDepth}
                               placeholder="0"
+                              returnKeyType="next"
+                              keyboardType='numeric'
                             />
                             <Text style={AppStyles.diverProfileBodyMeasure}>m</Text>
                         </View>
@@ -540,6 +532,7 @@ const AddDiveScreen = ( {navigation }) => {
                                 minimumValue={-20} 
                                 step={1} 
                                 value={temperature} 
+                                onValueChange={(value)=>setTemperature(value)} 
                                 onSlidingComplete={(value)=>setTemperature(value)} 
                                 minimumTrackTintColor="#413FEB"
                                 maximumTrackTintColor="#413FEB"
@@ -688,8 +681,9 @@ const AddDiveScreen = ( {navigation }) => {
                           style={{height: 100, borderColor: 'gray', borderWidth: 1, borderRadius: 5, paddingHorizontal: 10, paddingVertical: 15}}
                           onChangeText={text => setNotes(text)}
                           value={notes}
-                          multiline={true}
+                          // multiline={true}
                           numberOfLines={4}
+                          returnKeyType="done"
                         />
                       </View>
                     }
@@ -720,12 +714,12 @@ const AddDiveScreen = ( {navigation }) => {
             {/* Add Dive Button --> Submits dive to database */}
             <TouchableOpacity 
                 style={[AppStyles.buttonBlue, AppStyles.buttonBlueLarge, {marginBottom: 50}]} 
-                onPress={addDive} 
-                disable={userNotVerified ? true : false}>
+                onPress={addDive} >
                 <Text style={AppStyles.buttonText}>Log Dive</Text>
             </TouchableOpacity>
+            </ScrollView>   
           </KeyboardAvoidingView>
-      </ScrollView>    
+       
   </SafeAreaView> 
   )
 }

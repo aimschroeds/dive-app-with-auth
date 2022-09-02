@@ -20,7 +20,7 @@ const RegistrationScreen = ( { navigation }) => {
     useEffect (() => {
         const unsubscribe = auth.onAuthStateChanged(user => {
             if (user) {
-                navigation.navigate('Home')
+                navigation.navigate('CoreTabs', { screen: 'Home' })
             }
         })
         return unsubscribe

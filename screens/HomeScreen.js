@@ -1,5 +1,6 @@
-import { FlatList, Text, TouchableOpacity, View } from 'react-native'
+import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native'
 import React, { useLayoutEffect, useState, useEffect } from 'react'
+import { useIsFocused } from '@react-navigation/native';
 
 import { auth, db } from '../firebase';
 
@@ -23,14 +24,31 @@ const wait = (timeout) => {
 
  const HomeScreen = ({ navigation }) => {
     const [dives, setDives] = useState([]);
-    const userId = auth.currentUser.uid;
-    const [friends, setFriends] = useState([auth.currentUser.uid]);
+    // const userId = auth.currentUser.uid;
+    const [friends, setFriends] = useState([]);
     const [loadingFriends, setLoadingFriends] = useState(true);
     const [loading, setLoading] = useState(true);
     const [lastViewed, setLastViewed] = useState(null);
     const [notifications, setNotifications] = useState({count: 0})
     // Constants managing state of screen
     const [refreshing, setRefreshing] = useState(false);
+    const inFocus = useIsFocused();
+    // TODO Hou ou foto
+    // Adding image spinner wrong position
+
+    useEffect(() => {
+      const subscriber = auth.onAuthStateChanged((user) => {
+        if (user) {
+            console.log('user logged in', user.uid)
+            setFriends([user.uid]);
+        }
+        else 
+        {
+            navigation.navigate('Login');
+        }
+      });
+      return subscriber; // unsubscribe on unmount
+    }, []);
 
     // Show notifications button in header
     useLayoutEffect(() => {
@@ -83,23 +101,23 @@ const wait = (timeout) => {
 
   // Load notification count
   useEffect(() => {
-    setFriends([auth.currentUser.uid]);
     loadFriends();
     setNotifications({count: 0})
     lastViewedNotification();
-}, [loading]);
+}, [loading, refreshing, inFocus]);
 
 useEffect(() => {
     loadNotifications();
 }, [lastViewed]);
 
-    // Reference to relationships of current user db in firebase
-    var friendsRef = db.collection("friends").doc(auth.currentUser.uid).collection("relationships");
-
+    
     /**
      * Load friends from friendsRef
      */
     let loadFriends = async () => {
+        // Reference to relationships of current user db in firebase
+    var friendsRef = db.collection("friends").doc(auth.currentUser.uid).collection("relationships");
+
         setLoadingFriends(true);
         var getOptions = {
             source: 'default'
@@ -180,16 +198,16 @@ useEffect(() => {
         onRefresh={onRefresh}
         refreshing={refreshing}
     />
-        <View style={AppStyles.loginButtonContainer}>
-            { dives.length == 0 && <Text style={AppStyles.loginButtonOutlineText}>Welcome to Octos Log Book</Text> }
-            { dives.length == 0 && <TouchableOpacity
-                            // onPress={navigation.navigate('Add Dive')}
+       { dives.length == 0 && <View style={[AppStyles.homeContainer]}>
+             <Image source={require('../assets/1.png')} style={{width: 200, height: 200, resizeMode: 'contain'}} />
+             <Text style={[AppStyles.homeWelcomeText]}>Welcome to Octos Log Book</Text>
+             <TouchableOpacity
+                            onPress={() => navigation.navigate('Add Dive')}
                             style={[AppStyles.buttonBlue, AppStyles.buttonBlueLarge]}
                         >
                             <Text style={AppStyles.buttonText}>Log A Dive</Text>
                         </TouchableOpacity>
-            }
-        </View>
+        </View> }
     </View>
    )
  }

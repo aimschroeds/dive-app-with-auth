@@ -1,5 +1,5 @@
 import { FlatList, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import React, { useState, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { useIsFocused } from '@react-navigation/native';
 
 import { db, auth, storage } from '../firebase';
@@ -26,6 +26,7 @@ const ProfileScreen = ( { route, navigation }) => {
     const [loading, setLoading] = useState(true)
     const inFocus = useIsFocused();
     const [dives, setDives] = useState([]);
+    const scrollRef = useRef();
 
     // Show edit button in header
     useLayoutEffect(() => {
@@ -41,15 +42,28 @@ const ProfileScreen = ( { route, navigation }) => {
         });
         return unsubscribe;
     }, [navigation])
+    
+    
+    // https://stackoverflow.com/questions/31883211/scroll-to-top-of-scrollview
+    // Scroll to top of screen
+    const goToTop = () => {
+      scrollRef.current?.scrollTo({
+        y: 0,
+        animated: true,
+      });
+    }
 
     // When user returns to screen, reload data
     useEffect(() => {
+        goToTop();
         // setLoading(true);
         if (inFocus) {
             setLoading(true);
+            
         }
     }, [inFocus]);
 
+    
     // Reference to user's data
     var docRef = db.collection("users").doc(userId);
 

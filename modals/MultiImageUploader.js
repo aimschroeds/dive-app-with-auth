@@ -23,7 +23,7 @@ const MultiImageUploader = ({...props}) => {
 
     useEffect(() => {
         if (props.selectedImages) {
-            // setImages(props.selectedImages);
+            setImages(props.selectedImages);
         }
     }, [props.selectedImages, inFocus])
 
@@ -96,7 +96,7 @@ const MultiImageUploader = ({...props}) => {
             }
             { images?.length > 0 &&
                 <TouchableOpacity style={{justifyContent: 'center'}} onPress={removeImages}>
-                    <Icon name="rubbish-bin-delete-button" size={120} color="#413FEB" style={{width: 60, height: 60, margin: 15,  borderWidth: 1, borderColor: 'white'}} />
+                    <Icon name="close-button" size={120} color="#413FEB" style={{width: 60, height: 60, margin: 15,  borderWidth: 1, borderColor: 'white'}} />
                 </TouchableOpacity>
             }
             </View>

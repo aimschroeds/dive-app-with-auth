@@ -21,7 +21,7 @@ const Tab = createBottomTabNavigator();
 function CoreTabs() {
     return (
     <Tab.Navigator
-    initialRouteName="Login"
+    initialRouteName="Home"
     screenOptions={{
         tabBarActiveTintColor: '#FBDA76',
     }}

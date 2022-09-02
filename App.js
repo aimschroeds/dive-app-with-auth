@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useNavigation } from '@react-navigation/native';
+// import { useNavigation } from '@react-navigation/native';
 import { auth } from './firebase';
+import { navigationRef } from './menu/RootNavigation';
 
 import HomeScreen from './screens/HomeScreen';
 import CoreTabs from './menu/CoreTabs';
@@ -19,33 +20,46 @@ import AddBuddyModal from './modals/AddBuddy';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+    // const navigation = useNavigation();
+    const navigationRef = useNavigationContainerRef(); 
     // Set an initializing state whilst Firebase connects
     const [initializing, setInitializing] = useState(true);
     const [user, setUser] = useState();
-    // navigation = useNavigation();
+    
+
     // Handle user state changes
-    function onAuthStateChanged(user) {
-      setUser(user);
-      if (initializing) setInitializing(false);
-    }
+    // function onAuthStateChanged(user) {
+    //     setUser(user);
+    //     if (initializing) setInitializing(false);
+      
+    // }
 
     useEffect(() => {
-      const subscriber = auth.onAuthStateChanged(onAuthStateChanged);
+      const subscriber = auth.onAuthStateChanged((_user) => {
+        if (!_user) {
+          // navigation.navigate('Login'); 
+          if (navigationRef.isReady) navigationRef.navigate('Login');
+        }
+        else {
+          setUser(_user);
+          if (initializing) setInitializing(false);
+          if (navigationRef.isReady) navigationRef.navigate('CoreTabs', { screen: 'Home' })
+        }
+      });
       return subscriber; // unsubscribe on unmount
-    }, []);
+    },[]);
 
-    if (initializing) return null;
+    // if (initializing) return null;
 
     // if (!user) {
-    //   navigation.navigate('Login');
+    //   navigation?.navigate('Login');
     // }
 
     return (
       <NavigationContainer>
         <Stack.Navigator>
           <Stack.Group>
-            { auth.currentUser && <Stack.Screen name="CoreTabs" component={CoreTabs} options={{ headerShown: false, }} /> }
-            <Stack.Screen name="Core" component={CoreTabs} options={{ headerShown: false, }}/>
+            { user && <Stack.Screen name="CoreTabs" component={CoreTabs} options={{ headerShown: false, }} /> }
             <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false, }}/>
             <Stack.Screen name="Registration" component={RegistrationScreen} options={{ headerShown: false, }}/>
             <Stack.Screen name="Reset Password" component={ResetPasswordScreen} options={{ headerShown: false, }} />
