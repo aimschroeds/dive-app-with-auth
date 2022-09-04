@@ -1,7 +1,8 @@
 {
   "expo": {
     "name": "dive-app-with-auth",
-    "slug": "dive-app-with-auth",
+    "slug": "dive-app",
+    "owner": "aimees",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 // import { useNavigation } from '@react-navigation/native';
@@ -21,7 +21,7 @@ const Stack = createNativeStackNavigator();
 
 export default function App() {
     // const navigation = useNavigation();
-    const navigationRef = useNavigationContainerRef(); 
+    const navigationRef = useRef();; 
     // Set an initializing state whilst Firebase connects
     const [initializing, setInitializing] = useState(true);
     const [user, setUser] = useState();
@@ -56,7 +56,7 @@ export default function App() {
     // }
 
     return (
-      <NavigationContainer>
+      <NavigationContainer ref={navigationRef}>
         <Stack.Navigator>
           <Stack.Group>
             { user && <Stack.Screen name="CoreTabs" component={CoreTabs} options={{ headerShown: false, }} /> }

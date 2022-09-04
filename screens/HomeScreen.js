@@ -24,7 +24,7 @@ const wait = (timeout) => {
 
  const HomeScreen = ({ navigation }) => {
     const [dives, setDives] = useState([]);
-    // const userId = auth.currentUser.uid;
+    const [userId, setUserId] = useState(null);
     const [friends, setFriends] = useState([]);
     const [loadingFriends, setLoadingFriends] = useState(true);
     const [loading, setLoading] = useState(true);
@@ -41,6 +41,7 @@ const wait = (timeout) => {
         if (user) {
             console.log('user logged in', user.uid)
             setFriends([user.uid]);
+            setUserId(user.uid);
         }
         else 
         {
@@ -101,6 +102,7 @@ const wait = (timeout) => {
 
   // Load notification count
   useEffect(() => {
+    setFriends([userId]);
     loadFriends();
     setNotifications({count: 0})
     lastViewedNotification();
